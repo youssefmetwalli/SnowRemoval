@@ -6,63 +6,61 @@ import { Button } from "../../../../components/ui/button";
 import { Card, CardContent } from "../../../../components/ui/card";
 
 const todayStats = [
-  {
-    value: "3",
-    label: "完了作業",
-  },
-  {
-    value: "2",
-    label: "進行中",
-  },
-  {
-    value: "8.5h",
-    label: "作業時間",
-  },
+  { value: "3", label: "完了作業" },
+  { value: "2", label: "進行中" },
+  { value: "8.5h", label: "作業時間" },
 ];
 
-const mainMenuItems = [
-  {
-    title: "新規作成",
-    subtitle: "今すぐ入力",
-    icon: "✦",
-    gradient: true,
-    className: "col-span-1 row-span-2",
-  },
-  {
-    title: "日報一覧",
-    subtitle: "25件",
-    icon: "📋",
-    gradient: false,
-    className: "col-span-1",
-  },
-  {
-    title: "カレンダー",
-    icon: "📅",
-    gradient: false,
-    className: "col-span-1",
-  },
-  {
-    title: "統計",
-    icon: "📊",
-    gradient: false,
-    className: "col-span-1",
-  },
-];
+type MenuTileProps = {
+  title: string;
+  subtitle?: string;
+  icon: React.ReactNode;
+  onClick?: () => void;
+  variant?: "primary" | "secondary";
+};
 
-const otherMenuItems = [
-  {
-    title: "作業員管理",
-    icon: UsersIcon,
-  },
-  {
-    title: "車両管理",
-    icon: CarIcon,
-  },
-  {
-    title: "設定",
-    icon: SettingsIcon,
-  },
-];
+const MenuTile = ({ title, subtitle, icon, onClick, variant = "secondary" }: MenuTileProps) => (
+  <Card
+    onClick={onClick}
+    className={[
+      "group cursor-pointer transition duration-200",
+      "border-slate-200 hover:shadow-lg hover:-translate-y-0.5",
+      "ring-0 hover:ring-2 hover:ring-blue-200/80",
+      variant === "primary"
+        ? "bg-gradient-to-br from-blue-500 to-blue-600 text-white"
+        : "bg-white",
+    ].join(" ")}
+  >
+    <CardContent className="flex flex-col items-center justify-center gap-3 p-6 aspect-square sm:aspect-[4/3] lg:aspect-[5/3]">
+      <div
+        className={[
+          "flex items-center justify-center rounded-2xl",
+          "w-12 h-12 text-2xl",
+          variant === "primary"
+            ? "bg-white/15"
+            : "bg-blue-50 text-blue-600 group-hover:bg-blue-100",
+        ].join(" ")}
+        aria-hidden
+      >
+        {icon}
+      </div>
+      <p className={variant === "primary" ? "font-semibold" : "font-semibold text-slate-700"}>
+        {title}
+      </p>
+      {subtitle ? (
+        <Badge
+          className={
+            variant === "primary"
+              ? "bg-white/20 text-white"
+              : "bg-sky-50 text-blue-600"
+          }
+        >
+          {subtitle}
+        </Badge>
+      ) : null}
+    </CardContent>
+  </Card>
+);
 
 export const NavigationMenuSection = (): JSX.Element => {
   const navigate = useNavigate();
@@ -85,52 +83,31 @@ export const NavigationMenuSection = (): JSX.Element => {
       </Card>
 
       {/* Main Menu */}
-      <section>
-        <h2 className="font-semibold text-gray-600 mb-4">メインメニュー</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* New Creation */}
-          <Card
-            className="bg-gradient-to-br from-blue-500 to-blue-600 text-white cursor-pointer hover:scale-[1.02] transition"
+      <section className="max-w-4xl mx-auto">
+        <div className="flex items-baseline justify-between mb-3">
+          <h2 className="font-semibold text-gray-600">メインメニュー</h2>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <MenuTile
+            variant="primary"
+            title="新規作成"
+            subtitle="今すぐ入力"
+            icon={<span className="text-2xl">✦</span>}
             onClick={() => navigate("/reportinputscreen")}
-          >
-            <CardContent className="flex flex-col items-center justify-center gap-3 p-6 aspect-square">
-              <span className="text-3xl">✦</span>
-              <p className="font-semibold">新規作成</p>
-              <Badge className="bg-white/20 text-white">今すぐ入力</Badge>
-            </CardContent>
-          </Card>
+          />
 
-          {/* Daily Report List */}
-          <Card
-            className="cursor-pointer hover:scale-[1.02] transition"
+          <MenuTile
+            title="日報一覧"
+            subtitle="25件"
+            icon={<span className="text-2xl">📋</span>}
             onClick={() => navigate("/reportlistscreen")}
-          >
-            <CardContent className="flex flex-col items-center justify-center gap-3 p-6 aspect-square">
-              <span className="text-3xl">📋</span>
-              <p className="font-semibold">日報一覧</p>
-              <Badge className="bg-sky-50 text-blue-500">25件</Badge>
-            </CardContent>
-          </Card>
-
-          {/* Calendar */}
-          <Card className="cursor-pointer hover:scale-[1.02] transition">
-            <CardContent className="flex flex-col items-center justify-center gap-3 p-6 aspect-square">
-              <span className="text-3xl">📅</span>
-              <p className="font-semibold">カレンダー</p>
-            </CardContent>
-          </Card>
-
-          {/* Stats */}
-          <Card className="cursor-pointer hover:scale-[1.02] transition">
-            <CardContent className="flex flex-col items-center justify-center gap-3 p-6 aspect-square">
-              <span className="text-3xl">📊</span>
-              <p className="font-semibold">統計</p>
-            </CardContent>
-          </Card>
+          />
         </div>
       </section>
 
-      {/* Other Menu */}
+      {/* Other Menu*/}
+      {/*
       <section>
         <h2 className="font-semibold text-gray-600 mb-4">その他</h2>
         <div className="space-y-3">
@@ -147,7 +124,27 @@ export const NavigationMenuSection = (): JSX.Element => {
           ))}
         </div>
       </section>
+      */}
+
+      {/* Calendar */}
+      {/*
+      <Card className="cursor-pointer hover:scale-[1.02] transition">
+        <CardContent className="flex flex-col items-center justify-center gap-3 p-6 aspect-square">
+          <span className="text-3xl">📅</span>
+          <p className="font-semibold">カレンダー</p>
+        </CardContent>
+      </Card>
+      */}
+
+      {/* Stats */}
+      {/*
+      <Card className="cursor-pointer hover:scale-[1.02] transition">
+        <CardContent className="flex flex-col items-center justify-center gap-3 p-6 aspect-square">
+          <span className="text-3xl">📊</span>
+          <p className="font-semibold">統計</p>
+        </CardContent>
+      </Card>
+      */}
     </div>
   );
 };
-
