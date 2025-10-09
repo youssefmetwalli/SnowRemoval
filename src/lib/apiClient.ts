@@ -68,13 +68,21 @@ class ApiClient {
       // 接続
       const response = await fetch(url, config);
 
+      console.log("接続はおｋ");
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorBody = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, body:${errorBody}`);
       }
+
+      console.log("接続はおｋ");
 
       const rawData: ApiResponse<T>[] = await response.json();
 
       const data = this.normalizeResponse<T>(rawData);
+      
+      console.log("rawData");
+      console.log(rawData);
 
 
       return data;
@@ -91,9 +99,19 @@ class ApiClient {
 
   // post
   async post<T>(endpoint: string, data: any): Promise<T> {
+    const wrappedData = {
+      records:[
+        {
+          record: {...data}
+        }
+      ]
+    };
+
+    console.log("body");
+    console.log(JSON.stringify(wrappedData));
     return this.request<T>(endpoint, {
       method: "POST",
-      body: JSON.stringify(data),
+      body: JSON.stringify(wrappedData),
     });
   }
 
