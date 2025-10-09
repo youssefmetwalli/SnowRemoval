@@ -1,26 +1,24 @@
 import React, { useState } from "react";
 import { getReport } from "../hook/getReport";
 import { postReport } from "../hook/postReport";
-import { ReportFormData } from "../types/reportForm";
+import {ReportPostData} from "../types/reportForm";
 
-const mockReportFormData: ReportFormData = {
-  field_workerId: "",
-  field_dayReportId: "DR20241201001",
-  field_carId: "",
-  field_CustomerId: "CUST001",
-  field_endTime: "2024-12-01T17:30",
-  field_workClassId: "",
-  field_workDate: "2024-12-01",
-  field_totalWorkTime: "8.0",
-  field_workPlaceId: "WP001",
+const mockReportFormData: ReportPostData = {
+  field_workerId: ["", "1", "", "1"],
+  field_carId: ["", "2", "", "2"],
+  field_CustomerId: ["", "4", "", "4"],
+  field_endTime: "2024-12-01T17:30+09:00",
+  field_workClassId: ["", "1", "", "1"],
+  field_workDate: "2024-12-01T00:00+00:00",
+  field_workPlaceId: ["", "1", "", "1"],
   field_weather: "晴れ",
-  field_workerName: "作業員C",
-  field_assistantId: "",
-  field_assistantName: "作業員A",
-  field_workClassName: "道路清掃作業",
-  field_carName: "清掃車A号",
+  field_workerName: "作業員A",
+  field_assistantId: ["","2","","2"],
+  field_assistantName: "作業員C",
+  field_workClassName: "除雪",
+  field_carName: "H-1",
   field_workPlaceName: "リオンドール",
-  field_startTime: "2024-12-01T09:30",
+  field_startTime: "2024-12-01T09:30+09:00",
   field_CompanyName: "（株）会津",
   field_removalVolume: "2.5",
 };

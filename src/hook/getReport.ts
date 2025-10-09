@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { ReportFormData } from "../types/reportForm";
+import { ReportGetData } from "../types/reportForm";
 import { apiClient } from "../lib/apiClient";
 
 
 export const getReport = ()=>{
-    const [data, setData] = useState<ReportFormData[] | undefined>();
+    const [data, setData] = useState<ReportGetData[] | undefined>();
     const [isLoading, setLoading] = useState(true);
     const[isError, setError] = useState(false);
 
@@ -12,7 +12,7 @@ export const getReport = ()=>{
       (async () => {
         try {
           console.log("get送信");
-          const data = await apiClient.get<ReportFormData[]>(
+          const data = await apiClient.get<ReportGetData[]>(
             "table_1754551086/records/"
           );
           setData(data);
@@ -22,7 +22,7 @@ export const getReport = ()=>{
         } finally {
           setLoading(false);
         }
-      })(); // ← ここで実行
+      })();
     }, []);
 
 
