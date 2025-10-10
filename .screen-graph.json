@@ -96,15 +96,15 @@
       }
     },
     {
-      "id": "src\\screens\\HomeScreen\\sections\\NavigationMenuSection\\NavigationMenuSection.tsx:94:27-to-src\\screens\\ReportInputScreen\\ReportInputScreen.tsx",
+      "id": "src\\screens\\HomeScreen\\sections\\NavigationMenuSection\\NavigationMenuSection.tsx:97:27-to-src\\screens\\ReportInputScreen\\ReportInputScreen.tsx",
       "source": "src\\screens\\HomeScreen\\HomeScreen.tsx",
       "target": "src\\screens\\ReportInputScreen\\ReportInputScreen.tsx",
       "data": {
         "viaRoute": "/reportinputscreen",
         "trigger": {
           "element": "navigate(\"/reportinputscreen\")",
-          "line": 94,
-          "endLine": 94,
+          "line": 97,
+          "endLine": 97,
           "column": 27,
           "endColumn": 57,
           "sourceFile": "src\\screens\\HomeScreen\\sections\\NavigationMenuSection\\NavigationMenuSection.tsx"
@@ -112,15 +112,15 @@
       }
     },
     {
-      "id": "src\\screens\\HomeScreen\\sections\\NavigationMenuSection\\NavigationMenuSection.tsx:106:27-to-src\\screens\\ReportListScreen\\ReportListScreen.tsx",
+      "id": "src\\screens\\HomeScreen\\sections\\NavigationMenuSection\\NavigationMenuSection.tsx:104:27-to-src\\screens\\ReportListScreen\\ReportListScreen.tsx",
       "source": "src\\screens\\HomeScreen\\HomeScreen.tsx",
       "target": "src\\screens\\ReportListScreen\\ReportListScreen.tsx",
       "data": {
         "viaRoute": "/reportlistscreen",
         "trigger": {
           "element": "navigate(\"/reportlistscreen\")",
-          "line": 106,
-          "endLine": 106,
+          "line": 104,
+          "endLine": 104,
           "column": 27,
           "endColumn": 56,
           "sourceFile": "src\\screens\\HomeScreen\\sections\\NavigationMenuSection\\NavigationMenuSection.tsx"

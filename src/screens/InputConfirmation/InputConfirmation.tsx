@@ -22,6 +22,7 @@ type ConfirmationData = {
 interface InputConfirmationProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onConfirm?: () => void | Promise<void>;
   data: ConfirmationData;
 }
 
@@ -45,6 +46,7 @@ const fmtTimeRange = (start?: string, end?: string) => {
 export const InputConfirmation: React.FC<InputConfirmationProps> = ({
   open,
   onOpenChange,
+  onConfirm,
   data,
 }) => {
   const details = useMemo(
@@ -58,9 +60,16 @@ export const InputConfirmation: React.FC<InputConfirmationProps> = ({
     [data]
   );
   const navigate = useNavigate();
-  const handleSave = () => {
-    onOpenChange(false);
-    setTimeout(() => navigate("/homescreen"), 200);
+  const handleSave = async () => {
+    try {
+      if (onConfirm) {
+        await onConfirm();
+      }
+      onOpenChange(false);
+      setTimeout(() => navigate("/homescreen"), 200);
+    } catch (error) {
+      console.error("Error during save:", error);
+    }
   };
 
   return (
