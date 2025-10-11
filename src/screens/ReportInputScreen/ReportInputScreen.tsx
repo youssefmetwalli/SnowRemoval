@@ -21,75 +21,86 @@ export const ReportInputScreen = (): JSX.Element => {
     formState: { errors },
     setValue,
     watch,
-    reset
+    reset,
   } = useForm<ReportPostData>({
     defaultValues: {
       field_workerId: [],
       field_carId: [],
       field_CustomerId: [],
-      field_endTime: "",         
+      field_endTime: "",
       field_workClassId: [],
-      field_workDate: "",       
+      field_workDate: "",
       field_workPlaceId: [],
-      field_weather: "",        
-      field_workerName: "",     
+      field_weather: "",
+      field_workerName: "",
       field_assistantId: [],
       field_assistantName: "",
       field_workClassName: "",
       field_carName: "",
       field_workPlaceName: "",
-      field_startTime: "",        
+      field_startTime: "",
       field_CompanyName: "",
       field_removalVolume: "",
     },
     mode: "onSubmit",
   });
 
-  const [selectedLocationId, setSelectedLocationId] = useState<number | null>(null);
+  const [selectedLocationId, setSelectedLocationId] = useState<number | null>(
+    null
+  );
   const values = watch();
 
-  // --- Helpers to match JUSTDB shapes ---------------------------------------
-  // JUSTDB lookup/ID fields in your working payload were like ["","1","","1"]
   const toJdbRef = (val?: string | number | null): string[] => {
     if (val === undefined || val === null || val === "") return [];
     const s = String(val);
     return ["", s, "", s];
   };
-
-  // Your form stores some IDs as 1-element arrays; grab the first one
   const first = (arr?: unknown) =>
-    Array.isArray(arr) ? (arr[0] as string | undefined) : (arr as string | undefined);
+    Array.isArray(arr)
+      ? (arr[0] as string | undefined)
+      : (arr as string | undefined);
 
   const nullIfEmpty = (s: string | null | undefined) =>
     s && s.trim() !== "" ? s : null;
+
+  const toIsoDate = (dateStr: string) => {
+    if (!dateStr) return "";
+    const tzOffset = "+09:00"; // adjust if needed for your region
+    return `${dateStr}T00:00${tzOffset}`;
+  };
+
+  const toIsoDateTime = (dateStr: string, timeStr: string) => {
+    if (!dateStr || !timeStr) return "";
+    try {
+      const date = new Date(`${dateStr}T${timeStr}`);
+      const tzOffset = "+09:00";
+      return `${dateStr}T${timeStr}${tzOffset}`;
+    } catch {
+      return "";
+    }
+  };
 
   const toJdbRecord = (v: ReportPostData): ReportPostData => ({
     field_workerId: toJdbRef(first(v.field_workerId)),
     field_carId: toJdbRef(first(v.field_carId)),
     field_CustomerId: toJdbRef(first(v.field_CustomerId)),
-    field_endTime: v.field_endTime,
     field_workClassId: toJdbRef(first(v.field_workClassId)),
-    field_workDate: v.field_workDate,
+    field_workDate: toIsoDate(v.field_workDate),
     field_workPlaceId: toJdbRef(first(v.field_workPlaceId)),
-    field_weather: v.field_weather, // ← simple string now
-
-    // nullable text → null if empty
+    field_weather: v.field_weather,
     field_workerName: nullIfEmpty(v.field_workerName) as string | null,
-
-    // nullable ID array → [] or null; choose what your API accepts.
-    // If your API wants null when “no assistant”, use this:
-    field_assistantId: v.field_assistantId && v.field_assistantId.length
-      ? toJdbRef(first(v.field_assistantId))
-      : null,
-
+    field_assistantId:
+      v.field_assistantId && v.field_assistantId.length
+        ? toJdbRef(first(v.field_assistantId))
+        : null,
     field_assistantName: nullIfEmpty(v.field_assistantName) as string | null,
     field_workClassName: nullIfEmpty(v.field_workClassName) as string | null,
     field_carName: nullIfEmpty(v.field_carName) as string | null,
     field_workPlaceName: nullIfEmpty(v.field_workPlaceName) as string | null,
-
-    field_startTime: v.field_startTime,
+    field_startTime: toIsoDateTime(v.field_workDate, v.field_startTime),
+    field_endTime: toIsoDateTime(v.field_workDate, v.field_endTime),
     field_CompanyName: v.field_CompanyName,
-    field_removalVolume: v.field_removalVolume,
+    field_removalVolume: v.field_removalVolume ? v.field_removalVolume : null,
   });
 
   const firstError = useMemo(() => {
@@ -114,10 +125,10 @@ export const ReportInputScreen = (): JSX.Element => {
   const handleConfirm = async () => {
     try {
       const record = toJdbRecord(values);
-      await postReport(record);                       // <— posts to table_1754551086/records/
+      await postReport(record);
       setShowConfirmation(false);
       console.log("送信成功");
-      reset();                                        // optional: clear form after success
+      reset();
     } catch (error) {
       console.error("送信エラー:", error);
     } finally {
@@ -130,7 +141,7 @@ export const ReportInputScreen = (): JSX.Element => {
       <InputConfirmation
         open={showConfirmation}
         onOpenChange={setShowConfirmation}
-        onConfirm={handleConfirm}  // make sure the modal calls this
+        onConfirm={handleConfirm}
         data={{
           workDate: values.field_workDate,
           workplace: values.field_workPlaceName ?? "",
@@ -147,8 +158,12 @@ export const ReportInputScreen = (): JSX.Element => {
             selectedLocationId={selectedLocationId}
             onLocationSelect={(loc) => {
               setSelectedLocationId(loc.id);
-              setValue("field_workPlaceId", [String(loc.id)], { shouldValidate: true });
-              setValue("field_workPlaceName", loc.name, { shouldValidate: true });
+              setValue("field_workPlaceId", [String(loc.id)], {
+                shouldValidate: true,
+              });
+              setValue("field_workPlaceName", loc.name, {
+                shouldValidate: true,
+              });
             }}
             error={errors.field_workPlaceId?.message}
           />
@@ -164,12 +179,12 @@ export const ReportInputScreen = (): JSX.Element => {
             className="space-y-6"
             noValidate
           >
-            {/* Keep a hidden field if you rely on native form validation */}
             <input
               type="hidden"
               value={selectedLocationId ?? ""}
               {...register("field_workPlaceId", {
-                required: "作業場所を選択してください",
+                required:
+                  "作業場所を選択してください (ここと下のドロップダウンから)",
               })}
             />
 
@@ -197,9 +212,13 @@ export const ReportInputScreen = (): JSX.Element => {
               setValue={setValue}
               values={values}
             />
-            <WorkRecordSection />
+            <WorkRecordSection
+              register={register}
+              errors={errors}
+              setValue={setValue}
+              values={values}
+            />
 
-            {/* Make sure the footer buttons trigger form submit (to open confirmation) */}
             <ActionButtonsSection />
           </form>
         </div>

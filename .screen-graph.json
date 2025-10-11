@@ -64,17 +64,17 @@
       }
     },
     {
-      "id": "src\\screens\\InputConfirmation\\InputConfirmation.tsx:63:21-to-src\\screens\\HomeScreen\\HomeScreen.tsx",
+      "id": "src\\screens\\InputConfirmation\\InputConfirmation.tsx:69:23-to-src\\screens\\HomeScreen\\HomeScreen.tsx",
       "source": "src\\screens\\InputConfirmation\\InputConfirmation.tsx",
       "target": "src\\screens\\HomeScreen\\HomeScreen.tsx",
       "data": {
         "viaRoute": "/homescreen",
         "trigger": {
           "element": "navigate(\"/homescreen\")",
-          "line": 63,
-          "endLine": 63,
-          "column": 21,
-          "endColumn": 44,
+          "line": 69,
+          "endLine": 69,
+          "column": 23,
+          "endColumn": 46,
           "sourceFile": "src\\screens\\InputConfirmation\\InputConfirmation.tsx"
         }
       }
@@ -176,17 +176,17 @@
       }
     },
     {
-      "id": "src\\screens\\InputConfirmation\\InputConfirmation.tsx:63:21-to-src\\screens\\HomeScreen\\HomeScreen.tsx",
+      "id": "src\\screens\\InputConfirmation\\InputConfirmation.tsx:69:23-to-src\\screens\\HomeScreen\\HomeScreen.tsx",
       "source": "src\\screens\\ReportInputScreen\\ReportInputScreen.tsx",
       "target": "src\\screens\\HomeScreen\\HomeScreen.tsx",
       "data": {
         "viaRoute": "/homescreen",
         "trigger": {
           "element": "navigate(\"/homescreen\")",
-          "line": 63,
-          "endLine": 63,
-          "column": 21,
-          "endColumn": 44,
+          "line": 69,
+          "endLine": 69,
+          "column": 23,
+          "endColumn": 46,
           "sourceFile": "src\\screens\\InputConfirmation\\InputConfirmation.tsx"
         }
       }
