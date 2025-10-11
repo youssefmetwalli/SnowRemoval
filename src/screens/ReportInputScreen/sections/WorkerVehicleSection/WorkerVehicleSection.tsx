@@ -14,13 +14,13 @@ import type {
   FieldErrors,
   UseFormSetValue,
 } from "react-hook-form";
-import type { ReportFormData } from "../../../../types/reportForm";
+import type { ReportPostData } from "../../../../types/reportForm";
 
 interface Props {
-  register: UseFormRegister<ReportFormData>;
-  errors: FieldErrors<ReportFormData>;
-  setValue: UseFormSetValue<ReportFormData>;
-  values: ReportFormData;
+  register: UseFormRegister<ReportPostData>;
+  errors: FieldErrors<ReportPostData>;
+  setValue: UseFormSetValue<ReportPostData>;
+  values: ReportPostData;
 }
 
 export const WorkerVehicleSection = ({
@@ -34,18 +34,28 @@ export const WorkerVehicleSection = ({
       <CardContent className="p-5 space-y-4">
         <div className="flex items-center gap-2 mb-1">
           <UserIcon className="w-5 h-5 text-blue-500" />
-          <h2 className="text-lg font-semibold text-gray-500">作業員・車両</h2>
+          <h2 className="text-sm font-semibold text-gray-700">作業員・車両</h2>
         </div>
-        {/* 主担当 */}
+
+        {/* 主担当 (field_workerName / field_workerId) */}
         <div className="space-y-2">
-          <Label className="text-lg">
+          <Label className="text-sm">
             主担当<span className="text-red-500 ml-1">*</span>
           </Label>
           <Select
-            value={values.mainPerson}
-            onValueChange={(v) =>
-              setValue("mainPerson", v, { shouldValidate: true })
-            }
+            value={values.field_workerName ?? ""}
+            onValueChange={(v) => {
+              // name
+              setValue("field_workerName", v, { shouldValidate: true });
+              // matching ID (for example purposes)
+              const idMap: Record<string, string> = {
+                "田中 太郎": "1",
+                "佐藤 花子": "2",
+              };
+              setValue("field_workerId", [idMap[v] ?? ""], {
+                shouldValidate: true,
+              });
+            }}
           >
             <SelectTrigger className="h-11">
               <SelectValue placeholder="選択してください" />
@@ -57,41 +67,60 @@ export const WorkerVehicleSection = ({
           </Select>
           <input
             type="hidden"
-            {...register("mainPerson", { required: "主担当は必須です" })}
-            value={values.mainPerson}
+            {...register("field_workerName", { required: "主担当は必須です" })}
+            value={values.field_workerName ?? ""}
           />
-          {errors.mainPerson && (
-            <p className="text-red-600 text-xs">{errors.mainPerson.message}</p>
+          {errors.field_workerName && (
+            <p className="text-red-600 text-xs">
+              {errors.field_workerName.message}
+            </p>
           )}
         </div>
 
-        {/* 助手 */}
+        {/* 助手 (field_assistantName / field_assistantId) */}
         <div className="space-y-2">
-          <Label className="text-lg">助手</Label>
+          <Label className="text-sm">助手</Label>
           <Select
-            value={values.assistant}
-            onValueChange={(v) => setValue("assistant", v)}
+            value={values.field_assistantName ?? ""}
+            onValueChange={(v) => {
+              setValue("field_assistantName", v || null);
+              const idMap: Record<string, string> = {
+                "山田 次郎": "3",
+              };
+              setValue(
+                "field_assistantId",
+                v && idMap[v] ? [idMap[v]] : [],
+                { shouldValidate: true }
+              );
+            }}
           >
             <SelectTrigger className="h-11">
               <SelectValue placeholder="選択してください" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="山田 次郎">山田 次郎</SelectItem>
-              <SelectItem value="(なし)">(なし)</SelectItem>
+              <SelectItem value="なし">(なし)</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
-        {/* 車両 */}
+        {/* 車両 (field_carName / field_carId) */}
         <div className="space-y-2">
-          <Label className="text-lg">
+          <Label className="text-sm">
             車両<span className="text-red-500 ml-1">*</span>
           </Label>
           <Select
-            value={values.vehicle}
-            onValueChange={(v) =>
-              setValue("vehicle", v, { shouldValidate: true })
-            }
+            value={values.field_carName ?? ""}
+            onValueChange={(v) => {
+              setValue("field_carName", v, { shouldValidate: true });
+              const idMap: Record<string, string> = {
+                "除雪車A号": "1",
+                "除雪車B号": "2",
+              };
+              setValue("field_carId", [idMap[v] ?? ""], {
+                shouldValidate: true,
+              });
+            }}
           >
             <SelectTrigger className="h-11">
               <SelectValue placeholder="選択してください" />
@@ -103,11 +132,13 @@ export const WorkerVehicleSection = ({
           </Select>
           <input
             type="hidden"
-            {...register("vehicle", { required: "車両は必須です" })}
-            value={values.vehicle}
+            {...register("field_carName", { required: "車両は必須です" })}
+            value={values.field_carName ?? ""}
           />
-          {errors.vehicle && (
-            <p className="text-red-600 text-xs">{errors.vehicle.message}</p>
+          {errors.field_carName && (
+            <p className="text-red-600 text-xs">
+              {errors.field_carName.message}
+            </p>
           )}
         </div>
       </CardContent>

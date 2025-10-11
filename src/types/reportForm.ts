@@ -17,7 +17,7 @@ export interface ReportGetData {
   field_workPlaceName: string | null;
   field_startTime: string;
   field_CompanyName: string;
-  field_removalVolume: string;
+  field_removalVolume: string ;
 }
 
 
@@ -38,5 +38,5 @@ export interface ReportPostData {
   field_workPlaceName: string | null;
   field_startTime: string;
   field_CompanyName: string;
-  field_removalVolume: string;
+  field_removalVolume: string | null;
 }

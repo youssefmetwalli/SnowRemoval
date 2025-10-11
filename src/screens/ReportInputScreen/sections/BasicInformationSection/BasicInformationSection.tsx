@@ -14,13 +14,13 @@ import type {
   FieldErrors,
   UseFormSetValue,
 } from "react-hook-form";
-import type { ReportFormData } from "../../../../types/reportForm";
+import type { ReportPostData } from "../../../../types/reportForm";
 
 interface Props {
-  register: UseFormRegister<ReportFormData>;
-  errors: FieldErrors<ReportFormData>;
-  setValue: UseFormSetValue<ReportFormData>;
-  values: ReportFormData;
+  register: UseFormRegister<ReportPostData>;
+  errors: FieldErrors<ReportPostData>;
+  setValue: UseFormSetValue<ReportPostData>;
+  values: ReportPostData;
 }
 
 export const BasicInformationSection = ({
@@ -36,34 +36,37 @@ export const BasicInformationSection = ({
           <CalendarIcon className="w-5 h-5 text-blue-500" />
           <h2 className="text-sm font-semibold text-gray-700">基本情報</h2>
         </div>
+
         <div className="grid grid-cols-2 gap-3 *:min-w-0">
-          {/* 日付 */}
+          {/* 作業日 (field_workDate) */}
           <div className="space-y-1.5">
             <Label className="text-sm">
-              日付<span className="text-red-500 ml-1">*</span>
+              作業日<span className="text-red-500 ml-1">*</span>
             </Label>
             <div className="relative">
               <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <Input
                 type="date"
                 className="pl-9 w-full h-11 text-base rounded-md border border-gray-300"
-                {...register("workDate", { required: "日付は必須です" })}
+                {...register("field_workDate", { required: "作業日は必須です" })}
               />
             </div>
-            {errors.workDate && (
-              <p className="text-red-600 text-xs">{errors.workDate.message}</p>
+            {errors.field_workDate && (
+              <p className="text-red-600 text-xs">
+                {errors.field_workDate.message}
+              </p>
             )}
           </div>
 
-          {/* 天気 */}
+          {/* 天気 (field_weather) */}
           <div className="space-y-1.5">
             <Label className="text-sm">
               天気<span className="text-red-500 ml-1">*</span>
             </Label>
             <Select
-              value={values.weather}
+              value={values.field_weather}
               onValueChange={(v) =>
-                setValue("weather", v, { shouldValidate: true })
+                setValue("field_weather", v, { shouldValidate: true })
               }
             >
               <SelectTrigger className="h-11 w-full text-base rounded-md border border-gray-300">
@@ -76,8 +79,10 @@ export const BasicInformationSection = ({
                 <SelectItem value="雨">雨</SelectItem>
               </SelectContent>
             </Select>
-            {!values.weather && errors.weather && (
-              <p className="text-red-600 text-xs">{errors.weather.message}</p>
+            {!values.field_weather && errors.field_weather && (
+              <p className="text-red-600 text-xs">
+                {errors.field_weather.message}
+              </p>
             )}
           </div>
         </div>
