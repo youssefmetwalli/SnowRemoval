@@ -4,7 +4,6 @@ import { Badge } from "../../../../components/ui/badge";
 import { Card, CardContent } from "../../../../components/ui/card";
 import { getReport } from "../../../../hook/getReport";
 
-const reportData = getReport();
 
 // const reportData = [
 //   {
@@ -61,19 +60,28 @@ const reportData = getReport();
 
 export const ReportListSection = (): JSX.Element => {
   const navigate = useNavigate();
+  const reportData = getReport();
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
+  };
+  const formatTime = (timeString: string) => {
+    const time = new Date(timeString);
+    return time.toLocaleTimeString('ja-JP', { hour: 'numeric', minute: '2-digit', hour12: false, });
+  };
 
   return (
     <div className="w-full h-[861px] overflow-scroll">
       <div className="flex flex-col w-[calc(100%_-_40px)] mx-5 my-4 gap-3">
-        {reportData.data.map((dateGroup, dateIndex) => (
+        {reportData?.data?.map((dateGroup, dateIndex) => (
           <div key={dateIndex} className="flex flex-col gap-3">
             <header className="flex flex-col items-start pt-0 pb-0.5 px-0 w-full">
               <h2 className="w-full mt-[-1.00px] font-inter-semi-bold font-[number:var(--inter-semi-bold-font-weight)] text-slate-gray text-[length:var(--inter-semi-bold-font-size)] tracking-[var(--inter-semi-bold-letter-spacing)] flex items-center justify-center leading-[var(--inter-semi-bold-line-height)] [font-style:var(--inter-semi-bold-font-style)] translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:0ms]">
-                {dateGroup.field_workDate}
+                {formatDate(dateGroup.field_workDate)}
               </h2>
             </header>
 
-            {reportData.data.map((report, reportIndex) => (
+            {reportData?.data?.map((report, reportIndex) => (
               <Card
                 key={reportIndex}
                 className="w-full bg-white rounded-xl border border-solid border-slate-200 shadow-[0px_1px_3px_#0000001a] translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:200ms] cursor-pointer hover:shadow-[0px_4px_8px_#0000001a] hover:scale-[1.01] transition-all duration-200"
@@ -109,7 +117,8 @@ export const ReportListSection = (): JSX.Element => {
 
                       <div className="inline-flex flex-col items-start pt-0 pb-0.5 px-0">
                         <span className="w-fit mt-[-1.00px] [font-family:'Inter',Helvetica] font-normal text-ebony text-sm tracking-[0] flex items-center justify-center leading-[normal]">
-                          {report.field_totalWorkTime}
+
+                          {formatTime(report.field_startTime)}~{formatTime(report.field_endTime)}
                         </span>
                       </div>
                     </div>
@@ -131,13 +140,13 @@ export const ReportListSection = (): JSX.Element => {
                     </div>
                   </div>
 
-                  {report.hasWarning && (
+                  {/* {report.hasWarning && (
                     <Badge className="w-[106px] pt-[5px] pb-1.5 px-[9px] absolute top-[17px] right-[17px] bg-beeswax rounded-md border border-solid border-amber-200 flex flex-col items-start">
                       <span className="w-fit mt-[-1.00px] [font-family:'Inter',Helvetica] font-semibold text-korma text-[11px] tracking-[0] whitespace-nowrap flex items-center justify-center leading-[normal]">
                         同時作業の可能性
                       </span>
                     </Badge>
-                  )}
+                  )} */}
                 </CardContent>
               </Card>
             ))}
