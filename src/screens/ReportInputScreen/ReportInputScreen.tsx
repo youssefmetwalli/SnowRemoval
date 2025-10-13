@@ -8,30 +8,30 @@ import { NotificationSection } from "./sections/NotificationSection/Notification
 import { WorkDurationSection } from "./sections/WorkDurationSection/WorkDurationSection";
 import { WorkPlaceSection } from "./sections/WorkPlaceSection/WorkPlaceSection";
 import { WorkRecordSection } from "./sections/WorkRecordSection/WorkRecordSection";
-import { WorkerVehicleSection } from "./sections/WorkerVehicleSection/WorkerVehicleSection";
-import type { ReportFormData } from "../../types/reportForm";
+import type { ReportPostData } from "../../types/reportForm";
 import { postReport } from "../../hook/postReport";
+import { WorkerVehicleSection } from "./sections/WorkerVehicleSection/WorkerVehicleSection";
 
 export const ReportInputScreen = (): JSX.Element => {
   const [showConfirmation, setShowConfirmation] = useState(false);
+
   const {
     register,
     handleSubmit,
     formState: { errors },
     setValue,
     watch,
-  } = useForm<ReportFormData>({
+    reset,
+  } = useForm<ReportPostData>({
     defaultValues: {
       field_workerId: [],
-      field_dayReportId: [],
       field_carId: [],
       field_CustomerId: [],
       field_endTime: "",
       field_workClassId: [],
       field_workDate: "",
-      field_totalWorkTime: "",
       field_workPlaceId: [],
-      field_weather: [],
+      field_weather: "",
       field_workerName: "",
       field_assistantId: [],
       field_assistantName: "",
@@ -44,13 +44,67 @@ export const ReportInputScreen = (): JSX.Element => {
     },
     mode: "onSubmit",
   });
+
   const [selectedLocationId, setSelectedLocationId] = useState<number | null>(
     null
   );
   const values = watch();
 
+  const toJdbRef = (val?: string | number | null): string[] => {
+    if (val === undefined || val === null || val === "") return [];
+    const s = String(val);
+    return ["", s, "", s];
+  };
+  const first = (arr?: unknown) =>
+    Array.isArray(arr)
+      ? (arr[0] as string | undefined)
+      : (arr as string | undefined);
+
+  const nullIfEmpty = (s: string | null | undefined) =>
+    s && s.trim() !== "" ? s : null;
+
+  const toIsoDate = (dateStr: string) => {
+    if (!dateStr) return "";
+    const tzOffset = "+09:00"; // adjust if needed for your region
+    return `${dateStr}T00:00${tzOffset}`;
+  };
+
+  const toIsoDateTime = (dateStr: string, timeStr: string) => {
+    if (!dateStr || !timeStr) return "";
+    try {
+      const date = new Date(`${dateStr}T${timeStr}`);
+      const tzOffset = "+09:00";
+      return `${dateStr}T${timeStr}${tzOffset}`;
+    } catch {
+      return "";
+    }
+  };
+
+  const toJdbRecord = (v: ReportPostData): ReportPostData => ({
+    field_workerId: toJdbRef(first(v.field_workerId)),
+    field_carId: toJdbRef(first(v.field_carId)),
+    field_CustomerId: toJdbRef(first(v.field_CustomerId)),
+    field_workClassId: toJdbRef(first(v.field_workClassId)),
+    field_workDate: toIsoDate(v.field_workDate),
+    field_workPlaceId: toJdbRef(first(v.field_workPlaceId)),
+    field_weather: v.field_weather,
+    field_workerName: nullIfEmpty(v.field_workerName) as string | null,
+    field_assistantId:
+      v.field_assistantId && v.field_assistantId.length
+        ? toJdbRef(first(v.field_assistantId))
+        : null,
+    field_assistantName: nullIfEmpty(v.field_assistantName) as string | null,
+    field_workClassName: nullIfEmpty(v.field_workClassName) as string | null,
+    field_carName: nullIfEmpty(v.field_carName) as string | null,
+    field_workPlaceName: nullIfEmpty(v.field_workPlaceName) as string | null,
+    field_startTime: toIsoDateTime(v.field_workDate, v.field_startTime),
+    field_endTime: toIsoDateTime(v.field_workDate, v.field_endTime),
+    field_CompanyName: v.field_CompanyName,
+    field_removalVolume: v.field_removalVolume ? v.field_removalVolume : null,
+  });
+
   const firstError = useMemo(() => {
-    const order: (keyof ReportFormData)[] = [
+    const order: (keyof ReportPostData)[] = [
       "field_workDate",
       "field_weather",
       "field_CustomerId",
@@ -69,12 +123,12 @@ export const ReportInputScreen = (): JSX.Element => {
   const onInvalid = () => setShowConfirmation(false);
 
   const handleConfirm = async () => {
-
     try {
-      await postReport(values);
+      const record = toJdbRecord(values);
+      await postReport(record);
       setShowConfirmation(false);
-      // 成功時の処理（例：成功メッセージ表示、ページ遷移など）
       console.log("送信成功");
+      reset();
     } catch (error) {
       console.error("送信エラー:", error);
     } finally {
@@ -87,15 +141,17 @@ export const ReportInputScreen = (): JSX.Element => {
       <InputConfirmation
         open={showConfirmation}
         onOpenChange={setShowConfirmation}
+        onConfirm={handleConfirm}
         data={{
           workDate: values.field_workDate,
-          workplace: values.field_workPlaceName,
-          workClassification: values.field_workClassName,
+          workplace: values.field_workPlaceName ?? "",
+          workClassification: values.field_workClassName ?? "",
           startTime: values.field_startTime,
           endTime: values.field_endTime,
-          mainPerson: values.field_workerName,
+          mainPerson: values.field_workerName ?? "",
         }}
       />
+
       <div className="flex flex-col w-full items-center pt-4 pb-8 px-4 sm:px-6 bg-gradient-to-b from-sky-50 to-sky-100">
         <div className="w-full max-w-4xl space-y-6">
           <NotificationSection
@@ -112,7 +168,6 @@ export const ReportInputScreen = (): JSX.Element => {
             error={errors.field_workPlaceId?.message}
           />
 
-          {/* Top error banner on submit (optional) */}
           {firstError && (
             <Alert className="bg-red-50 border-red-200 text-red-700">
               <AlertDescription>{firstError}</AlertDescription>
@@ -128,9 +183,11 @@ export const ReportInputScreen = (): JSX.Element => {
               type="hidden"
               value={selectedLocationId ?? ""}
               {...register("field_workPlaceId", {
-                required: "作業場所を選択してください",
+                required:
+                  "作業場所を選択してください (ここと下のドロップダウンから)",
               })}
             />
+
             <BasicInformationSection
               register={register}
               errors={errors}
@@ -155,7 +212,13 @@ export const ReportInputScreen = (): JSX.Element => {
               setValue={setValue}
               values={values}
             />
-            <WorkRecordSection />
+            <WorkRecordSection
+              register={register}
+              errors={errors}
+              setValue={setValue}
+              values={values}
+            />
+
             <ActionButtonsSection />
           </form>
         </div>
