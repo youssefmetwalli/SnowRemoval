@@ -1,17 +1,48 @@
 import { LockIcon, UserIcon } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
+import { apiClient } from "../../lib/apiClient";
 
 export const LoginScreen = (): JSX.Element => {
   const navigate = useNavigate();
+  const [loginId, setLoginId] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigate("/homescreen");
+    setLoading(true);
+    setError(null);
+
+    try {
+      const workers = await apiClient.get<any[]>("table_1754549652/records/");
+
+      console.log("Workers fetched:", workers);
+
+      const user = workers.find(
+        (w) =>
+          w.field_loginId?.trim() === loginId.trim() &&
+          w.field_password?.trim() === password.trim()
+      );
+      if (!user) {
+        setError("ユーザーIDまたはパスワードが正しくありません。");
+        return;
+      }
+
+      localStorage.setItem("loggedInUser", JSON.stringify(user));
+
+      navigate("/homescreen");
+    } catch (err) {
+      console.error("Login error:", err);
+      setError("ログイン中にエラーが発生しました。");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -54,8 +85,11 @@ export const LoginScreen = (): JSX.Element => {
                     <UserIcon className="w-5 h-5 text-gray-400" />
                   </div>
                   <Input
+                    value={loginId}
+                    onChange={(e) => setLoginId(e.target.value)}
                     className="h-12 pl-14 pr-4 bg-white rounded-xl border border-gray-300 text-base"
                     placeholder="IDを入力"
+                    required
                   />
                 </div>
               </div>
@@ -71,18 +105,27 @@ export const LoginScreen = (): JSX.Element => {
                   </div>
                   <Input
                     type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     className="h-12 pl-14 pr-4 bg-white rounded-xl border border-gray-300 text-base"
                     placeholder="パスワードを入力"
+                    required
                   />
                 </div>
               </div>
 
+              {/* Error Message */}
+              {error && (
+                <p className="text-red-600 text-sm text-center">{error}</p>
+              )}
+
               {/* Login Button */}
               <Button
                 type="submit"
+                disabled={loading}
                 className="h-12 rounded-xl shadow-md bg-gradient-to-r from-blue-500 to-blue-600 hover:opacity-90 text-white font-bold text-base transition"
               >
-                ログイン
+                {loading ? "ログイン中..." : "ログイン"}
               </Button>
             </form>
           </CardContent>
