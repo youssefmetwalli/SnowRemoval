@@ -48,17 +48,17 @@
   ],
   "edges": [
     {
-      "id": "src\\screens\\LoginScreen\\LoginScreen.tsx:14:4-to-src\\screens\\HomeScreen\\HomeScreen.tsx",
+      "id": "src\\screens\\LoginScreen\\LoginScreen.tsx:39:6-to-src\\screens\\HomeScreen\\HomeScreen.tsx",
       "source": "src\\screens\\LoginScreen\\LoginScreen.tsx",
       "target": "src\\screens\\HomeScreen\\HomeScreen.tsx",
       "data": {
         "viaRoute": "/homescreen",
         "trigger": {
           "element": "navigate(\"/homescreen\")",
-          "line": 14,
-          "endLine": 14,
-          "column": 4,
-          "endColumn": 27,
+          "line": 39,
+          "endLine": 39,
+          "column": 6,
+          "endColumn": 29,
           "sourceFile": "src\\screens\\LoginScreen\\LoginScreen.tsx"
         }
       }
