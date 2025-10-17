@@ -71,7 +71,7 @@ export const ReportListSection = (): JSX.Element => {
                 <Card
                   key={reportIndex}
                   className="w-full bg-white rounded-xl border border-slate-200 shadow hover:shadow-lg cursor-pointer hover:scale-[1.01] transition-all duration-200"
-                  onClick={() => navigate("/reportinputscreen")}
+                  onClick={() => navigate("/reporteditscreen", { state: report })}
                 >
                   <CardContent className="flex flex-col gap-3 p-[17px] relative">
                     <div className="flex flex-col gap-1">
