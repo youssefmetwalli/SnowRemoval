@@ -107,18 +107,24 @@ class ApiClient {
       ]
     };
 
-    console.log("body");
-    console.log(JSON.stringify(wrappedData));
     return this.request<T>(endpoint, {
       method: "POST",
       body: JSON.stringify(wrappedData),
     });
   }
 
-  async put<T>(endpoint: string, data: any): Promise<T> {
+  async put<T>(endpoint: string, data: any, id: string): Promise<T> {
+    const wrappedData = {
+      records:[
+        {
+          recordId: id,
+          record:{...data}
+        }
+      ]
+    };
     return this.request<T>(endpoint, {
       method: "PUT",
-      body: JSON.stringify(data),
+      body: JSON.stringify(wrappedData),
     });
   }
 
