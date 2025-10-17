@@ -11,11 +11,13 @@ import { WorkPlaceSection } from "./sections/WorkPlaceSection/WorkPlaceSection";
 import { WorkRecordSection } from "./sections/WorkRecordSection/WorkRecordSection";
 import { WorkerVehicleSection } from "./sections/WorkerVehicleSection/WorkerVehicleSection";
 import type { ReportPostData } from "../../types/reportForm";
-import { postReport } from "../../hook/postReport";
+import { putReport } from "../../hook/putReport";
 
 export const ReportEditScreen = (): JSX.Element => {
   const location = useLocation();
   const passed = location.state as Partial<ReportPostData> | undefined;
+  const dayReportId: string = location.state.field_dayReportId[1];
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   // ---------- helpers to normalize incoming values ----------
   const isoToDate = (iso?: string) => {
@@ -33,6 +35,9 @@ export const ReportEditScreen = (): JSX.Element => {
   const asArr = (v?: string[] | string | null) =>
     Array.isArray(v) ? v : v ? [String(v)] : [];
 
+  const pickStringFromArr = (v?: string[]) =>
+     v ? v[1] : undefined;
+
   const normalizeForForm = (p?: Partial<ReportPostData>): ReportPostData => ({
     field_workerId: asArr(p?.field_workerId),
     field_carId: asArr(p?.field_carId),
@@ -41,7 +46,9 @@ export const ReportEditScreen = (): JSX.Element => {
     field_workClassId: asArr(p?.field_workClassId),
     field_workDate: isoToDate(p?.field_workDate),
     field_workPlaceId: asArr(p?.field_workPlaceId),
-    field_weather: p?.field_weather ?? "",
+    field_weather: Array.isArray(p?.field_weather)
+      ? p.field_weather[0] ?? ""
+      : p?.field_weather ?? "",
     field_workerName: p?.field_workerName ?? "",
     field_assistantId: asArr(p?.field_assistantId),
     field_assistantName: p?.field_assistantName ?? "",
@@ -55,6 +62,8 @@ export const ReportEditScreen = (): JSX.Element => {
         ? String(p?.field_removalVolume)
         : p?.field_removalVolume ?? "",
   });
+
+  
 
   // ---------- form ----------
   const {
@@ -70,6 +79,7 @@ export const ReportEditScreen = (): JSX.Element => {
     mode: "onSubmit",
   });
 
+
   // If user navigates here with/without state after mount, ensure defaults update
   useEffect(() => {
     reset(normalizeForForm(passed));
@@ -84,6 +94,9 @@ export const ReportEditScreen = (): JSX.Element => {
   );
 
   const values = watch();
+
+
+
 
   // ---------- JDB payload shaping (same as your working version) ----------
   const toJdbRef = (val?: string | number | null): string[] => {
@@ -153,26 +166,28 @@ export const ReportEditScreen = (): JSX.Element => {
     return key ? (errors[key]?.message as string | undefined) : undefined;
   }, [errors]);
 
-  // const onValid = () => setShowConfirmation(true);
-  // const onInvalid = () => setShowConfirmation(false);
 
-  // const handleConfirm = async () => {
-  //   try {
-  //     const record = toJdbRecord(values);
-  //     await postReport(record); // reuse your POST for now
-  //     setShowConfirmation(false);
-  //     console.log("送信成功");
-  //     reset(); // clear after save (optional for edit)
-  //   } catch (error) {
-  //     console.error("送信エラー:", error);
-  //   } finally {
-  //     console.log("送信完了");
-  //   }
-  // };
+
+  const onValid = () => setShowConfirmation(true);
+  const onInvalid = () => {setShowConfirmation(false); console.log("Invalid!");}
+
+  const handleConfirm = async () => {
+    try {
+      const record = toJdbRecord(values);
+      await putReport(record, dayReportId); // reuse your POST for now
+      setShowConfirmation(false);
+      console.log("送信成功");
+      reset(); // clear after save (optional for edit)
+    } catch (error) {
+      console.error("送信エラー:", error);
+    } finally {
+      console.log("送信完了");
+    }
+  };
 
   return (
     <>
-      {/* <InputConfirmation
+      <InputConfirmation
         open={showConfirmation}
         onOpenChange={setShowConfirmation}
         onConfirm={handleConfirm}
@@ -184,7 +199,7 @@ export const ReportEditScreen = (): JSX.Element => {
           endTime: values.field_endTime,
           mainPerson: values.field_workerName ?? "",
         }}
-      /> */}
+      />
 
       <div className="flex flex-col w-full items-center pt-4 pb-8 px-4 sm:px-6 bg-gradient-to-b from-sky-50 to-sky-100">
         <div className="w-full max-w-4xl space-y-6">
@@ -193,7 +208,9 @@ export const ReportEditScreen = (): JSX.Element => {
             onLocationSelect={(loc) => {
               setSelectedLocationId(loc.id);
               // avoid early validation flashes; clear error once user selects
-              setValue("field_workPlaceId", [String(loc.id)], { shouldDirty: true });
+              setValue("field_workPlaceId", [String(loc.id)], {
+                shouldDirty: true,
+              });
               setValue("field_workPlaceName", loc.name, { shouldDirty: true });
               clearErrors("field_workPlaceId");
             }}
@@ -206,7 +223,11 @@ export const ReportEditScreen = (): JSX.Element => {
             </Alert>
           )}
 
-          <form className="space-y-6" noValidate>
+          <form
+            className="space-y-6"
+            onSubmit={handleSubmit(onValid, onInvalid)}
+            noValidate
+          >
             <input
               type="hidden"
               value={selectedLocationId ?? ""}
