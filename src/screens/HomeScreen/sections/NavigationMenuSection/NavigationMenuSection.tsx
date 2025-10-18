@@ -1,15 +1,14 @@
-import { CarIcon, SettingsIcon, UsersIcon } from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "../../../../components/ui/badge";
-import { Button } from "../../../../components/ui/button";
 import { Card, CardContent } from "../../../../components/ui/card";
+import { useReport } from "../../../../hook/getReport";
 
-const todayStats = [
-  { value: "3", label: "完了作業" },
-  { value: "2", label: "進行中" },
-  { value: "8.5h", label: "作業時間" },
-];
+// const todayStats = [
+//   { value: "3", label: "完了作業" },
+//   { value: "2", label: "進行中" },
+//   { value: "8.5h", label: "作業時間" },
+// ];
 
 type MenuTileProps = {
   title: string;
@@ -19,7 +18,13 @@ type MenuTileProps = {
   variant?: "primary" | "secondary";
 };
 
-const MenuTile = ({ title, subtitle, icon, onClick, variant = "secondary" }: MenuTileProps) => (
+const MenuTile = ({
+  title,
+  subtitle,
+  icon,
+  onClick,
+  variant = "secondary",
+}: MenuTileProps) => (
   <Card
     onClick={onClick}
     className={[
@@ -44,7 +49,13 @@ const MenuTile = ({ title, subtitle, icon, onClick, variant = "secondary" }: Men
       >
         {icon}
       </div>
-      <p className={variant === "primary" ? "font-semibold" : "font-semibold text-slate-700"}>
+      <p
+        className={
+          variant === "primary"
+            ? "font-semibold"
+            : "font-semibold text-slate-700"
+        }
+      >
         {title}
       </p>
       {subtitle ? (
@@ -64,6 +75,37 @@ const MenuTile = ({ title, subtitle, icon, onClick, variant = "secondary" }: Men
 
 export const NavigationMenuSection = (): JSX.Element => {
   const navigate = useNavigate();
+  const { data: reports, isLoading, isError } = useReport();
+  if (isLoading)
+    return <div className="p-4 text-gray-500 text-center">読み込み中...</div>;
+  if (isError)
+    return (
+      <div className="p-4 text-red-600 text-center">
+        データ取得に失敗しました。
+      </div>
+    );
+  if (!reports?.length)
+    return (
+      <div className="p-4 text-gray-500 text-center">
+        レポートがありません。
+      </div>
+    );
+
+  const loginUser = localStorage.getItem("loggedInUser");
+  let userReports = null;
+  let totalWorkTime = 0;
+  if (loginUser) {
+    const parsedLoginUser = JSON.parse(loginUser);
+    console.log(parsedLoginUser.field_1754635302[1]);
+    userReports = reports.filter((report) => 
+      report.field_workerId[1] === parsedLoginUser.field_1754635302[1]
+    );
+    userReports.map((report) => {
+      totalWorkTime += parseInt(report.field_totalWorkTime? report.field_totalWorkTime : "0")
+    })
+    
+    console.log(userReports);
+  }
 
   return (
     <div className="w-full space-y-8">
@@ -71,13 +113,21 @@ export const NavigationMenuSection = (): JSX.Element => {
       <Card className="bg-white border-slate-200">
         <CardContent className="p-6">
           <h2 className="font-semibold text-gray-600 mb-4">今日の実績</h2>
-          <div className="grid grid-cols-3 gap-4 text-center">
-            {todayStats.map((stat, index) => (
+          <div className="grid grid-cols-2 gap-4 text-center">
+            <div>
+              <p className="text-2xl font-bold">{userReports?.length}</p>
+              <p className="text-sm text-gray-500">完了作業</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold">{totalWorkTime}</p>
+              <p className="text-sm text-gray-500">作業時間</p>
+            </div>
+            {/* {userReports?.map((stat, index) => (
               <div key={index}>
                 <p className="text-2xl font-bold">{stat.value}</p>
                 <p className="text-sm text-gray-500">{stat.label}</p>
               </div>
-            ))}
+            ))} */}
           </div>
         </CardContent>
       </Card>
