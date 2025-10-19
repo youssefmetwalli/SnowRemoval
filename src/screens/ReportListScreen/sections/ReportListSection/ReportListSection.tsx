@@ -43,8 +43,15 @@ export const ReportListSection = (): JSX.Element => {
       </div>
     );
 
+  const loginUser = localStorage.getItem("loggedInUser");
+  const parsedLoginUser = JSON.parse(loginUser!);
+  const loginUserReports = reports.filter(
+    (report) => 
+      parsedLoginUser.field_1754635302[1] === report.field_workerId[1]
+  );
+
   // Group by date
-  const grouped = reports.reduce<Record<string, typeof reports>>(
+  const grouped = loginUserReports.reduce<Record<string, typeof reports>>(
     (acc, report) => {
       const date = report.field_workDate?.split("T")[0] ?? "未設定";
       if (!acc[date]) acc[date] = [];
