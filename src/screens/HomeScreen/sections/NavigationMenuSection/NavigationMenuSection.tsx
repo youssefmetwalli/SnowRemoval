@@ -84,25 +84,32 @@ export const NavigationMenuSection = (): JSX.Element => {
         データ取得に失敗しました。
       </div>
     );
-  if (!reports?.length)
-    return (
-      <div className="p-4 text-gray-500 text-center">
-        レポートがありません。
-      </div>
-    );
+  // if (!reports?.length)
+  //   return (
+  //     <div className="p-4 text-gray-500 text-center">
+  //       レポートがありません。
+  //     </div>
+  //   );
 
   const loginUser = localStorage.getItem("loggedInUser");
   let userReports = null;
   let totalWorkTime = 0;
+  let reportCount:number = 0;
+
   if (loginUser) {
     const parsedLoginUser = JSON.parse(loginUser);
     console.log(parsedLoginUser.field_1754635302[1]);
-    userReports = reports.filter((report) => 
-      report.field_workerId[1] === parsedLoginUser.field_1754635302[1]
-    );
-    userReports.map((report) => {
-      totalWorkTime += parseInt(report.field_totalWorkTime? report.field_totalWorkTime : "0")
-    })
+    if (reports) {
+      userReports = reports.filter((report) => 
+        report.field_workerId[1] === parsedLoginUser.field_1754635302[1]
+      );
+    }
+    if (userReports) {
+      userReports.map((report) => {
+        totalWorkTime += parseInt(report.field_totalWorkTime? report.field_totalWorkTime : "0")
+        reportCount++;
+      });
+  }
     
     console.log(userReports);
   }
@@ -149,7 +156,7 @@ export const NavigationMenuSection = (): JSX.Element => {
 
           <MenuTile
             title="日報一覧"
-            subtitle="25件"
+            subtitle={`${reportCount}件`}
             icon={<span className="text-2xl">📋</span>}
             onClick={() => navigate("/reportlistscreen")}
           />
