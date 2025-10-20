@@ -3,7 +3,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const { path = "" } = req.query;
-    const JUSTDB_BASE = "https://asera.just-db.com/sites/api/services/v1/";
+    const JUSTDB_BASE = "https://asera.just-db.com/sites/api/services/v1/tables";
     const API_KEY = process.env.VITE_API_KEY; // safe on server only
 
     const targetUrl =
