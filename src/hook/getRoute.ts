@@ -1,0 +1,31 @@
+import { useEffect, useState } from "react";
+import { apiClient } from "../lib/apiClient";
+import { RouteGetData } from "../types/reportForm";
+
+
+export const getRoute = (userName?: string)=>{
+    const [data, setData] = useState<RouteGetData[] | undefined>();
+    const [isLoading, setLoading] = useState(true);
+    const[isError, setError] = useState(false);
+    const query = userName ? `?_field_workerName=${userName}` : "";
+
+    useEffect(() => {
+      (async () => {
+        try {
+          console.log("get送信");
+          const data = await apiClient.get<RouteGetData[]>(
+            `table_1756952069/records/${query}`
+          );
+          setData(data);
+        } catch (err) {
+          console.error(err);
+          setError(true);
+        } finally {
+          setLoading(false);
+        }
+      })();
+    }, []);
+
+
+    return{ data, isLoading, isError};
+}
