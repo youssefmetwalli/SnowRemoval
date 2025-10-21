@@ -1,99 +1,100 @@
 /// <reference types="vite/client" />
-const API_KEY = import.meta.env.VITE_API_KEY;
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_KEY = import.meta.env.VITE_API_KEY;                
+const DEV_BASE_URL = import.meta.env.VITE_API_BASE_URL;      
+const IS_PROD = import.meta.env.PROD;
 
-interface ApiResponse<T> {
-  record: T;
+/**
+ * Safely join base + endpoint with exactly one slash.
+ */
+const join = (base: string, path: string) => {
+  if (!base) return path;
+  const b = base.endsWith("/") ? base.slice(0, -1) : base;
+  const p = path.startsWith("/") ? path.slice(1) : path;
+  return `${b}/${p}`;
+};
+
+interface ApiEnvelope<T> {
+  record?: T;
   [key: string]: any;
 }
 
-
-// APIクライアント、GETとかPOSTとかできる関数
 class ApiClient {
   private baseUrl: string;
-  private apiKey: string;
+  private apiKey?: string;
 
   constructor() {
+
+    this.baseUrl = IS_PROD ? "/api/justdb-proxy?path=" : (DEV_BASE_URL || "");
     this.apiKey = API_KEY;
-    this.baseUrl = BASE_URL;
+    if (!IS_PROD && (!this.apiKey || !this.baseUrl)) {
+      console.warn("VITE_API_KEY or VITE_API_BASE_URL is missing in dev.");
+    }
   }
 
   private normalizeResponse<T>(data: any): T {
-    // データが配列の場合
     if (Array.isArray(data)) {
       return data.map((item) => {
-        // 各アイテムがrecordプロパティを持つ場合
         if (item && typeof item === "object" && "record" in item) {
           return item.record;
         }
         return item;
       }) as T;
     }
-
-    // データが単一オブジェクトでrecordプロパティを持つ場合
     if (data && typeof data === "object" && "record" in data) {
       return data.record as T;
     }
-
-    // その他の場合はそのまま返す
     return data as T;
   }
 
-  // 基本的にここでAPIにリクエストをする。
-  private async request<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<T> {
-    if (!API_KEY || !BASE_URL) {
-      throw new Error(
-        "環境変数 VITE_API_KEY または VITE_API_BASE_URL が設定されていません"
-      );
+  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    const url = IS_PROD
+      ? `${this.baseUrl}${encodeURI(endpoint)}`
+      : join(this.baseUrl, endpoint);
+
+    const baseHeaders: HeadersInit = {
+      "Content-Type": "application/json",
+    };
+
+    if (!IS_PROD && this.apiKey) {
+      (baseHeaders as any).Authorization = `Bearer ${this.apiKey}`;
     }
-
-    const url = `${this.baseUrl}${endpoint}`;
-
-    console.log("request最初");
 
     const config: RequestInit = {
       headers: {
-        "Content-Type": "application/json", // JSONデータを送信
-        Authorization: `Bearer ${this.apiKey}`, // 認証ヘッダー
-        // または 'X-API-Key': this.apiKey,       // 別の認証方式
-        ...options.headers, // 追加ヘッダーをマージ
+        ...baseHeaders,
+        ...(options.headers || {}),
       },
-      ...options, // その他のオプション（method, bodyなど）をマージ
+      ...options,
     };
 
-    try {
-      // 接続
-      const response = await fetch(url, config);
+    // Debug hooks you already use
+    console.log("request最初");
 
-      console.log("接続はおｋ");
+    let response: Response | undefined;
+    try {
+      response = await fetch(url, config);
 
       if (!response.ok) {
-        const errorBody = await response.text();
-        throw new Error(`HTTP error! status: ${response.status}, body:${errorBody}`);
+        const bodyText = await response.text().catch(() => "");
+        throw new Error(`HTTP error! status: ${response.status}, body:${bodyText}`);
       }
 
+      // Some endpoints may return empty body (204). Guard for that.
+      const text = await response.text();
+      const json = text ? JSON.parse(text) : null;
+
       console.log("接続はおｋ");
-
-      const rawData: ApiResponse<T>[] = await response.json();
-
-      const data = this.normalizeResponse<T>(rawData);
-      
       console.log("rawData");
-      console.log(rawData);
+      console.log(json);
 
-
-      return data;
-    } catch (error) {
-      console.error("API request failed:", error);
-      throw error;
+      return this.normalizeResponse<T>(json);
+    } catch (err) {
+      console.error("API request failed:", err);
+      throw err;
     }
   }
 
-  // Getのリクエスト
-  async get<T>(endpoint: string): Promise<T> {
+  get<T>(endpoint: string): Promise<T> {
     return this.request<T>(endpoint, { method: "GET" });
   }
 
@@ -128,7 +129,7 @@ class ApiClient {
     });
   }
 
-  async delete<T>(endpoint: string): Promise<T> {
+  delete<T>(endpoint: string): Promise<T> {
     return this.request<T>(endpoint, { method: "DELETE" });
   }
 }

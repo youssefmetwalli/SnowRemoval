@@ -11,6 +11,7 @@ import { WorkRecordSection } from "./sections/WorkRecordSection/WorkRecordSectio
 import type { ReportPostData } from "../../types/reportForm";
 import { postReport } from "../../hook/postReport";
 import { WorkerVehicleSection } from "./sections/WorkerVehicleSection/WorkerVehicleSection";
+import { UserName } from "../../components/UserName";
 
 export const ReportInputScreen = (): JSX.Element => {
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -153,6 +154,7 @@ export const ReportInputScreen = (): JSX.Element => {
       />
 
       <div className="flex flex-col w-full items-center pt-4 pb-8 px-4 sm:px-6 bg-gradient-to-b from-sky-50 to-sky-100">
+        <UserName />
         <div className="w-full max-w-4xl space-y-6">
           <NotificationSection
             selectedLocationId={selectedLocationId}
