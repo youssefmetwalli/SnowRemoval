@@ -7,6 +7,7 @@ export const putReport = async (inputData: any, id: string) => {
     const response = await apiClient.put<any>(
       "table_1754551086/records/",
       inputData,
+      "field_dayReportId",
       id
     );
     return response;

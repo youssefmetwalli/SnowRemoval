@@ -114,11 +114,13 @@ class ApiClient {
     });
   }
 
-  async put<T>(endpoint: string, data: any, id: string): Promise<T> {
+  async put<T>(endpoint: string, data: any, fieldname: string, id: string): Promise<T> {
     const wrappedData = {
       records:[
         {
-          recordId: id,
+          recordKey:{
+            [fieldname]: id
+          },
           record:{...data}
         }
       ]
