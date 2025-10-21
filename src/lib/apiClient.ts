@@ -98,17 +98,36 @@ class ApiClient {
     return this.request<T>(endpoint, { method: "GET" });
   }
 
-  post<T>(endpoint: string, data: any): Promise<T> {
+  // post
+  async post<T>(endpoint: string, data: any): Promise<T> {
+    const wrappedData = {
+      records:[
+        {
+          record: {...data}
+        }
+      ]
+    };
+
     return this.request<T>(endpoint, {
       method: "POST",
-      body: JSON.stringify(data),
+      body: JSON.stringify(wrappedData),
     });
   }
 
-  put<T>(endpoint: string, data: any): Promise<T> {
+  async put<T>(endpoint: string, data: any, fieldname: string, id: string): Promise<T> {
+    const wrappedData = {
+      records:[
+        {
+          recordKey:{
+            [fieldname]: id
+          },
+          record:{...data}
+        }
+      ]
+    };
     return this.request<T>(endpoint, {
       method: "PUT",
-      body: JSON.stringify(data),
+      body: JSON.stringify(wrappedData),
     });
   }
 

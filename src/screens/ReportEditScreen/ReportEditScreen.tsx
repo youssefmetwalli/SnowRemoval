@@ -1,5 +1,6 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useLocation } from "react-router-dom";
 import { Alert, AlertDescription } from "../../components/ui/alert";
 import { InputConfirmation } from "../InputConfirmation/InputConfirmation";
 import { ActionButtonsSection } from "../../components/reportUi/ActionButtonsSection/ActionButtonsSection";
@@ -8,14 +9,63 @@ import { NotificationSection } from "../../components/reportUi/NotificationSecti
 import { WorkDurationSection } from "../../components/reportUi/WorkDurationSection/WorkDurationSection";
 import { WorkPlaceSection } from "../../components/reportUi/WorkPlaceSection/WorkPlaceSection";
 import { WorkRecordSection } from "../../components/reportUi/WorkRecordSection/WorkRecordSection";
-import type { ReportPostData } from "../../types/reportForm";
-import { postReport } from "../../hook/postReport";
 import { WorkerVehicleSection } from "../../components/reportUi/WorkerVehicleSection/WorkerVehicleSection";
-import { UserName } from "../../components/UserName";
+import type { ReportPostData } from "../../types/reportForm";
+import { putReport } from "../../hook/putReport";
 
-export const ReportInputScreen = (): JSX.Element => {
+export const ReportEditScreen = (): JSX.Element => {
+  const location = useLocation();
+  const passed = location.state as Partial<ReportPostData> | undefined;
+  const dayReportId: string = location.state.field_dayReportId[1];
   const [showConfirmation, setShowConfirmation] = useState(false);
 
+  // ---------- helpers to normalize incoming values ----------
+  const isoToDate = (iso?: string) => {
+    if (!iso) return "";
+    // "2025-10-11T00:00+09:00" -> "2025-10-11"
+    const m = iso.match(/^(\d{4}-\d{2}-\d{2})/);
+    return m ? m[1] : iso;
+  };
+  const isoToTimeHM = (iso?: string) => {
+    if (!iso) return "";
+    // "2025-10-11T09:30+09:00" -> "09:30"
+    const m = iso.match(/T(\d{2}:\d{2})/);
+    return m ? m[1] : iso;
+  };
+  const asArr = (v?: string[] | string | null) =>
+    Array.isArray(v) ? v : v ? [String(v)] : [];
+
+  const pickStringFromArr = (v?: string[]) =>
+     v ? v[1] : undefined;
+
+  const normalizeForForm = (p?: Partial<ReportPostData>): ReportPostData => ({
+    field_workerId: asArr(p?.field_workerId),
+    field_carId: asArr(p?.field_carId),
+    field_CustomerId: asArr(p?.field_CustomerId),
+    field_endTime: isoToTimeHM(p?.field_endTime),
+    field_workClassId: asArr(p?.field_workClassId),
+    field_workDate: isoToDate(p?.field_workDate),
+    field_workPlaceId: asArr(p?.field_workPlaceId),
+    field_weather: Array.isArray(p?.field_weather)
+      ? p.field_weather[0] ?? ""
+      : p?.field_weather ?? "",
+    field_workerName: p?.field_workerName ?? "",
+    field_assistantId: asArr(p?.field_assistantId),
+    field_assistantName: p?.field_assistantName ?? "",
+    field_workClassName: p?.field_workClassName ?? "",
+    field_carName: p?.field_carName ?? "",
+    field_workPlaceName: p?.field_workPlaceName ?? "",
+    field_startTime: isoToTimeHM(p?.field_startTime),
+    field_CompanyName: p?.field_CompanyName ?? "",
+    field_removalVolume:
+      typeof p?.field_removalVolume === "number"
+        ? String(p?.field_removalVolume)
+        : p?.field_removalVolume ?? "",
+  });
+
+  
+
+  // ---------- form ----------
   const {
     register,
     handleSubmit,
@@ -23,34 +73,32 @@ export const ReportInputScreen = (): JSX.Element => {
     setValue,
     watch,
     reset,
+    clearErrors,
   } = useForm<ReportPostData>({
-    defaultValues: {
-      field_workerId: [],
-      field_carId: [],
-      field_CustomerId: [],
-      field_endTime: "",
-      field_workClassId: [],
-      field_workDate: "",
-      field_workPlaceId: [],
-      field_weather: "",
-      field_workerName: "",
-      field_assistantId: [],
-      field_assistantName: "",
-      field_workClassName: "",
-      field_carName: "",
-      field_workPlaceName: "",
-      field_startTime: "",
-      field_CompanyName: "",
-      field_removalVolume: "",
-    },
+    defaultValues: normalizeForForm(passed), // prefill from card click, or blank when none
     mode: "onSubmit",
   });
 
+
+  // If user navigates here with/without state after mount, ensure defaults update
+  useEffect(() => {
+    reset(normalizeForForm(passed));
+  }, [passed, reset]);
+
+  // selected chip state (initialize from workPlaceId if present)
   const [selectedLocationId, setSelectedLocationId] = useState<number | null>(
-    null
+    () => {
+      const id = normalizeForForm(passed).field_workPlaceId?.[1];
+      return id ? Number(id) : null;
+    }
   );
+
   const values = watch();
 
+
+
+
+  // ---------- JDB payload shaping (same as your working version) ----------
   const toJdbRef = (val?: string | number | null): string[] => {
     if (val === undefined || val === null || val === "") return [];
     const s = String(val);
@@ -66,19 +114,14 @@ export const ReportInputScreen = (): JSX.Element => {
 
   const toIsoDate = (dateStr: string) => {
     if (!dateStr) return "";
-    const tzOffset = "+09:00"; // adjust if needed for your region
+    const tzOffset = "+09:00";
     return `${dateStr}T00:00${tzOffset}`;
   };
 
   const toIsoDateTime = (dateStr: string, timeStr: string) => {
     if (!dateStr || !timeStr) return "";
-    try {
-      const date = new Date(`${dateStr}T${timeStr}`);
-      const tzOffset = "+09:00";
-      return `${dateStr}T${timeStr}${tzOffset}`;
-    } catch {
-      return "";
-    }
+    const tzOffset = "+09:00";
+    return `${dateStr}T${timeStr}${tzOffset}`;
   };
 
   const toJdbRecord = (v: ReportPostData): ReportPostData => ({
@@ -101,7 +144,10 @@ export const ReportInputScreen = (): JSX.Element => {
     field_startTime: toIsoDateTime(v.field_workDate, v.field_startTime),
     field_endTime: toIsoDateTime(v.field_workDate, v.field_endTime),
     field_CompanyName: v.field_CompanyName,
-    field_removalVolume: v.field_removalVolume ? v.field_removalVolume : null,
+    field_removalVolume:
+      values.field_removalVolume && Number(values.field_removalVolume) > 0
+        ? String(values.field_removalVolume)
+        : null,
   });
 
   const firstError = useMemo(() => {
@@ -120,16 +166,18 @@ export const ReportInputScreen = (): JSX.Element => {
     return key ? (errors[key]?.message as string | undefined) : undefined;
   }, [errors]);
 
+
+
   const onValid = () => setShowConfirmation(true);
-  const onInvalid = () => setShowConfirmation(false);
+  const onInvalid = () => {setShowConfirmation(false); console.log("Invalid!");}
 
   const handleConfirm = async () => {
     try {
       const record = toJdbRecord(values);
-      await postReport(record);
+      await putReport(record, dayReportId); // reuse your POST for now
       setShowConfirmation(false);
       console.log("送信成功");
-      reset();
+      reset(); // clear after save (optional for edit)
     } catch (error) {
       console.error("送信エラー:", error);
     } finally {
@@ -154,18 +202,17 @@ export const ReportInputScreen = (): JSX.Element => {
       />
 
       <div className="flex flex-col w-full items-center pt-4 pb-8 px-4 sm:px-6 bg-gradient-to-b from-sky-50 to-sky-100">
-        <UserName />
         <div className="w-full max-w-4xl space-y-6">
           <NotificationSection
             selectedLocationId={selectedLocationId}
             onLocationSelect={(loc) => {
               setSelectedLocationId(loc.id);
+              // avoid early validation flashes; clear error once user selects
               setValue("field_workPlaceId", [String(loc.id)], {
-                shouldValidate: true,
+                shouldDirty: true,
               });
-              setValue("field_workPlaceName", loc.name, {
-                shouldValidate: true,
-              });
+              setValue("field_workPlaceName", loc.name, { shouldDirty: true });
+              clearErrors("field_workPlaceId");
             }}
             error={errors.field_workPlaceId?.message}
           />
@@ -177,16 +224,15 @@ export const ReportInputScreen = (): JSX.Element => {
           )}
 
           <form
-            onSubmit={handleSubmit(onValid, onInvalid)}
             className="space-y-6"
+            onSubmit={handleSubmit(onValid, onInvalid)}
             noValidate
           >
             <input
               type="hidden"
               value={selectedLocationId ?? ""}
               {...register("field_workPlaceId", {
-                required:
-                  "作業場所を選択してください (ここと下のドロップダウンから)",
+                required: "作業場所を選択してください",
               })}
             />
 

@@ -1,10 +1,10 @@
 import { ArrowLeftIcon, MapPinIcon } from "lucide-react";
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Badge } from "../../../../components/ui/badge";
-import { Button } from "../../../../components/ui/button";
-import { ScrollArea, ScrollBar } from "../../../../components/ui/scroll-area";
-import { cn } from "../../../../lib/utils";
+import { Badge } from "../../ui/badge";
+import { Button } from "../../ui/button";
+import { ScrollArea, ScrollBar } from "../../ui/scroll-area";
+import { cn } from "../../../lib/utils";
 
 const locationData = [
   { id: 1, name: "県道123号 北区間" },
