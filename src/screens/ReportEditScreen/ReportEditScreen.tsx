@@ -3,13 +3,13 @@ import { useForm } from "react-hook-form";
 import { useLocation } from "react-router-dom";
 import { Alert, AlertDescription } from "../../components/ui/alert";
 import { InputConfirmation } from "../InputConfirmation/InputConfirmation";
-import { ActionButtonsSection } from "./sections/ActionButtonsSection/ActionButtonsSection";
-import { BasicInformationSection } from "./sections/BasicInformationSection/BasicInformationSection";
-import { NotificationSection } from "./sections/NotificationSection/NotificationSection";
-import { WorkDurationSection } from "./sections/WorkDurationSection/WorkDurationSection";
-import { WorkPlaceSection } from "./sections/WorkPlaceSection/WorkPlaceSection";
-import { WorkRecordSection } from "./sections/WorkRecordSection/WorkRecordSection";
-import { WorkerVehicleSection } from "./sections/WorkerVehicleSection/WorkerVehicleSection";
+import { ActionButtonsSection } from "../../components/reportUi/ActionButtonsSection/ActionButtonsSection";
+import { BasicInformationSection } from "../../components/reportUi/BasicInformationSection/BasicInformationSection";
+import { NotificationSection } from "../../components/reportUi/NotificationSection/NotificationSection";
+import { WorkDurationSection } from "../../components/reportUi/WorkDurationSection/WorkDurationSection";
+import { WorkPlaceSection } from "../../components/reportUi/WorkPlaceSection/WorkPlaceSection";
+import { WorkRecordSection } from "../../components/reportUi/WorkRecordSection/WorkRecordSection";
+import { WorkerVehicleSection } from "../../components/reportUi/WorkerVehicleSection/WorkerVehicleSection";
 import type { ReportPostData } from "../../types/reportForm";
 import { putReport } from "../../hook/putReport";
 
@@ -88,7 +88,7 @@ export const ReportEditScreen = (): JSX.Element => {
   // selected chip state (initialize from workPlaceId if present)
   const [selectedLocationId, setSelectedLocationId] = useState<number | null>(
     () => {
-      const id = normalizeForForm(passed).field_workPlaceId?.[0];
+      const id = normalizeForForm(passed).field_workPlaceId?.[1];
       return id ? Number(id) : null;
     }
   );

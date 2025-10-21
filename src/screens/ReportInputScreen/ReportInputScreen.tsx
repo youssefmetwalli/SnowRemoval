@@ -2,15 +2,15 @@ import React, { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Alert, AlertDescription } from "../../components/ui/alert";
 import { InputConfirmation } from "../InputConfirmation/InputConfirmation";
-import { ActionButtonsSection } from "./sections/ActionButtonsSection/ActionButtonsSection";
-import { BasicInformationSection } from "./sections/BasicInformationSection/BasicInformationSection";
-import { NotificationSection } from "./sections/NotificationSection/NotificationSection";
-import { WorkDurationSection } from "./sections/WorkDurationSection/WorkDurationSection";
-import { WorkPlaceSection } from "./sections/WorkPlaceSection/WorkPlaceSection";
-import { WorkRecordSection } from "./sections/WorkRecordSection/WorkRecordSection";
+import { ActionButtonsSection } from "../../components/reportUi/ActionButtonsSection/ActionButtonsSection";
+import { BasicInformationSection } from "../../components/reportUi/BasicInformationSection/BasicInformationSection";
+import { NotificationSection } from "../../components/reportUi/NotificationSection/NotificationSection";
+import { WorkDurationSection } from "../../components/reportUi/WorkDurationSection/WorkDurationSection";
+import { WorkPlaceSection } from "../../components/reportUi/WorkPlaceSection/WorkPlaceSection";
+import { WorkRecordSection } from "../../components/reportUi/WorkRecordSection/WorkRecordSection";
 import type { ReportPostData } from "../../types/reportForm";
 import { postReport } from "../../hook/postReport";
-import { WorkerVehicleSection } from "./sections/WorkerVehicleSection/WorkerVehicleSection";
+import { WorkerVehicleSection } from "../../components/reportUi/WorkerVehicleSection/WorkerVehicleSection";
 import { UserName } from "../../components/UserName";
 
 export const ReportInputScreen = (): JSX.Element => {
