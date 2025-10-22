@@ -16,12 +16,14 @@ const locationData = [
 interface NotificationSectionProps {
   selectedLocationId?: number | null;
   onLocationSelect?: (location: { id: number; name: string }) => void;
+  title?: string;
   error?: string; 
 }
 
 export const NotificationSection = ({
   selectedLocationId,
   onLocationSelect,
+  title,
   error,
 }: NotificationSectionProps): JSX.Element => {
   const navigate = useNavigate();
@@ -60,7 +62,7 @@ export const NotificationSection = ({
           </Button>
 
         <div className="flex-1 flex justify-center">
-          <h1 className="text-white font-semibold text-lg">日報入力</h1>
+          <h1 className="text-white font-semibold text-lg">{title ?? "日報入力"}</h1>
         </div>
 
         <div className="w-9" />
