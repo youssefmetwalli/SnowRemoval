@@ -3,7 +3,7 @@ import { apiClient } from "../lib/apiClient";
 import { RouteGetData } from "../types/reportForm";
 
 
-export const getRoute = (userName?: string)=>{
+export const useRoute = (userName: string|undefined)=>{
     const [data, setData] = useState<RouteGetData[] | undefined>();
     const [isLoading, setLoading] = useState(true);
     const[isError, setError] = useState(false);
@@ -12,7 +12,7 @@ export const getRoute = (userName?: string)=>{
     useEffect(() => {
       (async () => {
         try {
-          console.log("get送信");
+          console.log("get送信。ユーザー名:", userName);
           const data = await apiClient.get<RouteGetData[]>(
             `table_1756952069/records/${query}`
           );

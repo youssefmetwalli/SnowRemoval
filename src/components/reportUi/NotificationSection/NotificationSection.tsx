@@ -1,28 +1,33 @@
 import { ArrowLeftIcon, MapPinIcon } from "lucide-react";
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "../../ui/badge";
 import { Button } from "../../ui/button";
 import { ScrollArea, ScrollBar } from "../../ui/scroll-area";
 import { cn } from "../../../lib/utils";
 
-const locationData = [
-  { id: 1, name: "県道123号 北区間" },
-  { id: 2, name: "県道22号 西区間" },
-  { id: 3, name: "町道45号 東エリア" },
-  { id: 4, name: "町道23号 南エリア" },
-];
+// const locationData = [
+//   { id: 1, name: "県道123号 北区間" },
+//   { id: 2, name: "県道22号 西区間" },
+//   { id: 3, name: "町道45号 東エリア" },
+//   { id: 4, name: "町道23号 南エリア" },
+// ];
 
 interface NotificationSectionProps {
   selectedLocationId?: number | null;
   onLocationSelect?: (location: { id: number; name: string }) => void;
   error?: string; 
+  routes?: { id: number; name: string }[];
+  loading?: boolean;
 }
 
 export const NotificationSection = ({
   selectedLocationId,
   onLocationSelect,
   error,
+  routes = [],
+  loading = false,
+
 }: NotificationSectionProps): JSX.Element => {
   const navigate = useNavigate();
   const [internalSelectedId, setInternalSelectedId] = useState<number | null>(
@@ -68,44 +73,50 @@ export const NotificationSection = ({
 
       {/* Location chips */}
       <div className="w-full">
-        <ScrollArea className="w-full">
-          <div className="flex gap-2 pb-3 text-lg">
-            {locationData.map((location) => {
-              const selected = currentSelected === location.id;
-              return (
-                <Badge
-                  key={location.id}
-                  role="button"
-                  tabIndex={0}
-                  aria-pressed={selected}
-                  onClick={() => handleSelect(location)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      handleSelect(location);
-                    }
-                  }}
-                  className={cn(
-                    "inline-flex items-center gap-1.5 px-4 py-2.5 rounded-[20px] whitespace-nowrap cursor-pointer select-none border transition-colors duration-150 ease-out",
-                    "focus:outline-none focus-visible:ring-0",
-                    selected
-                      ? "bg-amber-400 text-amber-900 border-transparent shadow-md hover:bg-sky-300 hover:text-blue-900"
-                      : "bg-white text-blue-900 border-blue-200 hover:bg-blue-50 hover:text-blue-700 hover:shadow"
-                  )}
-                >
-                  <MapPinIcon
+        {loading ? (
+          <p className="text-white text-sm mt-2 px-2">データ読み込み中...</p>
+        ) : routes.length === 0 ? (
+          <p className="text-white text-sm mt-2 px-2">利用可能な経路がありません</p>
+        ) : (
+          <ScrollArea className="w-full">
+            <div className="flex gap-2 pb-3 text-lg">
+              {routes.map((location) => {
+                const selected = currentSelected === location.id;
+                return (
+                  <Badge
+                    key={location.id}
+                    role="button"
+                    tabIndex={0}
+                    aria-pressed={selected}
+                    onClick={() => handleSelect(location)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        handleSelect(location);
+                      }
+                    }}
                     className={cn(
-                      "w-4 h-4",
-                      selected ? "text-amber-900" : "text-blue-500"
+                      "inline-flex items-center gap-1.5 px-4 py-2.5 rounded-[20px] whitespace-nowrap cursor-pointer select-none border transition-colors duration-150 ease-out",
+                      "focus:outline-none focus-visible:ring-0",
+                      selected
+                        ? "bg-amber-400 text-amber-900 border-transparent shadow-md hover:bg-sky-300 hover:text-blue-900"
+                        : "bg-white text-blue-900 border-blue-200 hover:bg-blue-50 hover:text-blue-700 hover:shadow"
                     )}
-                  />
-                  {location.name}
-                </Badge>
-              );
-            })}
-          </div>
-          <ScrollBar orientation="horizontal" />
-        </ScrollArea>
+                  >
+                    <MapPinIcon
+                      className={cn(
+                        "w-4 h-4",
+                        selected ? "text-amber-900" : "text-blue-500"
+                      )}
+                    />
+                    {location.name}
+                  </Badge>
+                );
+              })}
+            </div>
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
+        )}
 
         {error && (
           <p className="text-red-100 bg-red-500/20 rounded-md mt-1 px-2 py-1 text-sm font-medium">

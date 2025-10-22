@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Alert, AlertDescription } from "../../components/ui/alert";
 import { InputConfirmation } from "../InputConfirmation/InputConfirmation";
@@ -10,11 +10,33 @@ import { WorkPlaceSection } from "../../components/reportUi/WorkPlaceSection/Wor
 import { WorkRecordSection } from "../../components/reportUi/WorkRecordSection/WorkRecordSection";
 import type { ReportPostData } from "../../types/reportForm";
 import { postReport } from "../../hook/postReport";
+import { useRoute } from "../../hook/getRoute";
 import { WorkerVehicleSection } from "../../components/reportUi/WorkerVehicleSection/WorkerVehicleSection";
 import { UserName } from "../../components/UserName";
 
 export const ReportInputScreen = (): JSX.Element => {
   const [showConfirmation, setShowConfirmation] = useState(false);
+
+  const rawUserData = localStorage.getItem('loggedInUser');
+  let name: string | undefined = undefined;
+  try {
+    if(rawUserData){
+      const userData = JSON.parse(rawUserData);
+      name = userData?.field_1754549790;
+    }
+    
+  } catch (error) {
+    console.error("Failed to parse JSON from localStrage.", error);
+  }
+
+  const { data: routeData, isLoading, isError } = useRoute(name);
+
+  const routes =
+    routeData?.map((r, index) => ({
+      id: Number(r.field_workPlaceId?.[1] ?? index),
+      name: r.field_workPlaceName ?? "名称未設定",
+    })) ?? [];
+    console.log("路線情報:", routes);
 
   const {
     register,
@@ -139,92 +161,107 @@ export const ReportInputScreen = (): JSX.Element => {
 
   return (
     <>
-      <InputConfirmation
-        open={showConfirmation}
-        onOpenChange={setShowConfirmation}
-        onConfirm={handleConfirm}
-        data={{
-          workDate: values.field_workDate,
-          workplace: values.field_workPlaceName ?? "",
-          workClassification: values.field_workClassName ?? "",
-          startTime: values.field_startTime,
-          endTime: values.field_endTime,
-          mainPerson: values.field_workerName ?? "",
-        }}
-      />
-
-      <div className="flex flex-col w-full items-center pt-4 pb-8 px-4 sm:px-6 bg-gradient-to-b from-sky-50 to-sky-100">
-        <UserName />
-        <div className="w-full max-w-4xl space-y-6">
-          <NotificationSection
-            selectedLocationId={selectedLocationId}
-            onLocationSelect={(loc) => {
-              setSelectedLocationId(loc.id);
-              setValue("field_workPlaceId", [String(loc.id)], {
-                shouldValidate: true,
-              });
-              setValue("field_workPlaceName", loc.name, {
-                shouldValidate: true,
-              });
-            }}
-            error={errors.field_workPlaceId?.message}
-          />
-
-          {firstError && (
-            <Alert className="bg-red-50 border-red-200 text-red-700">
-              <AlertDescription>{firstError}</AlertDescription>
-            </Alert>
-          )}
-
-          <form
-            onSubmit={handleSubmit(onValid, onInvalid)}
-            className="space-y-6"
-            noValidate
-          >
-            <input
-              type="hidden"
-              value={selectedLocationId ?? ""}
-              {...register("field_workPlaceId", {
-                required:
-                  "作業場所を選択してください (ここと下のドロップダウンから)",
-              })}
-            />
-
-            <BasicInformationSection
-              register={register}
-              errors={errors}
-              setValue={setValue}
-              values={values}
-            />
-            <WorkerVehicleSection
-              register={register}
-              errors={errors}
-              setValue={setValue}
-              values={values}
-            />
-            <WorkPlaceSection
-              register={register}
-              errors={errors}
-              setValue={setValue}
-              values={values}
-            />
-            <WorkDurationSection
-              register={register}
-              errors={errors}
-              setValue={setValue}
-              values={values}
-            />
-            <WorkRecordSection
-              register={register}
-              errors={errors}
-              setValue={setValue}
-              values={values}
-            />
-
-            <ActionButtonsSection />
-          </form>
+      {isLoading && (
+        <div className="p-4 text-gray-500 text-center">読み込み中...</div>
+      )}
+      {isError && (
+        <div className="p-4 text-red-600 text-center">
+          データ取得に失敗しました。
         </div>
-      </div>
+      )}
+
+      {!isLoading && !isError && (
+      <>
+        <InputConfirmation
+          open={showConfirmation}
+          onOpenChange={setShowConfirmation}
+          onConfirm={handleConfirm}
+          data={{
+            workDate: values.field_workDate,
+            workplace: values.field_workPlaceName ?? "",
+            workClassification: values.field_workClassName ?? "",
+            startTime: values.field_startTime,
+            endTime: values.field_endTime,
+            mainPerson: values.field_workerName ?? "",
+          }}
+        />
+
+        <div className="flex flex-col w-full items-center pt-4 pb-8 px-4 sm:px-6 bg-gradient-to-b from-sky-50 to-sky-100">
+          <UserName />
+          <div className="w-full max-w-4xl space-y-6">
+            <NotificationSection
+              selectedLocationId={selectedLocationId}
+              onLocationSelect={(loc) => {
+                setSelectedLocationId(loc.id);
+                setValue("field_workPlaceId", [String(loc.id)], {
+                  shouldValidate: true,
+                });
+                setValue("field_workPlaceName", loc.name, {
+                  shouldValidate: true,
+                });
+              }}
+              routes={routes}
+              loading={isLoading}  
+              error={errors.field_workPlaceId?.message}
+            />
+
+            {firstError && (
+              <Alert className="bg-red-50 border-red-200 text-red-700">
+                <AlertDescription>{firstError}</AlertDescription>
+              </Alert>
+            )}
+
+            <form
+              onSubmit={handleSubmit(onValid, onInvalid)}
+              className="space-y-6"
+              noValidate
+            >
+              <input
+                type="hidden"
+                value={selectedLocationId ?? ""}
+                {...register("field_workPlaceId", {
+                  required:
+                    "作業場所を選択してください (ここと下のドロップダウンから)",
+                })}
+              />
+
+              <BasicInformationSection
+                register={register}
+                errors={errors}
+                setValue={setValue}
+                values={values}
+              />
+              <WorkerVehicleSection
+                register={register}
+                errors={errors}
+                setValue={setValue}
+                values={values}
+              />
+              <WorkPlaceSection
+                register={register}
+                errors={errors}
+                setValue={setValue}
+                values={values}
+              />
+              <WorkDurationSection
+                register={register}
+                errors={errors}
+                setValue={setValue}
+                values={values}
+              />
+              <WorkRecordSection
+                register={register}
+                errors={errors}
+                setValue={setValue}
+                values={values}
+              />
+
+              <ActionButtonsSection />
+            </form>
+          </div>
+        </div>
+      </>
+      )}
     </>
   );
 };
