@@ -35,8 +35,12 @@ export const ReportEditScreen = (): JSX.Element => {
   const asArr = (v?: string[] | string | null) =>
     Array.isArray(v) ? v : v ? [String(v)] : [];
 
-  const pickStringFromArr = (v?: string[]) =>
-     v ? v[1] : undefined;
+  const pickId = (arr?: unknown) => {
+    if (!Array.isArray(arr)) return arr as string | undefined;
+    const a = arr as string[];
+    // prefer ["", "1", "", "1"] -> "1"; otherwise use single-element ["1"]
+    return a[1] ?? a[0];
+  };
 
   const normalizeForForm = (p?: Partial<ReportPostData>): ReportPostData => ({
     field_workerId: asArr(p?.field_workerId),
@@ -63,9 +67,6 @@ export const ReportEditScreen = (): JSX.Element => {
         : p?.field_removalVolume ?? "",
   });
 
-  
-
-  // ---------- form ----------
   const {
     register,
     handleSubmit,
@@ -79,13 +80,10 @@ export const ReportEditScreen = (): JSX.Element => {
     mode: "onSubmit",
   });
 
-
-  // If user navigates here with/without state after mount, ensure defaults update
   useEffect(() => {
     reset(normalizeForForm(passed));
   }, [passed, reset]);
 
-  // selected chip state (initialize from workPlaceId if present)
   const [selectedLocationId, setSelectedLocationId] = useState<number | null>(
     () => {
       const id = normalizeForForm(passed).field_workPlaceId?.[1];
@@ -95,10 +93,6 @@ export const ReportEditScreen = (): JSX.Element => {
 
   const values = watch();
 
-
-
-
-  // ---------- JDB payload shaping (same as your working version) ----------
   const toJdbRef = (val?: string | number | null): string[] => {
     if (val === undefined || val === null || val === "") return [];
     const s = String(val);
@@ -130,7 +124,7 @@ export const ReportEditScreen = (): JSX.Element => {
     field_CustomerId: toJdbRef(first(v.field_CustomerId)),
     field_workClassId: toJdbRef(first(v.field_workClassId)),
     field_workDate: toIsoDate(v.field_workDate),
-    field_workPlaceId: toJdbRef(first(v.field_workPlaceId)),
+    field_workPlaceId: toJdbRef(pickId(v.field_workPlaceId)),
     field_weather: v.field_weather,
     field_workerName: nullIfEmpty(v.field_workerName) as string | null,
     field_assistantId:
@@ -166,18 +160,19 @@ export const ReportEditScreen = (): JSX.Element => {
     return key ? (errors[key]?.message as string | undefined) : undefined;
   }, [errors]);
 
-
-
   const onValid = () => setShowConfirmation(true);
-  const onInvalid = () => {setShowConfirmation(false); console.log("Invalid!");}
+  const onInvalid = () => {
+    setShowConfirmation(false);
+    console.log("Invalid!");
+  };
 
   const handleConfirm = async () => {
     try {
       const record = toJdbRecord(values);
-      await putReport(record, dayReportId); // reuse your POST for now
+      await putReport(record, dayReportId);
       setShowConfirmation(false);
       console.log("送信成功");
-      reset(); // clear after save (optional for edit)
+      reset();
     } catch (error) {
       console.error("送信エラー:", error);
     } finally {
@@ -204,10 +199,10 @@ export const ReportEditScreen = (): JSX.Element => {
       <div className="flex flex-col w-full items-center pt-4 pb-8 px-4 sm:px-6 bg-gradient-to-b from-sky-50 to-sky-100">
         <div className="w-full max-w-4xl space-y-6">
           <NotificationSection
+            title="日報編集"
             selectedLocationId={selectedLocationId}
             onLocationSelect={(loc) => {
               setSelectedLocationId(loc.id);
-              // avoid early validation flashes; clear error once user selects
               setValue("field_workPlaceId", [String(loc.id)], {
                 shouldDirty: true,
               });
