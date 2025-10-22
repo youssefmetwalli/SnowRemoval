@@ -1,13 +1,13 @@
 import React from "react";
-import { Card, CardContent } from "../../../../components/ui/card";
-import { Label } from "../../../../components/ui/label";
-import { Input } from "../../../../components/ui/input";
+import { Card, CardContent } from "../../ui/card";
+import { Label } from "../../ui/label";
+import { Input } from "../../ui/input";
 import type {
   UseFormRegister,
   FieldErrors,
   UseFormSetValue,
 } from "react-hook-form";
-import type { ReportPostData } from "../../../../types/reportForm";
+import type { ReportPostData } from "../../../types/reportForm";
 import { ClockIcon } from "lucide-react";
 
 interface Props {

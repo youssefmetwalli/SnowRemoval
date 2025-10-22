@@ -1,20 +1,20 @@
 import { CalendarIcon } from "lucide-react";
-import { Card, CardContent } from "../../../../components/ui/card";
-import { Input } from "../../../../components/ui/input";
-import { Label } from "../../../../components/ui/label";
+import { Card, CardContent } from "../../ui/card";
+import { Input } from "../../ui/input";
+import { Label } from "../../ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../../../../components/ui/select";
+} from "../../ui/select";
 import type {
   UseFormRegister,
   FieldErrors,
   UseFormSetValue,
 } from "react-hook-form";
-import type { ReportPostData } from "../../../../types/reportForm";
+import type { ReportPostData } from "../../../types/reportForm";
 
 interface Props {
   register: UseFormRegister<ReportPostData>;
@@ -37,17 +37,17 @@ export const BasicInformationSection = ({
           <h2 className="text-sm font-semibold text-gray-700">基本情報</h2>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 *:min-w-0">
+        <div className="grid grid-rows-2 gap-3 *:min-w-0">
           {/* 作業日 (field_workDate) */}
           <div className="space-y-1.5">
             <Label className="text-sm">
               作業日<span className="text-red-500 ml-1">*</span>
             </Label>
             <div className="relative">
-              <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              {/* <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" /> */}
               <Input
                 type="date"
-                className="pl-9 w-full h-11 text-base rounded-md border border-gray-300"
+                className="pl-5 w-full h-11 text-base rounded-md border border-gray-300"
                 {...register("field_workDate", { required: "作業日は必須です" })}
               />
             </div>

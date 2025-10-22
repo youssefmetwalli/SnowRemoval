@@ -1,16 +1,17 @@
 import { PlusIcon } from "lucide-react";
-import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { FilterSection } from "./sections/FilterSection/FilterSection";
 import { HeaderSection } from "./sections/HeaderSection/HeaderSection";
 import { ReportListSection } from "./sections/ReportListSection/ReportListSection";
+import { UserName } from "../../components/UserName";
 
 export const ReportListScreen = (): JSX.Element => {
   const navigate = useNavigate();
 
   return (
    <div className="flex flex-col w-full items-center pt-4 pb-8 px-4 sm:px-6 bg-gradient-to-b from-sky-50 to-sky-100">
+    <UserName />
       <div className="translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:200ms] w-full">
         <HeaderSection />
       </div>

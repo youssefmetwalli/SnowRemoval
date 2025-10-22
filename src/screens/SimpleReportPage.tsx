@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { getReport } from "../hook/getReport";
+import { useReport } from "../hook/getReport";
 import { postReport } from "../hook/postReport";
 import {ReportPostData} from "../types/reportForm";
 
@@ -44,7 +44,7 @@ const SimpleReportPage: React.FC = () => {
     }
   };
 
-  const { data, isLoading, isError } = getReport();
+  const { data, isLoading, isError } = useReport();
 
   return (
     <div style={{ padding: "20px" }}>
