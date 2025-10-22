@@ -156,7 +156,7 @@ export const NavigationMenuSection = (): JSX.Element => {
 
           <MenuTile
             title="日報一覧"
-            subtitle={`${reportCount}件`}
+            // subtitle={`${reportCount}件`}
             icon={<span className="text-2xl">📋</span>}
             onClick={() => navigate("/reportlistscreen")}
           />
