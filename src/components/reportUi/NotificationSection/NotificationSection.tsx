@@ -17,6 +17,7 @@ interface NotificationSectionProps {
   selectedLocationId?: number | null;
   onLocationSelect?: (location: { id: number; name: string }) => void;
   title?: string;
+  navigateTo: string;
   error?: string; 
 }
 
@@ -24,6 +25,7 @@ export const NotificationSection = ({
   selectedLocationId,
   onLocationSelect,
   title,
+  navigateTo,
   error,
 }: NotificationSectionProps): JSX.Element => {
   const navigate = useNavigate();
@@ -56,7 +58,7 @@ export const NotificationSection = ({
             size="icon"
             className="w-10 h-10 rounded-lg bg-white text-blue-600 text-3xl font-bold shadow-md 
              hover:bg-blue-100 hover:scale-105 transition-all"
-            onClick={() => navigate("/homescreen")}
+            onClick={() => navigate(navigateTo)}
           >
             <ArrowLeftIcon className="w-5 h-5 text-blue text-3xl" />
           </Button>

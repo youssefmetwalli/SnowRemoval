@@ -157,6 +157,7 @@ export const ReportInputScreen = (): JSX.Element => {
         <UserName />
         <div className="w-full max-w-4xl space-y-6">
           <NotificationSection
+            navigateTo="/homescreen"
             selectedLocationId={selectedLocationId}
             onLocationSelect={(loc) => {
               setSelectedLocationId(loc.id);
