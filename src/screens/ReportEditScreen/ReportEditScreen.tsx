@@ -200,6 +200,7 @@ export const ReportEditScreen = (): JSX.Element => {
         <div className="w-full max-w-4xl space-y-6">
           <NotificationSection
             title="日報編集"
+            navigateTo="/reportlistscreen"
             selectedLocationId={selectedLocationId}
             onLocationSelect={(loc) => {
               setSelectedLocationId(loc.id);
