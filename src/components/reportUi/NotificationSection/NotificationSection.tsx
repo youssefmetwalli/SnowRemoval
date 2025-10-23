@@ -1,10 +1,10 @@
 import { ArrowLeftIcon, MapPinIcon } from "lucide-react";
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Badge } from "../../../../components/ui/badge";
-import { Button } from "../../../../components/ui/button";
-import { ScrollArea, ScrollBar } from "../../../../components/ui/scroll-area";
-import { cn } from "../../../../lib/utils";
+import { Badge } from "../../ui/badge";
+import { Button } from "../../ui/button";
+import { ScrollArea, ScrollBar } from "../../ui/scroll-area";
+import { cn } from "../../../lib/utils";
 
 const locationData = [
   { id: 1, name: "県道123号 北区間" },
@@ -16,12 +16,16 @@ const locationData = [
 interface NotificationSectionProps {
   selectedLocationId?: number | null;
   onLocationSelect?: (location: { id: number; name: string }) => void;
+  title?: string;
+  navigateTo: string;
   error?: string; 
 }
 
 export const NotificationSection = ({
   selectedLocationId,
   onLocationSelect,
+  title,
+  navigateTo,
   error,
 }: NotificationSectionProps): JSX.Element => {
   const navigate = useNavigate();
@@ -54,13 +58,13 @@ export const NotificationSection = ({
             size="icon"
             className="w-10 h-10 rounded-lg bg-white text-blue-600 text-3xl font-bold shadow-md 
              hover:bg-blue-100 hover:scale-105 transition-all"
-            onClick={() => navigate("/homescreen")}
+            onClick={() => navigate(navigateTo)}
           >
             <ArrowLeftIcon className="w-5 h-5 text-blue text-3xl" />
           </Button>
 
         <div className="flex-1 flex justify-center">
-          <h1 className="text-white font-semibold text-lg">日報入力</h1>
+          <h1 className="text-white font-semibold text-lg">{title ?? "日報入力"}</h1>
         </div>
 
         <div className="w-9" />
