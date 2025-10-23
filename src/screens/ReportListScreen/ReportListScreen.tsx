@@ -5,8 +5,13 @@ import { FilterSection } from "./sections/FilterSection/FilterSection";
 import { HeaderSection } from "./sections/HeaderSection/HeaderSection";
 import { ReportListSection } from "./sections/ReportListSection/ReportListSection";
 import { UserName } from "../../components/UserName";
+import { ReportFilter } from "../../types/filterType";
+import { useState } from "react";
+
+
 
 export const ReportListScreen = (): JSX.Element => {
+  const [filter, setFilter] = useState<ReportFilter>({});
   const navigate = useNavigate();
 
   return (
