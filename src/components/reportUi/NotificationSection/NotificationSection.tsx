@@ -15,9 +15,9 @@ import { cn } from "../../../lib/utils";
 
 interface NotificationSectionProps {
   selectedLocationId?: number | null;
-  onLocationSelect?: (location: { id: number; name: string }) => void;
-  error?: string; 
-  routes?: { id: number; name: string }[];
+  onLocationSelect?: (location: { placeId: number; name: string }) => void;
+  error?: string;
+  routes?: { placeId: number; name: string }[];
   loading?: boolean;
 }
 
@@ -41,8 +41,8 @@ export const NotificationSection = ({
   }, [selectedLocationId]);
 
   const handleSelect = useCallback(
-    (loc: { id: number; name: string }) => {
-      if (selectedLocationId === undefined) setInternalSelectedId(loc.id);
+    (loc: { placeId: number; name: string }) => {
+      if (selectedLocationId === undefined) setInternalSelectedId(loc.placeId);
       onLocationSelect?.(loc);
     },
     [onLocationSelect, selectedLocationId]
@@ -81,10 +81,10 @@ export const NotificationSection = ({
           <ScrollArea className="w-full">
             <div className="flex gap-2 pb-3 text-lg">
               {routes.map((location) => {
-                const selected = currentSelected === location.id;
+                const selected = currentSelected === location.placeId;
                 return (
                   <Badge
-                    key={location.id}
+                    key={location.placeId}
                     role="button"
                     tabIndex={0}
                     aria-pressed={selected}

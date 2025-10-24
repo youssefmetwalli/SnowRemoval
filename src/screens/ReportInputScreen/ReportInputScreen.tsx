@@ -33,10 +33,13 @@ export const ReportInputScreen = (): JSX.Element => {
 
   const routes =
     routeData?.map((r, index) => ({
-      id: Number(r.field_workPlaceId?.[1] ?? index),
+      placeId: Number(r.field_workPlaceId?.[1] ?? index),
       name: r.field_workPlaceName ?? "名称未設定",
+      carId: r.field_carId[1] ?? index.toString,
+      carName: r.field_carName ?? "名称未設定",
     })) ?? [];
     console.log("路線情報:", routes);
+
 
   const {
     register,
@@ -192,8 +195,8 @@ export const ReportInputScreen = (): JSX.Element => {
             <NotificationSection
               selectedLocationId={selectedLocationId}
               onLocationSelect={(loc) => {
-                setSelectedLocationId(loc.id);
-                setValue("field_workPlaceId", [String(loc.id)], {
+                setSelectedLocationId(loc.placeId);
+                setValue("field_workPlaceId", [String(loc.placeId)], {
                   shouldValidate: true,
                 });
                 setValue("field_workPlaceName", loc.name, {
@@ -236,12 +239,15 @@ export const ReportInputScreen = (): JSX.Element => {
                 errors={errors}
                 setValue={setValue}
                 values={values}
+                selectedPlaceId={selectedLocationId}
+                options={routes}
               />
               <WorkPlaceSection
                 register={register}
                 errors={errors}
                 setValue={setValue}
                 values={values}
+                workPlaceOption={routes}
               />
               <WorkDurationSection
                 register={register}

@@ -15,12 +15,15 @@ import type {
   UseFormSetValue,
 } from "react-hook-form";
 import type { ReportPostData } from "../../../types/reportForm";
+import { useEffect } from "react";
 
 interface Props {
   register: UseFormRegister<ReportPostData>;
   errors: FieldErrors<ReportPostData>;
   setValue: UseFormSetValue<ReportPostData>;
   values: ReportPostData;
+  selectedPlaceId: number | null;
+  options: { placeId: number; carId: string; carName: string }[];
 }
 
 export const WorkerVehicleSection = ({
@@ -28,7 +31,17 @@ export const WorkerVehicleSection = ({
   errors,
   setValue,
   values,
+  selectedPlaceId,
+  options
 }: Props): JSX.Element => {
+  // if(selectedPlaceId != null){
+  //   const selectedCarId = options
+  //     .filter((option) => option.placeId === selectedPlaceId)
+  //     .map((option) => option.carId);
+  //   setValue("field_carId", [selectedCarId[0]], {
+  //     shouldValidate: true,
+  //   });
+  // }
   return (
     <Card className="w-full bg-white rounded-xl border border-slate-200 shadow-[0px_1px_3px_#0000001a]">
       <CardContent className="p-5 space-y-4">
@@ -87,11 +100,9 @@ export const WorkerVehicleSection = ({
               const idMap: Record<string, string> = {
                 "山田 次郎": "3",
               };
-              setValue(
-                "field_assistantId",
-                v && idMap[v] ? [idMap[v]] : [],
-                { shouldValidate: true }
-              );
+              setValue("field_assistantId", v && idMap[v] ? [idMap[v]] : [], {
+                shouldValidate: true,
+              });
             }}
           >
             <SelectTrigger className="h-11">
@@ -113,21 +124,36 @@ export const WorkerVehicleSection = ({
             value={values.field_carName ?? ""}
             onValueChange={(v) => {
               setValue("field_carName", v, { shouldValidate: true });
-              const idMap: Record<string, string> = {
-                "除雪車A号": "1",
-                "除雪車B号": "2",
-              };
-              setValue("field_carId", [idMap[v] ?? ""], {
-                shouldValidate: true,
-              });
+              // const idMap: Record<string, string> = {
+              //   "除雪車A号": "1",
+              //   "除雪車B号": "2",
+              // };
+              const selectOption = options.find(
+                (option) => option.carName === v
+              );
+              if (selectOption) {
+                setValue("field_carId", [selectOption.carId.toString()], {
+                  shouldValidate: true,
+                });
+              }
+              // setValue("field_carId", [idMap[v] ?? ""], {
+              //   shouldValidate: true,
+              // });
             }}
           >
             <SelectTrigger className="h-11">
               <SelectValue placeholder="選択してください" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="除雪車A号">除雪車A号</SelectItem>
-              <SelectItem value="除雪車B号">除雪車B号</SelectItem>
+              {/* <SelectItem value="除雪車A号">除雪車A号</SelectItem>
+              <SelectItem value="除雪車B号">除雪車B号</SelectItem> */}
+              {[...new Set(options.map((item) => item.carName))].map(
+                (carName, index) => (
+                  <SelectItem key={index} value={carName}>
+                    {carName}
+                  </SelectItem>
+                )
+              )}
             </SelectContent>
           </Select>
           <input

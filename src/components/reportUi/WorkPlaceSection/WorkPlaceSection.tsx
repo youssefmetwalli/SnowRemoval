@@ -21,6 +21,7 @@ interface Props {
   errors: FieldErrors<ReportPostData>;
   setValue: UseFormSetValue<ReportPostData>;
   values: ReportPostData;
+  workPlaceOption: { placeId: number; name: string }[];
 }
 
 export const WorkPlaceSection = ({
@@ -28,6 +29,7 @@ export const WorkPlaceSection = ({
   errors,
   setValue,
   values,
+  workPlaceOption
 }: Props): JSX.Element => {
   return (
     <Card className="w-full bg-white rounded-xl border border-slate-200 shadow-[0px_1px_3px_#0000001a]">
@@ -82,12 +84,18 @@ export const WorkPlaceSection = ({
             value={values.field_workPlaceName ?? ""}
             onValueChange={(v) => {
               setValue("field_workPlaceName", v, { shouldValidate: true });
-              const idMap: Record<string, string> = {
-                "○○市道 A": "1",
-              };
-              setValue("field_workPlaceId", [idMap[v] ?? ""], {
-                shouldValidate: true,
-              });
+              // const idMap: Record<string, string> = {
+              //   "○○市道 A": "1",
+              // };
+              const selectOption = workPlaceOption.find(option => option.name == v);
+              if(selectOption){
+                setValue("field_workPlaceId", [selectOption.placeId.toString()], {
+                  shouldValidate: true,
+                });
+              }
+              // setValue("field_workPlaceId", [idMap[v] ?? ""], {
+              //   shouldValidate: true,
+              // });
             }}
           >
             <SelectTrigger className="h-11">
@@ -95,6 +103,9 @@ export const WorkPlaceSection = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="○○市道 A">○○市道 A</SelectItem>
+              {workPlaceOption.map((option) => {
+                return <SelectItem value={option.name}>{option.name}</SelectItem>;
+              })}
             </SelectContent>
           </Select>
           <input
