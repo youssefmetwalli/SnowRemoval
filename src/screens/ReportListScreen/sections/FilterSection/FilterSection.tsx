@@ -1,38 +1,57 @@
-import { XIcon } from "lucide-react";
+// FilterSection.tsx
+import { XIcon, CalendarIcon, MapPinIcon, LayersIcon } from "lucide-react";
 import React from "react";
 import { Badge } from "../../../../components/ui/badge";
+import type { ReportListFilters } from "../../ReportListScreen";
 
-export const FilterSection = (): JSX.Element => {
-  const filters = [
-    {
-      label: "日付: 2025/02/02",
+type Props = {
+  filters: ReportListFilters;
+  onChangeFilters: (f: ReportListFilters) => void;
+};
+
+export const FilterSection: React.FC<Props> = ({ filters, onChangeFilters }) => {
+  const remove = (key: keyof ReportListFilters) => {
+    onChangeFilters({ ...filters, [key]: "" });
+  };
+
+  const chips = [
+    filters.date && {
       id: "date",
+      label: `日付: ${filters.date.replace(/-/g, "/")}`,
+      icon: <CalendarIcon className="w-4 h-4 text-blue-600" />,
     },
-    {
-      label: "作業分類: 除雪",
-      id: "category",
+    filters.classification && {
+      id: "classification",
+      label: `作業分類: ${filters.classification}`,
+      icon: <LayersIcon className="w-4 h-4 text-blue-600" />,
     },
-  ];
+    filters.location && {
+      id: "location",
+      label: `作業場所: ${filters.location}`,
+      icon: <MapPinIcon className="w-4 h-4 text-blue-600" />,
+    },
+  ].filter(Boolean) as { id: keyof ReportListFilters; label: string; icon: React.ReactNode }[];
+
+  if (chips.length === 0) return null;
 
   return (
-    <section className="w-full items-start gap-2 pt-3 pb-[13px] px-5 bg-white overflow-x-auto border-b border-slate-200 flex translate-y-[-1rem] animate-fade-in opacity-0">
-      {filters.map((filter, index) => (
+    <div className="w-full bg-sky-50 py-3 px-4 flex flex-wrap gap-2 border-b border-sky-100">
+      {chips.map((chip) => (
         <Badge
-          key={filter.id}
-          variant="secondary"
-          className={`inline-flex items-center gap-1 pt-[7px] pb-[9px] px-[13px] flex-shrink-0 bg-zumthor rounded-2xl border border-solid border-[#e9ecef] font-inter-medium font-[number:var(--inter-medium-font-weight)] text-royal-blue text-[length:var(--inter-medium-font-size)] tracking-[var(--inter-medium-letter-spacing)] leading-[var(--inter-medium-line-height)] [font-style:var(--inter-medium-font-style)] hover:bg-zumthor/80 transition-colors cursor-pointer translate-y-[-1rem] animate-fade-in opacity-0`}
-          style={
-            {
-              "--animation-delay": `${(index + 1) * 200}ms`,
-            } as React.CSSProperties
-          }
+          key={chip.id}
+          variant="outline"
+          className="flex items-center gap-1.5 bg-white border-blue-200 text-blue-700 shadow-sm rounded-full py-1.5 px-3 hover:bg-blue-50 transition"
         >
-          <span className="flex items-center justify-center whitespace-nowrap">
-            {filter.label}
-          </span>
-          <XIcon className="w-3.5 h-3.5 hover:text-royal-blue/70 transition-colors" />
+          {chip.icon}
+          <span className="font-medium text-sm">{chip.label}</span>
+          <button
+            onClick={() => remove(chip.id)}
+            className="ml-1 hover:bg-blue-100 rounded-full p-0.5"
+          >
+            <XIcon className="w-3 h-3 text-blue-500" />
+          </button>
         </Badge>
       ))}
-    </section>
+    </div>
   );
 };
