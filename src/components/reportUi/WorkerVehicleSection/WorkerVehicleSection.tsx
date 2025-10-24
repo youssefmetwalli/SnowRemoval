@@ -15,6 +15,7 @@ import type {
   UseFormSetValue,
 } from "react-hook-form";
 import type { ReportPostData } from "../../../types/reportForm";
+import { getWorker } from "../../../hook/getWorkers";
 
 interface Props {
   register: UseFormRegister<ReportPostData>;
@@ -29,6 +30,13 @@ export const WorkerVehicleSection = ({
   setValue,
   values,
 }: Props): JSX.Element => {
+  const { data: workerData, isLoading, isError } = getWorker();
+
+  const workers = workerData?.map((workerData, index) => ({
+    id: workerData.field_1754635302,
+    name: workerData.field_1754549790 ?? "名称未設定",
+  }));
+
   return (
     <Card className="w-full bg-white rounded-xl border border-slate-200 shadow-[0px_1px_3px_#0000001a]">
       <CardContent className="p-5 space-y-4">
@@ -46,13 +54,17 @@ export const WorkerVehicleSection = ({
             value={values.field_workerName ?? ""}
             onValueChange={(v) => {
               // name
-              setValue("field_workerName", v, { shouldValidate: true });
+              const w = workers?.find(
+                worker => worker.name === v
+              );
+              
+              setValue("field_workerName", v ?? "", { shouldValidate: true });
               // matching ID (for example purposes)
-              const idMap: Record<string, string> = {
-                "田中 太郎": "1",
-                "佐藤 花子": "2",
-              };
-              setValue("field_workerId", [idMap[v] ?? ""], {
+              // const idMap: Record<string, string> = {
+              //   "田中 太郎": "1",
+              //   "佐藤 花子": "2",
+              // };
+              setValue("field_workerId", w?.id ?? [""], {
                 shouldValidate: true,
               });
             }}
@@ -61,8 +73,11 @@ export const WorkerVehicleSection = ({
               <SelectValue placeholder="選択してください" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="田中 太郎">田中 太郎</SelectItem>
-              <SelectItem value="佐藤 花子">佐藤 花子</SelectItem>
+              {workers?.map((w, index) => (
+                <SelectItem value={w.name}>{w.name}</SelectItem>
+              ))}
+              {/* <SelectItem value="田中 太郎">田中 太郎</SelectItem>
+              <SelectItem value="佐藤 花子">佐藤 花子</SelectItem> */}
             </SelectContent>
           </Select>
           <input
@@ -83,23 +98,28 @@ export const WorkerVehicleSection = ({
           <Select
             value={values.field_assistantName ?? ""}
             onValueChange={(v) => {
-              setValue("field_assistantName", v || null);
-              const idMap: Record<string, string> = {
-                "山田 次郎": "3",
-              };
-              setValue(
-                "field_assistantId",
-                v && idMap[v] ? [idMap[v]] : [],
-                { shouldValidate: true }
+              const w = workers?.find(
+                worker => worker.name === v
               );
+
+              setValue("field_assistantName", v || null);
+              // const idMap: Record<string, string> = {
+              //   "山田 次郎": "3",
+              // };
+              setValue("field_assistantId", w?.id ?? null,  {
+                shouldValidate: true,
+              });
             }}
           >
             <SelectTrigger className="h-11">
               <SelectValue placeholder="選択してください" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="山田 次郎">山田 次郎</SelectItem>
-              <SelectItem value="なし">(なし)</SelectItem>
+              {workers?.map((w, index) => (
+                <SelectItem value={w.name}>{w.name}</SelectItem>
+              ))}
+              {/* <SelectItem value="山田 次郎">山田 次郎</SelectItem>
+              <SelectItem value="なし">(なし)</SelectItem> */}
             </SelectContent>
           </Select>
         </div>
@@ -114,8 +134,8 @@ export const WorkerVehicleSection = ({
             onValueChange={(v) => {
               setValue("field_carName", v, { shouldValidate: true });
               const idMap: Record<string, string> = {
-                "除雪車A号": "1",
-                "除雪車B号": "2",
+                除雪車A号: "1",
+                除雪車B号: "2",
               };
               setValue("field_carId", [idMap[v] ?? ""], {
                 shouldValidate: true,
