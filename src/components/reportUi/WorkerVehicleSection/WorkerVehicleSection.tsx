@@ -16,7 +16,7 @@ import type {
 } from "react-hook-form";
 import type { ReportPostData } from "../../../types/reportForm";
 import { getWorker } from "../../../hook/getWorkers";
-
+import { getCar } from "../../../hook/getCars";
 interface Props {
   register: UseFormRegister<ReportPostData>;
   errors: FieldErrors<ReportPostData>;
@@ -30,13 +30,18 @@ export const WorkerVehicleSection = ({
   setValue,
   values,
 }: Props): JSX.Element => {
-  const { data: workerData, isLoading, isError } = getWorker();
+  const { data: workerData, isLoading: isLoadingWorker, isError: isErrorWorker } = getWorker();
+  const { data: carData, isLoading: isLoadingCar, isError: isErrorCar} = getCar();
 
   const workers = workerData?.map((workerData, index) => ({
     id: workerData.field_1754635302,
     name: workerData.field_1754549790 ?? "名称未設定",
   }));
 
+  const cars = carData?.map((carData, index) => ({
+    id: carData.field_2002120021,
+    name: carData.field_2003520035 ?? "名称未設定",
+  }))
   return (
     <Card className="w-full bg-white rounded-xl border border-slate-200 shadow-[0px_1px_3px_#0000001a]">
       <CardContent className="p-5 space-y-4">
@@ -133,11 +138,14 @@ export const WorkerVehicleSection = ({
             value={values.field_carName ?? ""}
             onValueChange={(v) => {
               setValue("field_carName", v, { shouldValidate: true });
-              const idMap: Record<string, string> = {
-                除雪車A号: "1",
-                除雪車B号: "2",
-              };
-              setValue("field_carId", [idMap[v] ?? ""], {
+              // const idMap: Record<string, string> = {
+              //   除雪車A号: "1",
+              //   除雪車B号: "2",
+              // };
+              const c = cars?.find(
+                car => car.name === v
+              );
+              setValue("field_carId", c?.id ?? [""], {
                 shouldValidate: true,
               });
             }}
@@ -146,8 +154,11 @@ export const WorkerVehicleSection = ({
               <SelectValue placeholder="選択してください" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="除雪車A号">除雪車A号</SelectItem>
-              <SelectItem value="除雪車B号">除雪車B号</SelectItem>
+              {cars?.map((c, index) => (
+                <SelectItem value={c.name}>{c.name}</SelectItem>
+              ))}
+              {/* <SelectItem value="除雪車A号">除雪車A号</SelectItem>
+              <SelectItem value="除雪車B号">除雪車B号</SelectItem> */}
             </SelectContent>
           </Select>
           <input
