@@ -15,7 +15,7 @@ export const getCar = ()=>{
         try {
           console.log("get送信");
           const data = await apiClient.get<CarData[]>(
-            `table_2000620006/records/`
+            `table_2000620006/records/?limit=100`
           );
           setData(data);
         } catch (err) {

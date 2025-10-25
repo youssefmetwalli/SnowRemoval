@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Alert, AlertDescription } from "../../components/ui/alert";
 import { InputConfirmation } from "../InputConfirmation/InputConfirmation";
@@ -8,13 +8,60 @@ import { NotificationSection } from "../../components/reportUi/NotificationSecti
 import { WorkDurationSection } from "../../components/reportUi/WorkDurationSection/WorkDurationSection";
 import { WorkPlaceSection } from "../../components/reportUi/WorkPlaceSection/WorkPlaceSection";
 import { WorkRecordSection } from "../../components/reportUi/WorkRecordSection/WorkRecordSection";
-import type { ReportPostData } from "../../types/reportForm";
-import { postReport } from "../../hook/postReport";
 import { WorkerVehicleSection } from "../../components/reportUi/WorkerVehicleSection/WorkerVehicleSection";
 import { UserName } from "../../components/UserName";
+import type { ReportPostData } from "../../types/reportForm";
+import { postReport } from "../../hook/postReport";
 
 export const ReportInputScreen = (): JSX.Element => {
   const [showConfirmation, setShowConfirmation] = useState(false);
+
+  // ---------- helpers ----------
+  const isoToDate = (iso?: string) => {
+    if (!iso) return "";
+    const m = iso.match(/^(\d{4}-\d{2}-\d{2})/);
+    return m ? m[1] : iso;
+  };
+
+  const isoToTimeHM = (iso?: string) => {
+    if (!iso) return "";
+    const m = iso.match(/T(\d{2}:\d{2})/);
+    return m ? m[1] : iso;
+  };
+
+  const asArr = (v?: string[] | string | null) =>
+    Array.isArray(v) ? v : v ? [String(v)] : [];
+
+  const pickId = (arr?: unknown) => {
+    if (!Array.isArray(arr)) return arr as string | undefined;
+    const a = arr as string[];
+    return a[1] ?? a[0];
+  };
+
+  const normalizeForForm = (p?: Partial<ReportPostData>): ReportPostData => ({
+    field_workerId: asArr(p?.field_workerId),
+    field_carId: asArr(p?.field_carId),
+    field_CustomerId: asArr(p?.field_CustomerId),
+    field_endTime: isoToTimeHM(p?.field_endTime),
+    field_workClassId: asArr(p?.field_workClassId),
+    field_workDate: isoToDate(p?.field_workDate),
+    field_workPlaceId: asArr(p?.field_workPlaceId),
+    field_weather: Array.isArray(p?.field_weather)
+      ? p.field_weather[0] ?? ""
+      : p?.field_weather ?? "",
+    field_workerName: p?.field_workerName ?? "",
+    field_assistantId: asArr(p?.field_assistantId),
+    field_assistantName: p?.field_assistantName ?? "",
+    field_workClassName: p?.field_workClassName ?? "",
+    field_carName: p?.field_carName ?? "",
+    field_workPlaceName: p?.field_workPlaceName ?? "",
+    field_startTime: isoToTimeHM(p?.field_startTime),
+    field_CompanyName: p?.field_CompanyName ?? "",
+    field_removalVolume:
+      typeof p?.field_removalVolume === "number"
+        ? String(p?.field_removalVolume)
+        : p?.field_removalVolume ?? "",
+  });
 
   const {
     register,
@@ -23,39 +70,25 @@ export const ReportInputScreen = (): JSX.Element => {
     setValue,
     watch,
     reset,
+    clearErrors,
   } = useForm<ReportPostData>({
-    defaultValues: {
-      field_workerId: [],
-      field_carId: [],
-      field_CustomerId: [],
-      field_endTime: "",
-      field_workClassId: [],
-      field_workDate: "",
-      field_workPlaceId: [],
-      field_weather: "",
-      field_workerName: "",
-      field_assistantId: [],
-      field_assistantName: "",
-      field_workClassName: "",
-      field_carName: "",
-      field_workPlaceName: "",
-      field_startTime: "",
-      field_CompanyName: "",
-      field_removalVolume: "",
-    },
+    defaultValues: normalizeForForm(),
     mode: "onSubmit",
   });
 
   const [selectedLocationId, setSelectedLocationId] = useState<number | null>(
     null
   );
+
   const values = watch();
 
+  // ---------- converter helpers ----------
   const toJdbRef = (val?: string | number | null): string[] => {
     if (val === undefined || val === null || val === "") return [];
     const s = String(val);
     return ["", s, "", s];
   };
+
   const first = (arr?: unknown) =>
     Array.isArray(arr)
       ? (arr[0] as string | undefined)
@@ -66,28 +99,24 @@ export const ReportInputScreen = (): JSX.Element => {
 
   const toIsoDate = (dateStr: string) => {
     if (!dateStr) return "";
-    const tzOffset = "+09:00"; // adjust if needed for your region
+    const tzOffset = "+09:00";
     return `${dateStr}T00:00${tzOffset}`;
   };
 
   const toIsoDateTime = (dateStr: string, timeStr: string) => {
     if (!dateStr || !timeStr) return "";
-    try {
-      const date = new Date(`${dateStr}T${timeStr}`);
-      const tzOffset = "+09:00";
-      return `${dateStr}T${timeStr}${tzOffset}`;
-    } catch {
-      return "";
-    }
+    const tzOffset = "+09:00";
+    return `${dateStr}T${timeStr}${tzOffset}`;
   };
 
+  // ---------- convert for posting ----------
   const toJdbRecord = (v: ReportPostData): ReportPostData => ({
     field_workerId: toJdbRef(first(v.field_workerId)),
     field_carId: toJdbRef(first(v.field_carId)),
     field_CustomerId: toJdbRef(first(v.field_CustomerId)),
     field_workClassId: toJdbRef(first(v.field_workClassId)),
     field_workDate: toIsoDate(v.field_workDate),
-    field_workPlaceId: toJdbRef(first(v.field_workPlaceId)),
+    field_workPlaceId: toJdbRef(pickId(v.field_workPlaceId)),
     field_weather: v.field_weather,
     field_workerName: nullIfEmpty(v.field_workerName) as string | null,
     field_assistantId:
@@ -101,7 +130,10 @@ export const ReportInputScreen = (): JSX.Element => {
     field_startTime: toIsoDateTime(v.field_workDate, v.field_startTime),
     field_endTime: toIsoDateTime(v.field_workDate, v.field_endTime),
     field_CompanyName: v.field_CompanyName,
-    field_removalVolume: v.field_removalVolume ? v.field_removalVolume : null,
+    field_removalVolume:
+      values.field_removalVolume && Number(values.field_removalVolume) > 0
+        ? String(values.field_removalVolume)
+        : null,
   });
 
   const firstError = useMemo(() => {
@@ -121,7 +153,10 @@ export const ReportInputScreen = (): JSX.Element => {
   }, [errors]);
 
   const onValid = () => setShowConfirmation(true);
-  const onInvalid = () => setShowConfirmation(false);
+  const onInvalid = () => {
+    setShowConfirmation(false);
+    console.log("Invalid!");
+  };
 
   const handleConfirm = async () => {
     try {
@@ -157,16 +192,16 @@ export const ReportInputScreen = (): JSX.Element => {
         <UserName />
         <div className="w-full max-w-4xl space-y-6">
           <NotificationSection
+            title="日報入力"
             navigateTo="/homescreen"
             selectedLocationId={selectedLocationId}
             onLocationSelect={(loc) => {
               setSelectedLocationId(loc.id);
               setValue("field_workPlaceId", [String(loc.id)], {
-                shouldValidate: true,
+                shouldDirty: true,
               });
-              setValue("field_workPlaceName", loc.name, {
-                shouldValidate: true,
-              });
+              setValue("field_workPlaceName", loc.name, { shouldDirty: true });
+              clearErrors("field_workPlaceId");
             }}
             error={errors.field_workPlaceId?.message}
           />
@@ -178,16 +213,15 @@ export const ReportInputScreen = (): JSX.Element => {
           )}
 
           <form
-            onSubmit={handleSubmit(onValid, onInvalid)}
             className="space-y-6"
+            onSubmit={handleSubmit(onValid, onInvalid)}
             noValidate
           >
             <input
               type="hidden"
               value={selectedLocationId ?? ""}
               {...register("field_workPlaceId", {
-                required:
-                  "作業場所を選択してください (ここと下のドロップダウンから)",
+                required: "作業場所を選択してください",
               })}
             />
 

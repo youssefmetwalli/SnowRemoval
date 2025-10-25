@@ -15,7 +15,7 @@ export const getCustomer = ()=>{
         try {
           console.log("get送信");
           const data = await apiClient.get<CustomerData[]>(
-            `table_1754541395/records/`
+            `table_1754541395/records/?limit=100`
           );
           setData(data);
         } catch (err) {
