@@ -15,6 +15,7 @@ import { postReport } from "../../hook/postReport";
 
 export const ReportInputScreen = (): JSX.Element => {
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // ---------- helpers ----------
   const isoToDate = (iso?: string) => {
@@ -66,7 +67,7 @@ export const ReportInputScreen = (): JSX.Element => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isValid, isDirty },
     setValue,
     watch,
     reset,
@@ -82,6 +83,12 @@ export const ReportInputScreen = (): JSX.Element => {
 
   const values = watch();
 
+  // デバッグログを追加
+  console.log("現在のフォーム値:", values);
+  console.log("field_workerId:", values.field_workerId);
+  console.log("field_carId:", values.field_carId);
+  console.log("field_assistantId:", values.field_assistantId);
+
   // ---------- converter helpers ----------
   const toJdbRef = (val?: string | number | null): string[] => {
     if (val === undefined || val === null || val === "") return [];
@@ -89,10 +96,16 @@ export const ReportInputScreen = (): JSX.Element => {
     return ["", s, "", s];
   };
 
-  const first = (arr?: unknown) =>
-    Array.isArray(arr)
+  const first = (arr?: unknown) => {
+    const result = Array.isArray(arr)
       ? (arr[0] as string | undefined)
       : (arr as string | undefined);
+    
+    // デバッグログを追加
+    console.log("first関数入力:", arr);
+    console.log("first関数出力:", result);
+    return result;
+  };
 
   const nullIfEmpty = (s: string | null | undefined) =>
     s && s.trim() !== "" ? s : null;
@@ -110,38 +123,46 @@ export const ReportInputScreen = (): JSX.Element => {
   };
 
   // ---------- convert for posting ----------
-  const toJdbRecord = (v: ReportPostData): ReportPostData => ({
-    field_workerId: toJdbRef(first(v.field_workerId)),
-    field_carId: toJdbRef(first(v.field_carId)),
-    field_CustomerId: toJdbRef(first(v.field_CustomerId)),
-    field_workClassId: toJdbRef(first(v.field_workClassId)),
-    field_workDate: toIsoDate(v.field_workDate),
-    field_workPlaceId: toJdbRef(pickId(v.field_workPlaceId)),
-    field_weather: v.field_weather,
-    field_workerName: nullIfEmpty(v.field_workerName) as string | null,
-    field_assistantId:
-      v.field_assistantId && v.field_assistantId.length
-        ? toJdbRef(first(v.field_assistantId))
-        : null,
-    field_assistantName: nullIfEmpty(v.field_assistantName) as string | null,
-    field_workClassName: nullIfEmpty(v.field_workClassName) as string | null,
-    field_carName: nullIfEmpty(v.field_carName) as string | null,
-    field_workPlaceName: nullIfEmpty(v.field_workPlaceName) as string | null,
-    field_startTime: toIsoDateTime(v.field_workDate, v.field_startTime),
-    field_endTime: toIsoDateTime(v.field_workDate, v.field_endTime),
-    field_CompanyName: v.field_CompanyName,
-    field_removalVolume:
-      values.field_removalVolume && Number(values.field_removalVolume) > 0
-        ? String(values.field_removalVolume)
-        : null,
-  });
+  const toJdbRecord = (v: ReportPostData): ReportPostData => {
+    console.log("toJdbRecord入力:", v);
+    console.log("first(v.field_workerId):", first(v.field_workerId));
+    console.log("first(v.field_carId):", first(v.field_carId));
+    
+    const result = {
+      field_workerId: toJdbRef(pickId(v.field_workerId)),
+      field_carId: toJdbRef(pickId(v.field_carId)),
+      field_CustomerId: toJdbRef(pickId(v.field_CustomerId)),
+      field_workClassId: toJdbRef(pickId(v.field_workClassId)),
+      field_workDate: toIsoDate(v.field_workDate),
+      field_workPlaceId: toJdbRef(pickId(v.field_workPlaceId)),
+      field_weather: v.field_weather,
+      field_workerName: nullIfEmpty(v.field_workerName) as string | null,
+      field_assistantId:
+        v.field_assistantId && v.field_assistantId.length
+          ? toJdbRef(pickId(v.field_assistantId))
+          : null,
+      field_assistantName: nullIfEmpty(v.field_assistantName) as string | null,
+      field_workClassName: nullIfEmpty(v.field_workClassName) as string | null,
+      field_carName: nullIfEmpty(v.field_carName) as string | null,
+      field_workPlaceName: nullIfEmpty(v.field_workPlaceName) as string | null,
+      field_startTime: toIsoDateTime(v.field_workDate, v.field_startTime),
+      field_endTime: toIsoDateTime(v.field_workDate, v.field_endTime),
+      field_CompanyName: v.field_CompanyName,
+      field_removalVolume:
+        values.field_removalVolume && Number(values.field_removalVolume) > 0
+          ? String(values.field_removalVolume)
+          : null,
+    };
+    
+    console.log("toJdbRecord出力:", result);
+    return result;
+  };
 
   const firstError = useMemo(() => {
     const order: (keyof ReportPostData)[] = [
       "field_workDate",
       "field_weather",
       "field_CustomerId",
-      "field_workPlaceName",
       "field_workClassName",
       "field_workerName",
       "field_carName",
@@ -159,8 +180,18 @@ export const ReportInputScreen = (): JSX.Element => {
   };
 
   const handleConfirm = async () => {
+    setIsSubmitting(true);
     try {
       const record = toJdbRecord(values);
+      
+      // デバッグログを追加
+      console.log("送信前のvalues:", values);
+      console.log("変換後のrecord:", record);
+      console.log("field_workerId変換前:", values.field_workerId);
+      console.log("field_workerId変換後:", record.field_workerId);
+      console.log("field_carId変換前:", values.field_carId);
+      console.log("field_carId変換後:", record.field_carId);
+      
       await postReport(record);
       setShowConfirmation(false);
       console.log("送信成功");
@@ -168,6 +199,7 @@ export const ReportInputScreen = (): JSX.Element => {
     } catch (error) {
       console.error("送信エラー:", error);
     } finally {
+      setIsSubmitting(false);
       console.log("送信完了");
     }
   };
@@ -203,7 +235,6 @@ export const ReportInputScreen = (): JSX.Element => {
               setValue("field_workPlaceName", loc.name, { shouldDirty: true });
               clearErrors("field_workPlaceId");
             }}
-            error={errors.field_workPlaceId?.message}
           />
 
           {firstError && (
@@ -220,9 +251,7 @@ export const ReportInputScreen = (): JSX.Element => {
             <input
               type="hidden"
               value={selectedLocationId ?? ""}
-              {...register("field_workPlaceId", {
-                required: "作業場所を選択してください",
-              })}
+              {...register("field_workPlaceId")}
             />
 
             <BasicInformationSection
@@ -256,7 +285,11 @@ export const ReportInputScreen = (): JSX.Element => {
               values={values}
             />
 
-            <ActionButtonsSection />
+            <ActionButtonsSection 
+              isValid={isValid}
+              isDirty={isDirty}
+              isSubmitting={isSubmitting}
+            />
           </form>
         </div>
       </div>

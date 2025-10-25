@@ -18,6 +18,7 @@ export const ReportEditScreen = (): JSX.Element => {
   const passed = location.state as Partial<ReportPostData> | undefined;
   const dayReportId: string = location.state.field_dayReportId[1];
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // ---------- helpers to normalize incoming values ----------
   const isoToDate = (iso?: string) => {
@@ -70,7 +71,7 @@ export const ReportEditScreen = (): JSX.Element => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isValid, isDirty },
     setValue,
     watch,
     reset,
@@ -98,10 +99,10 @@ export const ReportEditScreen = (): JSX.Element => {
     const s = String(val);
     return ["", s, "", s];
   };
-  const first = (arr?: unknown) =>
-    Array.isArray(arr)
-      ? (arr[0] as string | undefined)
-      : (arr as string | undefined);
+  // const first = (arr?: unknown) =>
+  //   Array.isArray(arr)
+  //     ? (arr[0] as string | undefined)
+  //     : (arr as string | undefined);
 
   const nullIfEmpty = (s: string | null | undefined) =>
     s && s.trim() !== "" ? s : null;
@@ -119,17 +120,17 @@ export const ReportEditScreen = (): JSX.Element => {
   };
 
   const toJdbRecord = (v: ReportPostData): ReportPostData => ({
-    field_workerId: toJdbRef(first(v.field_workerId)),
-    field_carId: toJdbRef(first(v.field_carId)),
-    field_CustomerId: toJdbRef(first(v.field_CustomerId)),
-    field_workClassId: toJdbRef(first(v.field_workClassId)),
+    field_workerId: toJdbRef(pickId(v.field_workerId)),
+    field_carId: toJdbRef(pickId(v.field_carId)),
+    field_CustomerId: toJdbRef(pickId(v.field_CustomerId)),
+    field_workClassId: toJdbRef(pickId(v.field_workClassId)),
     field_workDate: toIsoDate(v.field_workDate),
     field_workPlaceId: toJdbRef(pickId(v.field_workPlaceId)),
     field_weather: v.field_weather,
     field_workerName: nullIfEmpty(v.field_workerName) as string | null,
     field_assistantId:
       v.field_assistantId && v.field_assistantId.length
-        ? toJdbRef(first(v.field_assistantId))
+        ? toJdbRef(pickId(v.field_assistantId))
         : null,
     field_assistantName: nullIfEmpty(v.field_assistantName) as string | null,
     field_workClassName: nullIfEmpty(v.field_workClassName) as string | null,
@@ -167,16 +168,21 @@ export const ReportEditScreen = (): JSX.Element => {
   };
 
   const handleConfirm = async () => {
+    setIsSubmitting(true);
+    const record = toJdbRecord(values);
     try {
-      const record = toJdbRecord(values);
+      // const record = toJdbRecord(values);
       await putReport(record, dayReportId);
       setShowConfirmation(false);
       console.log("送信成功");
+      console.log(record);
       reset();
     } catch (error) {
       console.error("送信エラー:", error);
+      console.log(record);
     } finally {
       console.log("送信完了");
+      console.log(record);
     }
   };
 
@@ -263,7 +269,11 @@ export const ReportEditScreen = (): JSX.Element => {
               values={values}
             />
 
-            <ActionButtonsSection />
+            <ActionButtonsSection
+              isValid={isValid}
+              isDirty={isDirty}
+              isSubmitting={isSubmitting}
+            />
           </form>
         </div>
       </div>

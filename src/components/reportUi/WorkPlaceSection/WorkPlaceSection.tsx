@@ -101,7 +101,8 @@ export const WorkPlaceSection = ({
         {/* 作業場所 (field_workPlaceId / field_workPlaceName) */}
         <div className="space-y-2">
           <Label className="text-sm">
-            作業場所<span className="text-red-500 ml-1">*</span>
+            作業場所
+            {/* <span className="text-red-500 ml-1">*</span> */}
           </Label>
           <Select
             value={values.field_workPlaceName ?? ""}
@@ -130,7 +131,11 @@ export const WorkPlaceSection = ({
           </Select>
           <input
             type="hidden"
-            {...register("field_workPlaceName", { required: "作業場所は必須です" })}
+            {
+              ...register("field_workPlaceName", 
+                // { required: "作業場所は必須です" }
+              )
+            }
             value={values.field_workPlaceName ?? ""}
           />
           {errors.field_workPlaceName && (
