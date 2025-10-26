@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Alert, AlertDescription } from "../../components/ui/alert";
 import { InputConfirmation } from "../InputConfirmation/InputConfirmation";
@@ -96,16 +96,16 @@ export const ReportInputScreen = (): JSX.Element => {
     return ["", s, "", s];
   };
 
-  const first = (arr?: unknown) => {
-    const result = Array.isArray(arr)
-      ? (arr[0] as string | undefined)
-      : (arr as string | undefined);
+  // const first = (arr?: unknown) => {
+  //   const result = Array.isArray(arr)
+  //     ? (arr[0] as string | undefined)
+  //     : (arr as string | undefined);
     
-    // デバッグログを追加
-    console.log("first関数入力:", arr);
-    console.log("first関数出力:", result);
-    return result;
-  };
+  //   // デバッグログを追加
+  //   console.log("first関数入力:", arr);
+  //   console.log("first関数出力:", result);
+  //   return result;
+  // };
 
   const nullIfEmpty = (s: string | null | undefined) =>
     s && s.trim() !== "" ? s : null;
@@ -125,9 +125,7 @@ export const ReportInputScreen = (): JSX.Element => {
   // ---------- convert for posting ----------
   const toJdbRecord = (v: ReportPostData): ReportPostData => {
     console.log("toJdbRecord入力:", v);
-    console.log("first(v.field_workerId):", first(v.field_workerId));
-    console.log("first(v.field_carId):", first(v.field_carId));
-    
+
     const result = {
       field_workerId: toJdbRef(pickId(v.field_workerId)),
       field_carId: toJdbRef(pickId(v.field_carId)),

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation } from "react-router-dom";
 import { Alert, AlertDescription } from "../../components/ui/alert";
@@ -12,6 +12,7 @@ import { WorkRecordSection } from "../../components/reportUi/WorkRecordSection/W
 import { WorkerVehicleSection } from "../../components/reportUi/WorkerVehicleSection/WorkerVehicleSection";
 import type { ReportPostData } from "../../types/reportForm";
 import { putReport } from "../../hook/putReport";
+import { UserName } from "../../components/UserName";
 
 export const ReportEditScreen = (): JSX.Element => {
   const location = useLocation();
@@ -94,6 +95,15 @@ export const ReportEditScreen = (): JSX.Element => {
 
   const values = watch();
 
+  // デバッグログを追加
+  console.log("現在のフォーム値:", values);
+  // console.log("field_workerId:", values.field_workerId);
+  // console.log("field_carId:", values.field_carId);
+  // console.log("field_assistantId:", values.field_assistantId);
+  console.log("isValid:", isValid);
+  console.log("isDirty:", isDirty);
+  // console.log("field_assistantId:", values.field_assistantId);
+
   const toJdbRef = (val?: string | number | null): string[] => {
     if (val === undefined || val === null || val === "") return [];
     const s = String(val);
@@ -119,38 +129,45 @@ export const ReportEditScreen = (): JSX.Element => {
     return `${dateStr}T${timeStr}${tzOffset}`;
   };
 
-  const toJdbRecord = (v: ReportPostData): ReportPostData => ({
-    field_workerId: toJdbRef(pickId(v.field_workerId)),
-    field_carId: toJdbRef(pickId(v.field_carId)),
-    field_CustomerId: toJdbRef(pickId(v.field_CustomerId)),
-    field_workClassId: toJdbRef(pickId(v.field_workClassId)),
-    field_workDate: toIsoDate(v.field_workDate),
-    field_workPlaceId: toJdbRef(pickId(v.field_workPlaceId)),
-    field_weather: v.field_weather,
-    field_workerName: nullIfEmpty(v.field_workerName) as string | null,
-    field_assistantId:
-      v.field_assistantId && v.field_assistantId.length
-        ? toJdbRef(pickId(v.field_assistantId))
-        : null,
-    field_assistantName: nullIfEmpty(v.field_assistantName) as string | null,
-    field_workClassName: nullIfEmpty(v.field_workClassName) as string | null,
-    field_carName: nullIfEmpty(v.field_carName) as string | null,
-    field_workPlaceName: nullIfEmpty(v.field_workPlaceName) as string | null,
-    field_startTime: toIsoDateTime(v.field_workDate, v.field_startTime),
-    field_endTime: toIsoDateTime(v.field_workDate, v.field_endTime),
-    field_CompanyName: v.field_CompanyName,
-    field_removalVolume:
-      values.field_removalVolume && Number(values.field_removalVolume) > 0
-        ? String(values.field_removalVolume)
-        : null,
-  });
+  const toJdbRecord = (v: ReportPostData): ReportPostData => {
+    console.log("toJdbRecord入力:", v);
+
+    const result = {
+      field_workerId: toJdbRef(pickId(v.field_workerId)),
+      field_carId: toJdbRef(pickId(v.field_carId)),
+      field_CustomerId: toJdbRef(pickId(v.field_CustomerId)),
+      field_workClassId: toJdbRef(pickId(v.field_workClassId)),
+      field_workDate: toIsoDate(v.field_workDate),
+      field_workPlaceId: toJdbRef(pickId(v.field_workPlaceId)),
+      field_weather: v.field_weather,
+      field_workerName: nullIfEmpty(v.field_workerName) as string | null,
+      field_assistantId:
+        v.field_assistantId && v.field_assistantId.length
+          ? toJdbRef(pickId(v.field_assistantId))
+          : null,
+      field_assistantName: nullIfEmpty(v.field_assistantName) as string | null,
+      field_workClassName: nullIfEmpty(v.field_workClassName) as string | null,
+      field_carName: nullIfEmpty(v.field_carName) as string | null,
+      field_workPlaceName: nullIfEmpty(v.field_workPlaceName) as string | null,
+      field_startTime: toIsoDateTime(v.field_workDate, v.field_startTime),
+      field_endTime: toIsoDateTime(v.field_workDate, v.field_endTime),
+      field_CompanyName: v.field_CompanyName,
+      field_removalVolume:
+        values.field_removalVolume && Number(values.field_removalVolume) > 0
+          ? String(values.field_removalVolume)
+          : null,
+    };
+
+    console.log("toJdbRecord出力:", result);
+    return result;
+  };
 
   const firstError = useMemo(() => {
     const order: (keyof ReportPostData)[] = [
       "field_workDate",
       "field_weather",
       "field_CustomerId",
-      "field_workPlaceName",
+      // "field_workPlaceName",
       "field_workClassName",
       "field_workerName",
       "field_carName",
@@ -181,6 +198,7 @@ export const ReportEditScreen = (): JSX.Element => {
       console.error("送信エラー:", error);
       console.log(record);
     } finally {
+      setIsSubmitting(false);
       console.log("送信完了");
       console.log(record);
     }
@@ -203,6 +221,7 @@ export const ReportEditScreen = (): JSX.Element => {
       />
 
       <div className="flex flex-col w-full items-center pt-4 pb-8 px-4 sm:px-6 bg-gradient-to-b from-sky-50 to-sky-100">
+        <UserName />
         <div className="w-full max-w-4xl space-y-6">
           <NotificationSection
             title="日報編集"
@@ -216,7 +235,7 @@ export const ReportEditScreen = (): JSX.Element => {
               setValue("field_workPlaceName", loc.name, { shouldDirty: true });
               clearErrors("field_workPlaceId");
             }}
-            error={errors.field_workPlaceId?.message}
+            // error={errors.field_workPlaceId?.message}
           />
 
           {firstError && (
@@ -234,7 +253,7 @@ export const ReportEditScreen = (): JSX.Element => {
               type="hidden"
               value={selectedLocationId ?? ""}
               {...register("field_workPlaceId", {
-                required: "作業場所を選択してください",
+                // required: "作業場所を選択してください",
               })}
             />
 
