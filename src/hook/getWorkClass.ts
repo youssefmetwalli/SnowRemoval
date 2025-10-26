@@ -1,0 +1,32 @@
+import { useEffect, useState } from "react";
+import { apiClient } from "../lib/apiClient02";
+import { WorkClassData } from "../types/workClass";
+
+
+export const getWorkClass = ()=>{
+
+    const [data, setData] = useState<WorkClassData[] | undefined>();
+    const [isLoading, setLoading] = useState(true);
+    const[isError, setError] = useState(false);
+
+
+    useEffect(() => {
+      (async () => {
+        try {
+          console.log("get送信");
+          const data = await apiClient.get<WorkClassData[]>(
+            `table_1754541393/records/?limit=100`
+          );
+          setData(data);
+        } catch (err) {
+          console.error(err);
+          setError(true);
+        } finally {
+          setLoading(false);
+        }
+      })();
+    }, []);
+
+
+    return{ data, isLoading, isError};
+}

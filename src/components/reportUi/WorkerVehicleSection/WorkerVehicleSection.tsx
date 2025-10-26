@@ -1,5 +1,4 @@
 import { UserIcon } from "lucide-react";
-import React from "react";
 import { Card, CardContent } from "../../ui/card";
 import { Label } from "../../ui/label";
 import {
@@ -15,7 +14,8 @@ import type {
   UseFormSetValue,
 } from "react-hook-form";
 import type { ReportPostData } from "../../../types/reportForm";
-
+import { getWorker } from "../../../hook/getWorkers";
+import { getCar } from "../../../hook/getCars";
 interface Props {
   register: UseFormRegister<ReportPostData>;
   errors: FieldErrors<ReportPostData>;
@@ -29,6 +29,32 @@ export const WorkerVehicleSection = ({
   setValue,
   values,
 }: Props): JSX.Element => {
+  const {
+    data: workerData,
+    isLoading: isLoadingWorker,
+    isError: isErrorWorker,
+  } = getWorker();
+  const {
+    data: carData,
+    isLoading: isLoadingCar,
+    isError: isErrorCar,
+  } = getCar();
+
+  const workers = workerData?.map((workerData, index) => ({
+    id: workerData.field_1754635302,
+    name: workerData.field_1754549790 ?? "名称未設定",
+  }));
+
+  const cars = carData?.map((carData, index) => ({
+    id: carData.field_2002120021,
+    name: carData.field_2003520035 ?? "名称未設定",
+  }));
+
+  // デバッグログを追加
+  console.log("取得したworkers:", workers);
+  console.log("取得したcars:", cars);
+  console.log("現在のvalues:", values);
+
   return (
     <Card className="w-full bg-white rounded-xl border border-slate-200 shadow-[0px_1px_3px_#0000001a]">
       <CardContent className="p-5 space-y-4">
@@ -46,13 +72,20 @@ export const WorkerVehicleSection = ({
             value={values.field_workerName ?? ""}
             onValueChange={(v) => {
               // name
-              setValue("field_workerName", v, { shouldValidate: true });
+              const w = workers?.find((worker) => worker.name === v);
+
+              // デバッグログを追加
+              console.log("選択されたworker:", w);
+              console.log("w?.id:", w?.id);
+              console.log("w?.name:", w?.name);
+
+              setValue("field_workerName", v ?? "", { shouldValidate: true });
               // matching ID (for example purposes)
-              const idMap: Record<string, string> = {
-                "田中 太郎": "1",
-                "佐藤 花子": "2",
-              };
-              setValue("field_workerId", [idMap[v] ?? ""], {
+              // const idMap: Record<string, string> = {
+              //   "田中 太郎": "1",
+              //   "佐藤 花子": "2",
+              // };
+              setValue("field_workerId", w?.id ?? [""], {
                 shouldValidate: true,
               });
             }}
@@ -61,8 +94,11 @@ export const WorkerVehicleSection = ({
               <SelectValue placeholder="選択してください" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="田中 太郎">田中 太郎</SelectItem>
-              <SelectItem value="佐藤 花子">佐藤 花子</SelectItem>
+              {workers?.map((w, index) => (
+                <SelectItem value={w.name}>{w.name}</SelectItem>
+              ))}
+              {/* <SelectItem value="田中 太郎">田中 太郎</SelectItem>
+              <SelectItem value="佐藤 花子">佐藤 花子</SelectItem> */}
             </SelectContent>
           </Select>
           <input
@@ -83,23 +119,30 @@ export const WorkerVehicleSection = ({
           <Select
             value={values.field_assistantName ?? ""}
             onValueChange={(v) => {
+              const w = workers?.find((worker) => worker.name === v);
+
+              // デバッグログを追加
+              console.log("選択されたassistant:", w);
+              console.log("assistant w?.id:", w?.id);
+
               setValue("field_assistantName", v || null);
-              const idMap: Record<string, string> = {
-                "山田 次郎": "3",
-              };
-              setValue(
-                "field_assistantId",
-                v && idMap[v] ? [idMap[v]] : [],
-                { shouldValidate: true }
-              );
+              // const idMap: Record<string, string> = {
+              //   "山田 次郎": "3",
+              // };
+              setValue("field_assistantId", w?.id ?? null, {
+                shouldValidate: true,
+              });
             }}
           >
             <SelectTrigger className="h-11">
               <SelectValue placeholder="選択してください" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="山田 次郎">山田 次郎</SelectItem>
-              <SelectItem value="なし">(なし)</SelectItem>
+              {workers?.map((w, index) => (
+                <SelectItem value={w.name}>{w.name}</SelectItem>
+              ))}
+              {/* <SelectItem value="山田 次郎">山田 次郎</SelectItem>
+              <SelectItem value="なし">(なし)</SelectItem> */}
             </SelectContent>
           </Select>
         </div>
@@ -109,15 +152,15 @@ export const WorkerVehicleSection = ({
           <Label className="text-sm">
             車両<span className="text-red-500 ml-1">*</span>
           </Label>
+
           <Select
-            value={values.field_carName ?? ""}
+            value={values.field_carId?.[1] ?? ""}
             onValueChange={(v) => {
-              setValue("field_carName", v, { shouldValidate: true });
-              const idMap: Record<string, string> = {
-                "除雪車A号": "1",
-                "除雪車B号": "2",
-              };
-              setValue("field_carId", [idMap[v] ?? ""], {
+              const c = cars?.find((car) => car.id[1] === v);
+              setValue("field_carName", c?.name ?? "", {
+                shouldValidate: true,
+              });
+              setValue("field_carId", c?.id ?? [""], {
                 shouldValidate: true,
               });
             }}
@@ -126,8 +169,11 @@ export const WorkerVehicleSection = ({
               <SelectValue placeholder="選択してください" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="除雪車A号">除雪車A号</SelectItem>
-              <SelectItem value="除雪車B号">除雪車B号</SelectItem>
+              {cars?.map((c, index) => (
+                <SelectItem key={c.id[1]} value={c.id[1]}>
+                  {c.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
           <input
