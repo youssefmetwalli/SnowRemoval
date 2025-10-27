@@ -25,7 +25,6 @@ export const ReportListScreen = (): JSX.Element => {
 
   return (
     <div className="flex flex-col w-full items-center pt-4 pb-8 px-4 sm:px-6 bg-gradient-to-b from-sky-50 to-sky-100">
-
       {/* Header with search/filters */}
       <div className="translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:200ms] w-full">
         <HeaderSection filters={filters} onChangeFilters={setFilters} />
@@ -43,7 +42,7 @@ export const ReportListScreen = (): JSX.Element => {
       <div className="flex flex-col w-[335px] items-start fixed left-5 bottom-6 translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:800ms]">
         <Button
           className="relative w-full h-14 rounded-xl shadow-[0px_4px_12px_#3b82f64c] bg-[linear-gradient(178deg,rgba(59,130,246,1)_0%,rgba(37,99,235,1)_100%)] hover:bg-[linear-gradient(178deg,rgba(59,130,246,0.9)_0%,rgba(37,99,235,0.9)_100%)] hover:shadow-[0px_6px_16px_#3b82f64c] hover:scale-[1.02] border-0 transition-all duration-200"
-          onClick={() => navigate("/reporteditscreen")}
+          onClick={() => navigate("/reportinputscreen")}
         >
           <PlusIcon className="w-6 h-6 text-white mr-2" />
           <span className="[font-family:'Arial-Bold',Helvetica] font-bold text-white text-base">
