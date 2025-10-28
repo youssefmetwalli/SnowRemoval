@@ -109,10 +109,10 @@ export const ReportEditScreen = (): JSX.Element => {
     const s = String(val);
     return ["", s, "", s];
   };
-  const first = (arr?: unknown) =>
-    Array.isArray(arr)
-      ? (arr[0] as string | undefined)
-      : (arr as string | undefined);
+  // const first = (arr?: unknown) =>
+  //   Array.isArray(arr)
+  //     ? (arr[0] as string | undefined)
+  //     : (arr as string | undefined);
 
   const nullIfEmpty = (s: string | null | undefined) =>
     s && s.trim() !== "" ? s : null;
@@ -133,17 +133,17 @@ export const ReportEditScreen = (): JSX.Element => {
     console.log("toJdbRecord入力:", v);
 
     const result = {
-      field_workerId: toJdbRef(first(v.field_workerId)),
-      field_carId: toJdbRef(first(v.field_carId)),
-      field_CustomerId: toJdbRef(first(v.field_CustomerId)),
-      field_workClassId: toJdbRef(first(v.field_workClassId)),
+      field_workerId: toJdbRef(pickId(v.field_workerId)),
+      field_carId: toJdbRef(pickId(v.field_carId)),
+      field_CustomerId: toJdbRef(pickId(v.field_CustomerId)),
+      field_workClassId: toJdbRef(pickId(v.field_workClassId)),
       field_workDate: toIsoDate(v.field_workDate),
-      field_workPlaceId: toJdbRef(first(v.field_workPlaceId)),
+      field_workPlaceId: toJdbRef(pickId(v.field_workPlaceId)),
       field_weather: v.field_weather,
       field_workerName: nullIfEmpty(v.field_workerName) as string | null,
       field_assistantId:
         v.field_assistantId && v.field_assistantId.length
-          ? toJdbRef(first(v.field_assistantId))
+          ? toJdbRef(pickId(v.field_assistantId))
           : null,
       field_assistantName: nullIfEmpty(v.field_assistantName) as string | null,
       field_workClassName: nullIfEmpty(v.field_workClassName) as string | null,
@@ -166,7 +166,7 @@ export const ReportEditScreen = (): JSX.Element => {
     const order: (keyof ReportPostData)[] = [
       "field_workDate",
       "field_weather",
-      "field_CustomerId",
+      // "field_CustomerId",
       "field_workClassName",
       "field_workerName",
       "field_carName",
