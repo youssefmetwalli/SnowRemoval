@@ -47,6 +47,7 @@ export const WorkerVehicleSection = ({
 
   const cars = carData?.map((carData, index) => ({
     id: carData.field_2002120021,
+    name: carData.field_2003520035 ?? "未設定",
     number: carData.field_1754972826 ?? "未設定",
     maker: carData.field_2001820018 ?? "未設定",
   }));
@@ -157,12 +158,11 @@ export const WorkerVehicleSection = ({
           <Select
             value={values.field_carId?.[1] ?? ""}
             onValueChange={(v) => {
-              const c = cars?.find((car) => car.id[1] === v);
-              const setCarName = c?.number + " " + c?.maker;
-              setValue("field_carName", setCarName ?? "", {
+              const selectedCar = cars?.find((car) => car.id[1] === v);
+              setValue("field_carName", selectedCar?.name ?? "", {
                 shouldValidate: true,
               });
-              setValue("field_carId", c?.id ?? [""], {
+              setValue("field_carId", selectedCar?.id ?? [""], {
                 shouldValidate: true,
               });
             }}
@@ -171,9 +171,9 @@ export const WorkerVehicleSection = ({
               <SelectValue placeholder="選択してください" />
             </SelectTrigger>
             <SelectContent>
-              {cars?.map((c, index) => (
-                <SelectItem key={c.id[1]} value={c.id[1]}>
-                  {c.number} {c.maker}
+              {cars?.map((car, index) => (
+                <SelectItem key={car.id[1]} value={car.id[1]}>
+                  {car.number} {car.maker}
                 </SelectItem>
               ))}
             </SelectContent>
