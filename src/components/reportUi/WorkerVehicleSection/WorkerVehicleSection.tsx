@@ -47,7 +47,8 @@ export const WorkerVehicleSection = ({
 
   const cars = carData?.map((carData, index) => ({
     id: carData.field_2002120021,
-    name: carData.field_2003520035 ?? "名称未設定",
+    number: carData.field_1754972826 ?? "未設定",
+    maker: carData.field_2001820018 ?? "未設定",
   }));
 
   // デバッグログを追加
@@ -157,7 +158,8 @@ export const WorkerVehicleSection = ({
             value={values.field_carId?.[1] ?? ""}
             onValueChange={(v) => {
               const c = cars?.find((car) => car.id[1] === v);
-              setValue("field_carName", c?.name ?? "", {
+              const setCarName = c?.number + " " + c?.maker;
+              setValue("field_carName", setCarName ?? "", {
                 shouldValidate: true,
               });
               setValue("field_carId", c?.id ?? [""], {
@@ -171,7 +173,7 @@ export const WorkerVehicleSection = ({
             <SelectContent>
               {cars?.map((c, index) => (
                 <SelectItem key={c.id[1]} value={c.id[1]}>
-                  {c.name}
+                  {c.number} {c.maker}
                 </SelectItem>
               ))}
             </SelectContent>
