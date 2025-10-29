@@ -44,7 +44,7 @@ export const ReportInputScreen = (): JSX.Element => {
   };
 
   const normalizeForForm = (p?: Partial<ReportPostData>): ReportPostData => ({
-    field_workerId: asArr(p?.field_workerId) ?? (userId),
+    field_workerId: asArr(p?.field_workerId) ?? userId,
     field_carId: asArr(p?.field_carId),
     field_CustomerId: asArr(p?.field_CustomerId),
     field_endTime: isoToTimeHM(p?.field_endTime),
@@ -55,8 +55,8 @@ export const ReportInputScreen = (): JSX.Element => {
       ? p.field_weather[0] ?? ""
       : p?.field_weather ?? "",
     field_workerName: p?.field_workerName ?? name,
-    field_assistantId: asArr(p?.field_assistantId),
-    field_assistantName: p?.field_assistantName ?? "",
+    field_assistantId: asArr(p?.field_assistantId) ?? userId,
+    field_assistantName: p?.field_assistantName ?? name,
     field_workClassName: p?.field_workClassName ?? "",
     field_carName: p?.field_carName ?? "",
     field_workPlaceName: p?.field_workPlaceName ?? "",
