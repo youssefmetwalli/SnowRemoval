@@ -21,7 +21,6 @@ interface Props {
   errors: FieldErrors<ReportPostData>;
   setValue: UseFormSetValue<ReportPostData>;
   values: ReportPostData;
-  workPlaceOption?: { placeId: number; name: string }[];
 }
 
 export const WorkPlaceSection = ({
@@ -29,7 +28,6 @@ export const WorkPlaceSection = ({
   errors,
   setValue,
   values,
-  workPlaceOption
 }: Props): JSX.Element => {
   const { data: workPlaceData, isLoading: isLoadingWorkPlace, isError: isErrorWorkPlace } = getWorkPlace();
   const workPlaces = workPlaceData?.map((workPlaceData, index) => ({
@@ -77,7 +75,7 @@ export const WorkPlaceSection = ({
             </SelectTrigger>
             <SelectContent>
               {workPlaces?.map((workPlace, index) => (
-                <SelectItem value={workPlace.name}>{workPlace.name}</SelectItem>
+                <SelectItem key={workPlace.id[1]} value={workPlace.name}>{workPlace.name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -109,10 +107,6 @@ export const WorkPlaceSection = ({
               const wc = workClasses?.find(
                 workClass => workClass.name === v
               );
-              // const idMap: Record<string, string> = {
-              //   除雪: "1",
-              //   撒砂: "2",
-              // };
               setValue("field_workClassId", wc?.id ??[""], {
                 shouldValidate: true,
               });
@@ -123,10 +117,8 @@ export const WorkPlaceSection = ({
             </SelectTrigger>
             <SelectContent>
               {workClasses?.map((wc, index) => (
-                <SelectItem value={wc.name}>{wc.name}</SelectItem>
+                <SelectItem key={wc.id[1]} value={wc.name}>{wc.name}</SelectItem>
               ))}
-              {/* <SelectItem value="除雪">除雪</SelectItem>
-              <SelectItem value="撒砂">撒砂</SelectItem> */}
             </SelectContent>
           </Select>
           <input

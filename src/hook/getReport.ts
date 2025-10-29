@@ -10,7 +10,7 @@ export const useReport = () => {
   useEffect(() => {
     (async () => {
       try {
-        console.log("get送信");
+        // console.log("get送信");
         const res = await apiClient.get<ReportGetData[]>(
           "table_1754551086/records/"
         );

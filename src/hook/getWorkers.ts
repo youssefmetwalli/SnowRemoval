@@ -13,7 +13,7 @@ export const getWorker = ()=>{
     useEffect(() => {
       (async () => {
         try {
-          console.log("get送信");
+          // console.log("get送信");
           const data = await apiClient.get<WorkerData[]>(
             `table_1754549652/records/`
           );

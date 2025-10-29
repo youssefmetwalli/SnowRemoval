@@ -1,23 +1,19 @@
 import { ArrowLeftIcon, MapPinIcon } from "lucide-react";
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "../../ui/badge";
 import { Button } from "../../ui/button";
 import { ScrollArea, ScrollBar } from "../../ui/scroll-area";
 import { cn } from "../../../lib/utils";
+import { useRoute } from "../../../hook/getRoute";
 
-const locationData = [
-  { id: 1, name: "県道123号 北区間" },
-  { id: 2, name: "県道22号 西区間" },
-  { id: 3, name: "町道45号 東エリア" },
-  { id: 4, name: "町道23号 南エリア" },
-];
 
 interface NotificationSectionProps {
   selectedLocationId?: number | null;
   onLocationSelect?: (location: { id: number; name: string }) => void;
   title?: string;
   navigateTo: string;
+  workerName: string | null;
   error?: string;
 }
 
@@ -26,12 +22,20 @@ export const NotificationSection = ({
   onLocationSelect,
   title,
   navigateTo,
+  workerName,
   error,
 }: NotificationSectionProps): JSX.Element => {
   const navigate = useNavigate();
   const [internalSelectedId, setInternalSelectedId] = useState<number | null>(
     selectedLocationId ?? null
   );
+
+  const { data: workPlaceData, isLoading: isLoadingWorkPlace, isError: isErrorWorkPlace } = useRoute(workerName ?? undefined);
+  const pickWorkPlaces = workPlaceData?.map((workPlaceData, index) => ({
+    id: workPlaceData.field_workPlaceId[1],
+    name: workPlaceData.field_workPlaceName ?? "名称未設定",
+  }));
+  const workPlaces = Array.from(new Map(pickWorkPlaces?.map((place) => [place.name, place])).values());
 
   useEffect(() => {
     if (selectedLocationId !== undefined) {
@@ -76,19 +80,19 @@ export const NotificationSection = ({
       <div className="w-full">
         <ScrollArea className="w-full">
           <div className="flex gap-2 pb-3 text-lg">
-            {locationData.map((location) => {
-              const selected = currentSelected === location.id;
+            {workPlaces?.map((location) => {
+              const selected = currentSelected === Number(location.id);
               return (
                 <Badge
-                  key={location.id}
+                  key={Number(location.id)}
                   role="button"
                   tabIndex={0}
                   aria-pressed={selected}
-                  onClick={() => handleSelect(location)}
+                  onClick={() => handleSelect({ id: Number(location.id) , name: location.name})}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
-                      handleSelect(location);
+                      handleSelect({ id: Number(location.id) , name: location.name});
                     }
                   }}
                   className={cn(

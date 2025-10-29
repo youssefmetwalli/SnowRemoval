@@ -12,7 +12,7 @@ export const useRoute = (userName: string|undefined)=>{
     useEffect(() => {
       (async () => {
         try {
-          console.log("get送信。ユーザー名:", userName);
+          // console.log("get送信。ユーザー名:", userName);
           const data = await apiClient.get<RouteGetData[]>(
             `table_1756952069/records/${query}`
           );
