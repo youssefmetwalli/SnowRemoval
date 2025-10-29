@@ -1,4 +1,3 @@
-import React from "react";
 import { Card, CardContent } from "../../ui/card";
 import { Label } from "../../ui/label";
 import {
@@ -15,13 +14,14 @@ import type {
 } from "react-hook-form";
 import type { ReportPostData } from "../../../types/reportForm";
 import { MapPinIcon } from "lucide-react";
-
+import { getWorkPlace } from "../../../hook/getWorkPlace";
+import { getWorkClass } from "../../../hook/getWorkClass";
 interface Props {
   register: UseFormRegister<ReportPostData>;
   errors: FieldErrors<ReportPostData>;
   setValue: UseFormSetValue<ReportPostData>;
   values: ReportPostData;
-  workPlaceOption: { placeId: number; name: string }[];
+  workPlaceOption?: { placeId: number; name: string }[];
 }
 
 export const WorkPlaceSection = ({
@@ -31,6 +31,19 @@ export const WorkPlaceSection = ({
   values,
   workPlaceOption
 }: Props): JSX.Element => {
+  const { data: workPlaceData, isLoading: isLoadingWorkPlace, isError: isErrorWorkPlace } = getWorkPlace();
+  const workPlaces = workPlaceData?.map((workPlaceData, index) => ({
+    id: workPlaceData.field_2002320023,
+    name: workPlaceData.field_2001920019 ?? "名称未設定",
+    customerId: workPlaceData.field_1756792186,
+    companyName: workPlaceData.field_1754541737,
+  }));
+
+  const { data: workClassData, isLoading: isLoadingWorkClass, isError: isErrorWorkClass } = getWorkClass();
+  const workClasses = workClassData?.map((workClassData, index) => ({
+    id: workClassData.field_2000820008,
+    name: workClassData.field_2001620016 ?? "名称未設定",
+  }));
   return (
     <Card className="w-full bg-white rounded-xl border border-slate-200 shadow-[0px_1px_3px_#0000001a]">
       <CardContent className="p-5 space-y-4">
@@ -39,78 +52,42 @@ export const WorkPlaceSection = ({
           <h2 className="text-sm font-semibold text-gray-700">作業場所</h2>
         </div>
 
-        {/* 顧客 (field_CustomerId / field_CompanyName) */}
-        <div className="space-y-2">
-          <Label className="text-sm">
-            顧客<span className="text-red-500 ml-1">*</span>
-          </Label>
-          <Select
-            value={values.field_CompanyName ?? ""}
-            onValueChange={(v) => {
-              setValue("field_CompanyName", v, { shouldValidate: true });
-              const idMap: Record<string, string> = {
-                "Lion Dor": "4",
-              };
-              setValue("field_CustomerId", [idMap[v] ?? ""], {
-                shouldValidate: true,
-              });
-            }}
-          >
-            <SelectTrigger className="h-11">
-              <SelectValue placeholder="選択してください" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Lion Dor">Lion Dor</SelectItem>
-            </SelectContent>
-          </Select>
-          <input
-            type="hidden"
-            {...register("field_CompanyName", { required: "顧客は必須です" })}
-            value={values.field_CompanyName ?? ""}
-          />
-          {errors.field_CompanyName && (
-            <p className="text-red-600 text-xs">
-              {errors.field_CompanyName.message}
-            </p>
-          )}
-        </div>
-
         {/* 作業場所 (field_workPlaceId / field_workPlaceName) */}
         <div className="space-y-2">
           <Label className="text-sm">
-            作業場所<span className="text-red-500 ml-1">*</span>
+            作業場所
+            {/* <span className="text-red-500 ml-1">*</span> */}
           </Label>
           <Select
             value={values.field_workPlaceName ?? ""}
             onValueChange={(v) => {
               setValue("field_workPlaceName", v, { shouldValidate: true });
-              // const idMap: Record<string, string> = {
-              //   "○○市道 A": "1",
-              // };
-              const selectOption = workPlaceOption.find(option => option.name == v);
-              if(selectOption){
-                setValue("field_workPlaceId", [selectOption.placeId.toString()], {
-                  shouldValidate: true,
-                });
-              }
-              // setValue("field_workPlaceId", [idMap[v] ?? ""], {
-              //   shouldValidate: true,
-              // });
+              const selectedWorkPlace = workPlaces?.find(
+                workPlace => workPlace.name === v
+              );
+              setValue("field_workPlaceId", selectedWorkPlace?.id ??[""], {
+                shouldValidate: true,
+              });
+              setValue("field_CustomerId", selectedWorkPlace?.customerId ??[""]);
+              setValue("field_CompanyName", selectedWorkPlace?.companyName ?? "");
             }}
           >
             <SelectTrigger className="h-11">
               <SelectValue placeholder="選択してください" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="○○市道 A">○○市道 A</SelectItem>
-              {workPlaceOption.map((option) => {
-                return <SelectItem value={option.name}>{option.name}</SelectItem>;
-              })}
+              {workPlaces?.map((workPlace, index) => (
+                <SelectItem value={workPlace.name}>{workPlace.name}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
           <input
             type="hidden"
-            {...register("field_workPlaceName", { required: "作業場所は必須です" })}
+            {
+              ...register("field_workPlaceName", 
+                // { required: "作業場所は必須です" }
+              )
+            }
             value={values.field_workPlaceName ?? ""}
           />
           {errors.field_workPlaceName && (
@@ -129,11 +106,14 @@ export const WorkPlaceSection = ({
             value={values.field_workClassName ?? ""}
             onValueChange={(v) => {
               setValue("field_workClassName", v, { shouldValidate: true });
-              const idMap: Record<string, string> = {
-                除雪: "1",
-                撒砂: "2",
-              };
-              setValue("field_workClassId", [idMap[v] ?? ""], {
+              const wc = workClasses?.find(
+                workClass => workClass.name === v
+              );
+              // const idMap: Record<string, string> = {
+              //   除雪: "1",
+              //   撒砂: "2",
+              // };
+              setValue("field_workClassId", wc?.id ??[""], {
                 shouldValidate: true,
               });
             }}
@@ -142,8 +122,11 @@ export const WorkPlaceSection = ({
               <SelectValue placeholder="選択してください" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="除雪">除雪</SelectItem>
-              <SelectItem value="撒砂">撒砂</SelectItem>
+              {workClasses?.map((wc, index) => (
+                <SelectItem value={wc.name}>{wc.name}</SelectItem>
+              ))}
+              {/* <SelectItem value="除雪">除雪</SelectItem>
+              <SelectItem value="撒砂">撒砂</SelectItem> */}
             </SelectContent>
           </Select>
           <input

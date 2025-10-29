@@ -1,57 +1,155 @@
-import { ArrowLeftIcon, FilterIcon, SearchIcon } from "lucide-react";
 import React from "react";
+import {
+  SearchIcon,
+  MapPinIcon,
+  CalendarIcon,
+  LayersIcon,
+  FilterIcon,
+  ArrowLeftIcon,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "../../../../components/ui/button";
+
 import { Input } from "../../../../components/ui/input";
+import { Label } from "../../../../components/ui/label";
+import { Button } from "../../../../components/ui/button";
 
+import type { ReportListFilters } from "../../ReportListScreen";
+import { MobileFilterDialog } from "./MobileFilterDialog";
 
-interface HeaderSectionProps {
-  searchValue: string;
-  onSearchChange: (value: string) => void;
-}
+type Props = {
+  filters: ReportListFilters;
+  onChangeFilters: (f: ReportListFilters) => void;
+};
 
-export const HeaderSection = (): JSX.Element => {
+export const HeaderSection: React.FC<Props> = ({ filters, onChangeFilters }) => {
   const navigate = useNavigate();
+  const [mobileFilterOpen, setMobileFilterOpen] = React.useState(false);
+
+  // helper for updating individual filters
+  const setFilter =
+    <K extends keyof ReportListFilters>(key: K) =>
+    (v: string) =>
+      onChangeFilters({ ...filters, [key]: v });
+
+  // apply button in dialog (just close)
+  const handleApplyMobileFilters = () => {
+    setMobileFilterOpen(false);
+  };
+
+  // キャンセル = clear all filters then close
+  const handleClearAndClose = () => {
+    onChangeFilters({
+      query: "",
+      date: "",
+      classification: "",
+      location: "",
+    });
+    setMobileFilterOpen(false);
+  };
 
   return (
-    <header className="flex flex-col w-full items-start gap-4 pt-5 pb-4 px-5 relative bg-transparent shadow-[0px_2px_4px_#0000001a] bg-[linear-gradient(158deg,rgba(59,130,246,1)_0%,rgba(37,99,235,1)_100%)] translate-y-[-1rem] animate-fade-in opacity-0">
-      <div className="flex items-center justify-between pt-6 pb-0 px-0 relative self-stretch w-full flex-[0_0_auto]">
-        <div className="flex items-center gap-3">
+    <>
+      <header className="flex flex-col w-full gap-4 pt-5 pb-5 px-5 shadow-[0px_2px_4px_#0000001a] bg-[linear-gradient(158deg,rgba(59,130,246,1)_0%,rgba(37,99,235,1)_100%)]">
+        {/* Top Row */}
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center gap-3">
+            {/* Back button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="w-12 h-12 bg-white/20 rounded-xl hover:bg-white/30 transition-colors flex-shrink-0"
+              onClick={() => navigate("/homescreen")}
+              aria-label="戻る"
+            >
+              <ArrowLeftIcon className="w-6 h-6 text-white" />
+            </Button>
+
+            {/* Title */}
+            <div className="flex flex-col">
+              <div className="text-white font-semibold text-lg leading-none">
+                作業日報一覧
+              </div>
+            </div>
+          </div>
+
+          {/* Filter icon button (mobile only) */}
           <Button
             variant="ghost"
             size="icon"
-            className="w-9 h-9 bg-white-20 rounded-lg hover:bg-white-20/80 transition-colors translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:100ms]"
-            onClick={() => navigate("/homescreen")}
+            className="w-12 h-12 bg-white/20 rounded-xl hover:bg-white/30 flex-shrink-0 md:hidden"
+            aria-label="フィルター"
+            onClick={() => setMobileFilterOpen(true)}
           >
-            <ArrowLeftIcon className="w-5 h-5 text-white" />
+            <FilterIcon className="w-6 h-6 text-white" />
           </Button>
-          
-          <div className="inline-flex flex-col items-start pt-px pb-0.5 px-0 relative flex-[0_0_auto] translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:200ms]">
-          <div className="relative w-fit mt-[-1.00px] font-semantic-heading-1 font-[number:var(--semantic-heading-1-font-weight)] text-white text-[length:var(--semantic-heading-1-font-size)] tracking-[var(--semantic-heading-1-letter-spacing)] whitespace-nowrap flex items-center justify-center leading-[var(--semantic-heading-1-line-height)] [font-style:var(--semantic-heading-1-font-style)]">
-            作業日報一覧
-          </div>
-          </div>
         </div>
 
-        <Button
-          variant="ghost"
-          size="icon"
-          className="w-9 h-9 bg-white-20 rounded-lg hover:bg-white-20/80 translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:400ms]"
-        >
-          <FilterIcon className="w-5 h-5 text-white" />
-        </Button>
-      </div>
-
-      <div className="flex flex-col items-start relative self-stretch w-full flex-[0_0_auto] translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:600ms]">
-        <div className="relative w-full">
-          <SearchIcon className="absolute top-1/2 left-3 w-[18px] h-[18px] text-gull-gray transform -translate-y-1/2 z-10" />
+        {/* Keyword search (always visible) */}
+        <div className="relative">
+          <SearchIcon className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <Input
-            className="h-10 pl-10 pr-3 py-3 bg-white rounded-[10px] border-0 [font-family:'Arial-Narrow',Helvetica] font-normal text-gull-gray text-sm tracking-[0] leading-[normal] placeholder:text-gull-gray focus-visible:ring-0 focus-visible:ring-offset-0"
-            placeholder="検索（日付、場所、作業員など）"
-            defaultValue=""
+            value={filters.query}
+            onChange={(e) => setFilter("query")(e.target.value)}
+            placeholder="キーワード検索（作業場所 / 作業分類 / 作業員 など）"
+            className="pl-10 bg-white h-12 text-[16px] rounded-lg shadow-sm"
           />
         </div>
-      </div>
-    </header>
+
+        {/* Desktop filter row */}
+        <div className="hidden md:grid md:grid-cols-3 md:gap-3 w-full">
+          {/* 日付 */}
+          <div className="flex flex-col">
+            <Label className="flex items-center gap-2 text-sm text-white mb-1 font-medium">
+              <CalendarIcon className="w-4 h-4 text-white" />
+              <span className="text-white">日付</span>
+            </Label>
+            <Input
+              type="date"
+              value={filters.date}
+              onChange={(e) => setFilter("date")(e.target.value)}
+              className="bg-white h-12 text-[16px] rounded-lg shadow-sm"
+            />
+          </div>
+
+          {/* 作業分類 */}
+          <div className="flex flex-col">
+            <Label className="flex items-center gap-2 text-sm text-white mb-1 font-medium">
+              <LayersIcon className="w-4 h-4 text-white" />
+              <span className="text-white">作業分類</span>
+            </Label>
+            <Input
+              placeholder="例: 除雪 / 撒砂"
+              value={filters.classification}
+              onChange={(e) => setFilter("classification")(e.target.value)}
+              className="bg-white h-12 text-[16px] rounded-lg shadow-sm placeholder:text-gray-400"
+            />
+          </div>
+
+          {/* 作業場所 */}
+          <div className="flex flex-col">
+            <Label className="flex items-center gap-2 text-sm text-white mb-1 font-medium">
+              <MapPinIcon className="w-4 h-4 text-white" />
+              <span className="text-white">作業場所</span>
+            </Label>
+            <Input
+              placeholder="例: ○○市道 / 県道123号"
+              value={filters.location}
+              onChange={(e) => setFilter("location")(e.target.value)}
+              className="bg-white h-12 text-[16px] rounded-lg shadow-sm placeholder:text-gray-400"
+            />
+          </div>
+        </div>
+      </header>
+
+      {/* Mobile-only filter dialog */}
+      <MobileFilterDialog
+        open={mobileFilterOpen}
+        onOpenChange={setMobileFilterOpen}
+        filters={filters}
+        setFilter={setFilter}
+        onApply={handleApplyMobileFilters}
+        onClearAndClose={handleClearAndClose}
+      />
+    </>
   );
 };

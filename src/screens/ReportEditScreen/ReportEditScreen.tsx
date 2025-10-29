@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation } from "react-router-dom";
 import { Alert, AlertDescription } from "../../components/ui/alert";
@@ -12,12 +12,14 @@ import { WorkRecordSection } from "../../components/reportUi/WorkRecordSection/W
 import { WorkerVehicleSection } from "../../components/reportUi/WorkerVehicleSection/WorkerVehicleSection";
 import type { ReportPostData } from "../../types/reportForm";
 import { putReport } from "../../hook/putReport";
+import { UserName } from "../../components/UserName";
 
 export const ReportEditScreen = (): JSX.Element => {
   const location = useLocation();
   const passed = location.state as Partial<ReportPostData> | undefined;
   const dayReportId: string = location.state.field_dayReportId[1];
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // ---------- helpers to normalize incoming values ----------
   const isoToDate = (iso?: string) => {
@@ -35,8 +37,12 @@ export const ReportEditScreen = (): JSX.Element => {
   const asArr = (v?: string[] | string | null) =>
     Array.isArray(v) ? v : v ? [String(v)] : [];
 
-  const pickStringFromArr = (v?: string[]) =>
-     v ? v[1] : undefined;
+  const pickId = (arr?: unknown) => {
+    if (!Array.isArray(arr)) return arr as string | undefined;
+    const a = arr as string[];
+    // prefer ["", "1", "", "1"] -> "1"; otherwise use single-element ["1"]
+    return a[1] ?? a[0];
+  };
 
   const normalizeForForm = (p?: Partial<ReportPostData>): ReportPostData => ({
     field_workerId: asArr(p?.field_workerId),
@@ -63,13 +69,10 @@ export const ReportEditScreen = (): JSX.Element => {
         : p?.field_removalVolume ?? "",
   });
 
-  
-
-  // ---------- form ----------
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isValid, isDirty = true },
     setValue,
     watch,
     reset,
@@ -79,13 +82,10 @@ export const ReportEditScreen = (): JSX.Element => {
     mode: "onSubmit",
   });
 
-
-  // If user navigates here with/without state after mount, ensure defaults update
   useEffect(() => {
     reset(normalizeForForm(passed));
   }, [passed, reset]);
 
-  // selected chip state (initialize from workPlaceId if present)
   const [selectedLocationId, setSelectedLocationId] = useState<number | null>(
     () => {
       const id = normalizeForForm(passed).field_workPlaceId?.[1];
@@ -95,19 +95,24 @@ export const ReportEditScreen = (): JSX.Element => {
 
   const values = watch();
 
+  // デバッグログを追加
+  console.log("現在のフォーム値:", values);
+  // console.log("field_workerId:", values.field_workerId);
+  // console.log("field_carId:", values.field_carId);
+  // console.log("field_assistantId:", values.field_assistantId);
+  console.log("isValid:", isValid);
+  console.log("isDirty:", isDirty);
+  // console.log("field_assistantId:", values.field_assistantId);
 
-
-
-  // ---------- JDB payload shaping (same as your working version) ----------
   const toJdbRef = (val?: string | number | null): string[] => {
     if (val === undefined || val === null || val === "") return [];
     const s = String(val);
     return ["", s, "", s];
   };
-  const first = (arr?: unknown) =>
-    Array.isArray(arr)
-      ? (arr[0] as string | undefined)
-      : (arr as string | undefined);
+  // const first = (arr?: unknown) =>
+  //   Array.isArray(arr)
+  //     ? (arr[0] as string | undefined)
+  //     : (arr as string | undefined);
 
   const nullIfEmpty = (s: string | null | undefined) =>
     s && s.trim() !== "" ? s : null;
@@ -124,38 +129,44 @@ export const ReportEditScreen = (): JSX.Element => {
     return `${dateStr}T${timeStr}${tzOffset}`;
   };
 
-  const toJdbRecord = (v: ReportPostData): ReportPostData => ({
-    field_workerId: toJdbRef(first(v.field_workerId)),
-    field_carId: toJdbRef(first(v.field_carId)),
-    field_CustomerId: toJdbRef(first(v.field_CustomerId)),
-    field_workClassId: toJdbRef(first(v.field_workClassId)),
-    field_workDate: toIsoDate(v.field_workDate),
-    field_workPlaceId: toJdbRef(first(v.field_workPlaceId)),
-    field_weather: v.field_weather,
-    field_workerName: nullIfEmpty(v.field_workerName) as string | null,
-    field_assistantId:
-      v.field_assistantId && v.field_assistantId.length
-        ? toJdbRef(first(v.field_assistantId))
-        : null,
-    field_assistantName: nullIfEmpty(v.field_assistantName) as string | null,
-    field_workClassName: nullIfEmpty(v.field_workClassName) as string | null,
-    field_carName: nullIfEmpty(v.field_carName) as string | null,
-    field_workPlaceName: nullIfEmpty(v.field_workPlaceName) as string | null,
-    field_startTime: toIsoDateTime(v.field_workDate, v.field_startTime),
-    field_endTime: toIsoDateTime(v.field_workDate, v.field_endTime),
-    field_CompanyName: v.field_CompanyName,
-    field_removalVolume:
-      values.field_removalVolume && Number(values.field_removalVolume) > 0
-        ? String(values.field_removalVolume)
-        : null,
-  });
+  const toJdbRecord = (v: ReportPostData): ReportPostData => {
+    console.log("toJdbRecord入力:", v);
+
+    const result = {
+      field_workerId: toJdbRef(pickId(v.field_workerId)),
+      field_carId: toJdbRef(pickId(v.field_carId)),
+      field_CustomerId: toJdbRef(pickId(v.field_CustomerId)),
+      field_workClassId: toJdbRef(pickId(v.field_workClassId)),
+      field_workDate: toIsoDate(v.field_workDate),
+      field_workPlaceId: toJdbRef(pickId(v.field_workPlaceId)),
+      field_weather: v.field_weather,
+      field_workerName: nullIfEmpty(v.field_workerName) as string | null,
+      field_assistantId:
+        v.field_assistantId && v.field_assistantId.length
+          ? toJdbRef(pickId(v.field_assistantId))
+          : null,
+      field_assistantName: nullIfEmpty(v.field_assistantName) as string | null,
+      field_workClassName: nullIfEmpty(v.field_workClassName) as string | null,
+      field_carName: nullIfEmpty(v.field_carName) as string | null,
+      field_workPlaceName: nullIfEmpty(v.field_workPlaceName) as string | null,
+      field_startTime: toIsoDateTime(v.field_workDate, v.field_startTime),
+      field_endTime: toIsoDateTime(v.field_workDate, v.field_endTime),
+      field_CompanyName: v.field_CompanyName,
+      field_removalVolume:
+        values.field_removalVolume && Number(values.field_removalVolume) > 0
+          ? String(values.field_removalVolume)
+          : null,
+    };
+
+    console.log("toJdbRecord出力:", result);
+    return result;
+  };
 
   const firstError = useMemo(() => {
     const order: (keyof ReportPostData)[] = [
       "field_workDate",
       "field_weather",
-      "field_CustomerId",
-      "field_workPlaceName",
+      // "field_CustomerId",
       "field_workClassName",
       "field_workerName",
       "field_carName",
@@ -166,22 +177,29 @@ export const ReportEditScreen = (): JSX.Element => {
     return key ? (errors[key]?.message as string | undefined) : undefined;
   }, [errors]);
 
-
-
   const onValid = () => setShowConfirmation(true);
-  const onInvalid = () => {setShowConfirmation(false); console.log("Invalid!");}
+  const onInvalid = () => {
+    setShowConfirmation(false);
+    console.log("Invalid!");
+  };
 
   const handleConfirm = async () => {
+    setIsSubmitting(true);
+    const record = toJdbRecord(values);
     try {
-      const record = toJdbRecord(values);
-      await putReport(record, dayReportId); // reuse your POST for now
+      // const record = toJdbRecord(values);
+      await putReport(record, dayReportId);
       setShowConfirmation(false);
       console.log("送信成功");
-      reset(); // clear after save (optional for edit)
+      console.log(record);
+      reset();
     } catch (error) {
       console.error("送信エラー:", error);
+      console.log(record);
     } finally {
+      setIsSubmitting(false);
       console.log("送信完了");
+      console.log(record);
     }
   };
 
@@ -202,19 +220,21 @@ export const ReportEditScreen = (): JSX.Element => {
       />
 
       <div className="flex flex-col w-full items-center pt-4 pb-8 px-4 sm:px-6 bg-gradient-to-b from-sky-50 to-sky-100">
+        <UserName />
         <div className="w-full max-w-4xl space-y-6">
           <NotificationSection
+            title="日報編集"
+            navigateTo="/reportlistscreen"
             selectedLocationId={selectedLocationId}
             onLocationSelect={(loc) => {
               setSelectedLocationId(loc.id);
-              // avoid early validation flashes; clear error once user selects
               setValue("field_workPlaceId", [String(loc.id)], {
                 shouldDirty: true,
               });
               setValue("field_workPlaceName", loc.name, { shouldDirty: true });
               clearErrors("field_workPlaceId");
             }}
-            error={errors.field_workPlaceId?.message}
+            
           />
 
           {firstError && (
@@ -232,7 +252,6 @@ export const ReportEditScreen = (): JSX.Element => {
               type="hidden"
               value={selectedLocationId ?? ""}
               {...register("field_workPlaceId", {
-                required: "作業場所を選択してください",
               })}
             />
 
@@ -267,7 +286,11 @@ export const ReportEditScreen = (): JSX.Element => {
               values={values}
             />
 
-            <ActionButtonsSection />
+            <ActionButtonsSection
+              isValid={isValid}
+              isDirty={true} //TODO 内容が変更されたらボタンが押せるように修正
+              isSubmitting={isSubmitting}
+            />
           </form>
         </div>
       </div>

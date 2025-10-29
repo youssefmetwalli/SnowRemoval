@@ -2,10 +2,18 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
-    const { path = "" } = req.query;
+    const { path = "", apiName="defalut" } = req.query;
     const JUSTDB_BASE = "https://asera.just-db.com/sites/api/services/v1/tables";
-    const API_KEY = process.env.VITE_API_KEY; // safe on server only
+    // const API_KEY = process.env.VITE_API_KEY; // safe on server only
+    // const SECOND_KEY = process.env.VITE_API_NO_TWO;
 
+    const API_KEYS = {
+      default: process.env.VITE_API_KEY,
+      secondary: process.env.VITE_API_NO_TWO,
+    };
+
+    const API_KEY = API_KEYS[String(apiName) as keyof typeof API_KEYS] || API_KEYS.default;
+    
     const targetUrl =
       JUSTDB_BASE.replace(/\/+$/, "") + "/" + String(path).replace(/^\/+/, "");
 
