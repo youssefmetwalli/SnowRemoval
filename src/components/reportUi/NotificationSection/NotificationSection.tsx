@@ -53,6 +53,10 @@ export const NotificationSection = ({
 
   const currentSelected = selectedLocationId ?? internalSelectedId;
 
+  console.log("selectedLocationId:", selectedLocationId);
+  console.log("internalSelectedId:", internalSelectedId);
+  console.log("currentSelected:", currentSelected);
+
   return (
     <header className="flex flex-col w-full items-start gap-3 pt-5 pb-2 px-5 relative bg-transparent shadow-[0px_2px_4px_#0000001a] bg-[linear-gradient(158deg,rgba(59,130,246,1)_0%,rgba(37,99,235,1)_100%)] translate-y-[-1rem] animate-fade-in opacity-0">
       {/* Header Bar */}

@@ -16,11 +16,15 @@ import type { ReportPostData } from "../../../types/reportForm";
 import { MapPinIcon } from "lucide-react";
 import { getWorkPlace } from "../../../hook/getWorkPlace";
 import { getWorkClass } from "../../../hook/getWorkClass";
+import { useState, useEffect, useCallback } from "react";
+
 interface Props {
   register: UseFormRegister<ReportPostData>;
   errors: FieldErrors<ReportPostData>;
   setValue: UseFormSetValue<ReportPostData>;
   values: ReportPostData;
+  onLocationSelect?: (location: { id: number; }) => void;
+  selectedLocationId?: number | null;
 }
 
 export const WorkPlaceSection = ({
@@ -28,8 +32,19 @@ export const WorkPlaceSection = ({
   errors,
   setValue,
   values,
+  onLocationSelect,
+  selectedLocationId
 }: Props): JSX.Element => {
-  const { data: workPlaceData, isLoading: isLoadingWorkPlace, isError: isErrorWorkPlace } = getWorkPlace();
+  const [internalSelectedId, setInternalSelectedId] = useState<number | null>(
+      selectedLocationId ?? null
+    );
+
+
+  const {
+    data: workPlaceData,
+    isLoading: isLoadingWorkPlace,
+    isError: isErrorWorkPlace,
+  } = getWorkPlace();
   const workPlaces = workPlaceData?.map((workPlaceData, index) => ({
     id: workPlaceData.field_2002320023,
     name: workPlaceData.field_2001920019 ?? "名称未設定",
@@ -37,11 +52,30 @@ export const WorkPlaceSection = ({
     companyName: workPlaceData.field_1754541737,
   }));
 
-  const { data: workClassData, isLoading: isLoadingWorkClass, isError: isErrorWorkClass } = getWorkClass();
+  const {
+    data: workClassData,
+    isLoading: isLoadingWorkClass,
+    isError: isErrorWorkClass,
+  } = getWorkClass();
   const workClasses = workClassData?.map((workClassData, index) => ({
     id: workClassData.field_2000820008,
     name: workClassData.field_2001620016 ?? "名称未設定",
   }));
+
+  useEffect(() => {
+      if (selectedLocationId !== undefined) {
+        setInternalSelectedId(selectedLocationId ?? null);
+      }
+    }, [selectedLocationId]);
+  
+    const handleSelect = useCallback(
+      (loc: { id: number;}) => {
+        if (selectedLocationId === undefined) setInternalSelectedId(loc.id);
+        onLocationSelect?.(loc);
+      },
+      [onLocationSelect, selectedLocationId]
+    );
+
   return (
     <Card className="w-full bg-white rounded-xl border border-slate-200 shadow-[0px_1px_3px_#0000001a]">
       <CardContent className="p-5 space-y-4">
@@ -61,13 +95,20 @@ export const WorkPlaceSection = ({
             onValueChange={(v) => {
               setValue("field_workPlaceName", v, { shouldValidate: true });
               const selectedWorkPlace = workPlaces?.find(
-                workPlace => workPlace.name === v
+                (workPlace) => workPlace.name === v
               );
-              setValue("field_workPlaceId", selectedWorkPlace?.id ??[""], {
+              setValue("field_workPlaceId", selectedWorkPlace?.id ?? [""], {
                 shouldValidate: true,
               });
-              setValue("field_CustomerId", selectedWorkPlace?.customerId ??[""]);
-              setValue("field_CompanyName", selectedWorkPlace?.companyName ?? "");
+              setValue(
+                "field_CustomerId",
+                selectedWorkPlace?.customerId ?? [""]
+              );
+              setValue(
+                "field_CompanyName",
+                selectedWorkPlace?.companyName ?? ""
+              );
+              handleSelect({ id: Number(selectedWorkPlace?.id[1])});
             }}
           >
             <SelectTrigger className="h-11">
@@ -75,17 +116,18 @@ export const WorkPlaceSection = ({
             </SelectTrigger>
             <SelectContent>
               {workPlaces?.map((workPlace, index) => (
-                <SelectItem key={workPlace.id[1]} value={workPlace.name}>{workPlace.name}</SelectItem>
+                <SelectItem key={workPlace.id[1]} value={workPlace.name}>
+                  {workPlace.name}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
           <input
             type="hidden"
-            {
-              ...register("field_workPlaceName", 
-                // { required: "作業場所は必須です" }
-              )
-            }
+            {...register(
+              "field_workPlaceName"
+              // { required: "作業場所は必須です" }
+            )}
             value={values.field_workPlaceName ?? ""}
           />
           {errors.field_workPlaceName && (
@@ -104,10 +146,8 @@ export const WorkPlaceSection = ({
             value={values.field_workClassName ?? ""}
             onValueChange={(v) => {
               setValue("field_workClassName", v, { shouldValidate: true });
-              const wc = workClasses?.find(
-                workClass => workClass.name === v
-              );
-              setValue("field_workClassId", wc?.id ??[""], {
+              const wc = workClasses?.find((workClass) => workClass.name === v);
+              setValue("field_workClassId", wc?.id ?? [""], {
                 shouldValidate: true,
               });
             }}
@@ -117,7 +157,9 @@ export const WorkPlaceSection = ({
             </SelectTrigger>
             <SelectContent>
               {workClasses?.map((wc, index) => (
-                <SelectItem key={wc.id[1]} value={wc.name}>{wc.name}</SelectItem>
+                <SelectItem key={wc.id[1]} value={wc.name}>
+                  {wc.name}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>

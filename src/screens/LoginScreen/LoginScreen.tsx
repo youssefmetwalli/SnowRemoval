@@ -22,7 +22,6 @@ export const LoginScreen = (): JSX.Element => {
     try {
       const workers = await apiClient.get<any[]>("table_1754549652/records/");
 
-      console.log("Workers fetched:", workers);
 
       const user = workers.find(
         (w) =>

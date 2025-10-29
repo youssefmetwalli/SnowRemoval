@@ -206,6 +206,8 @@ export const ReportInputScreen = (): JSX.Element => {
     }
   };
 
+
+
   return (
     <>
       <InputConfirmation
@@ -274,6 +276,11 @@ export const ReportInputScreen = (): JSX.Element => {
               errors={errors}
               setValue={setValue}
               values={values}
+              selectedLocationId={selectedLocationId}
+              onLocationSelect={(loc) => {
+                setSelectedLocationId(loc.id);
+                clearErrors("field_workPlaceId");
+              }}
             />
             <WorkDurationSection
               register={register}
