@@ -160,7 +160,7 @@ export const ReportInputScreen = (): JSX.Element => {
     const order: (keyof ReportPostData)[] = [
       "field_workDate",
       "field_weather",
-      "field_CustomerId",
+      // "field_CustomerId",
       "field_workClassName",
       "field_workerName",
       "field_carName",
