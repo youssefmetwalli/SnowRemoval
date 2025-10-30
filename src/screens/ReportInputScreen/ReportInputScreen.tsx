@@ -23,7 +23,17 @@ export const ReportInputScreen = (): JSX.Element => {
 
   // ---------- helpers ----------
   const isoToDate = (iso?: string) => {
-    if (!iso) return "";
+    if (!iso) {
+      // 日本時間で今日の日付を取得
+      return new Date()
+        .toLocaleDateString("ja-JP", {
+          timeZone: "Asia/Tokyo",
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        })
+        .replace(/\//g, "-"); // 2025/10/30 → 2025-10-30
+    }
     const m = iso.match(/^(\d{4}-\d{2}-\d{2})/);
     return m ? m[1] : iso;
   };
