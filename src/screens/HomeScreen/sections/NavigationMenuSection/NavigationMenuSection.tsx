@@ -36,11 +36,11 @@ const MenuTile = ({
         : "bg-white",
     ].join(" ")}
   >
-    <CardContent className="flex flex-col items-center justify-center gap-3 p-6 aspect-square sm:aspect-[4/3] lg:aspect-[5/3]">
+    <CardContent className="flex flex-col items-center justify-center gap-3 p-6 aspect-[5/2] sm:aspect-[4/3] lg:aspect-[5/3]">
       <div
         className={[
           "flex items-center justify-center rounded-2xl",
-          "w-12 h-12 text-2xl",
+          "w-12 h-2 text-2xl",
           variant === "primary"
             ? "bg-white/15"
             : "bg-blue-50 text-blue-600 group-hover:bg-blue-100",

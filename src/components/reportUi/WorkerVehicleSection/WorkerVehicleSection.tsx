@@ -103,7 +103,9 @@ export const WorkerVehicleSection = ({
             </SelectTrigger>
             <SelectContent>
               {workers?.map((w, index) => (
-                <SelectItem key={w.id[1]} value={w.name}>{w.name}</SelectItem>
+                <SelectItem key={w.id[1]} value={w.name}>
+                  {w.name}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -142,7 +144,9 @@ export const WorkerVehicleSection = ({
             </SelectTrigger>
             <SelectContent>
               {workers?.map((w, index) => (
-                <SelectItem key={w.id[1]} value={w.name}>{w.name}</SelectItem>
+                <SelectItem key={w.id[1]} value={w.name}>
+                  {w.name}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -172,7 +176,8 @@ export const WorkerVehicleSection = ({
             <SelectContent>
               {cars?.map((car, index) => (
                 <SelectItem key={car.id[1]} value={car.id[1]}>
-                  {car.number} {car.maker}
+                  <span className="font-bold">{car.name}　</span>
+                  {car.number}
                 </SelectItem>
               ))}
             </SelectContent>
