@@ -7,7 +7,9 @@ export const useRoute = (userName: string|undefined)=>{
     const [data, setData] = useState<RouteGetData[] | undefined>();
     const [isLoading, setLoading] = useState(true);
     const[isError, setError] = useState(false);
-    const query = userName ? `?_field_workerName=${userName}` : "";
+    const query = userName
+      ? `?_field_workerName=${userName}&limit=100`
+      : "?limit=100";
 
     useEffect(() => {
       (async () => {

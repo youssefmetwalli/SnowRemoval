@@ -6,6 +6,7 @@ import { Card, CardContent } from "../../../../components/ui/card";
 import { useReport } from "../../../../hook/getReport";
 import React, { useMemo } from "react";
 import type { ReportListFilters } from "../../ReportListScreen";
+import { getCurrentUser } from "../../../../hook/getCurrentUser";
 
 type Props = {
   filters: ReportListFilters;
@@ -13,7 +14,8 @@ type Props = {
 
 export const ReportListSection: React.FC<Props> = ({ filters }) => {
   const navigate = useNavigate();
-  const { data: reports } = useReport(); // your hook
+  const { name: user} = getCurrentUser();
+  const { data: reports } = useReport(user); // your hook
 
   const formatDate = (iso: string) =>
     new Date(iso).toLocaleDateString("ja-JP", {

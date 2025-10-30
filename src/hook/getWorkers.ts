@@ -15,7 +15,7 @@ export const getWorker = ()=>{
         try {
           // console.log("get送信");
           const data = await apiClient.get<WorkerData[]>(
-            `table_1754549652/records/`
+            `table_1754549652/records/?limit=100`
           );
           setData(data);
         } catch (err) {

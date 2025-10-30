@@ -66,7 +66,7 @@ export const ReportInputScreen = (): JSX.Element => {
       : p?.field_weather ?? "",
     field_workerName: p?.field_workerName ?? name,
     field_assistantId: asArr(p?.field_assistantId) ?? userId,
-    field_assistantName: p?.field_assistantName ?? name,
+    field_assistantName: p?.field_assistantName ?? "",
     field_workClassName: p?.field_workClassName ?? "",
     field_carName: p?.field_carName ?? "",
     field_workPlaceName: p?.field_workPlaceName ?? "",
