@@ -13,7 +13,7 @@ export const getCustomer = ()=>{
     useEffect(() => {
       (async () => {
         try {
-          console.log("get送信");
+          // console.log("get送信");
           const data = await apiClient.get<CustomerData[]>(
             `table_1754541395/records/?limit=100`
           );

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { UserIcon } from "lucide-react";
 import { Card, CardContent } from "../../ui/card";
 import { Label } from "../../ui/label";
@@ -14,6 +15,7 @@ import type {
   UseFormSetValue,
 } from "react-hook-form";
 import type { ReportPostData } from "../../../types/reportForm";
+
 import { getWorker } from "../../../hook/getWorkers";
 import { getCar } from "../../../hook/getCars";
 interface Props {
@@ -21,6 +23,7 @@ interface Props {
   errors: FieldErrors<ReportPostData>;
   setValue: UseFormSetValue<ReportPostData>;
   values: ReportPostData;
+  selectedPlaceId?: number | null;
 }
 
 export const WorkerVehicleSection = ({
@@ -50,10 +53,18 @@ export const WorkerVehicleSection = ({
     name: carData.field_2003520035 ?? "名称未設定",
   }));
 
+  // // 初期の主担当の入力値をログイン中のユーザーにする
+  // useEffect(()=>{
+  //   setValue("field_workerName", name ?? "", { shouldValidate: true });
+  //   setValue("field_workerId", userId ?? [""], {
+  //     shouldValidate: true,
+  //   });
+  // },[]);
+
   // デバッグログを追加
-  console.log("取得したworkers:", workers);
-  console.log("取得したcars:", cars);
-  console.log("現在のvalues:", values);
+  // console.log("取得したworkers:", workers);
+  // console.log("取得したcars:", cars);
+  // console.log("現在のvalues:", values);
 
   return (
     <Card className="w-full bg-white rounded-xl border border-slate-200 shadow-[0px_1px_3px_#0000001a]">
@@ -75,16 +86,11 @@ export const WorkerVehicleSection = ({
               const w = workers?.find((worker) => worker.name === v);
 
               // デバッグログを追加
-              console.log("選択されたworker:", w);
-              console.log("w?.id:", w?.id);
-              console.log("w?.name:", w?.name);
+              // console.log("選択されたworker:", w);
+              // console.log("w?.id:", w?.id);
+              // console.log("w?.name:", w?.name);
 
               setValue("field_workerName", v ?? "", { shouldValidate: true });
-              // matching ID (for example purposes)
-              // const idMap: Record<string, string> = {
-              //   "田中 太郎": "1",
-              //   "佐藤 花子": "2",
-              // };
               setValue("field_workerId", w?.id ?? [""], {
                 shouldValidate: true,
               });
@@ -95,10 +101,8 @@ export const WorkerVehicleSection = ({
             </SelectTrigger>
             <SelectContent>
               {workers?.map((w, index) => (
-                <SelectItem value={w.name}>{w.name}</SelectItem>
+                <SelectItem key={w.id[1]} value={w.name}>{w.name}</SelectItem>
               ))}
-              {/* <SelectItem value="田中 太郎">田中 太郎</SelectItem>
-              <SelectItem value="佐藤 花子">佐藤 花子</SelectItem> */}
             </SelectContent>
           </Select>
           <input
@@ -122,13 +126,10 @@ export const WorkerVehicleSection = ({
               const w = workers?.find((worker) => worker.name === v);
 
               // デバッグログを追加
-              console.log("選択されたassistant:", w);
-              console.log("assistant w?.id:", w?.id);
+              // console.log("選択されたassistant:", w);
+              // console.log("assistant w?.id:", w?.id);
 
               setValue("field_assistantName", v || null);
-              // const idMap: Record<string, string> = {
-              //   "山田 次郎": "3",
-              // };
               setValue("field_assistantId", w?.id ?? null, {
                 shouldValidate: true,
               });
@@ -139,10 +140,8 @@ export const WorkerVehicleSection = ({
             </SelectTrigger>
             <SelectContent>
               {workers?.map((w, index) => (
-                <SelectItem value={w.name}>{w.name}</SelectItem>
+                <SelectItem key={w.id[1]} value={w.name}>{w.name}</SelectItem>
               ))}
-              {/* <SelectItem value="山田 次郎">山田 次郎</SelectItem>
-              <SelectItem value="なし">(なし)</SelectItem> */}
             </SelectContent>
           </Select>
         </div>

@@ -98,7 +98,7 @@ export const NavigationMenuSection = (): JSX.Element => {
 
   if (loginUser) {
     const parsedLoginUser = JSON.parse(loginUser);
-    console.log(parsedLoginUser.field_1754635302[1]);
+    // console.log(parsedLoginUser.field_1754635302[1]);
     if (reports) {
       userReports = reports.filter((report) => 
         report.field_workerId[1] === parsedLoginUser.field_1754635302[1]
@@ -111,7 +111,7 @@ export const NavigationMenuSection = (): JSX.Element => {
       });
   }
     
-    console.log(userReports);
+    // console.log(userReports);
   }
 
   return (
