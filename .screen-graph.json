@@ -39,6 +39,13 @@
       ]
     },
     {
+      "id": "src/screens/ReportEditScreen/ReportEditScreen.tsx",
+      "label": "ReportEditScreen",
+      "routes": [
+        "/reporteditscreen"
+      ]
+    },
+    {
       "id": "src/screens/SimpleReportPage.tsx",
       "label": "SimpleReportPage",
       "routes": [
@@ -80,31 +87,15 @@
       }
     },
     {
-      "id": "src\\screens\\HomeScreen\\sections\\UserProfileSection\\UserProfileSection.tsx:24:27-to-src\\screens\\LoginScreen\\LoginScreen.tsx",
-      "source": "src\\screens\\HomeScreen\\HomeScreen.tsx",
-      "target": "src\\screens\\LoginScreen\\LoginScreen.tsx",
-      "data": {
-        "viaRoute": "/loginscreen",
-        "trigger": {
-          "element": "navigate(\"/loginscreen\")",
-          "line": 24,
-          "endLine": 24,
-          "column": 27,
-          "endColumn": 51,
-          "sourceFile": "src\\screens\\HomeScreen\\sections\\UserProfileSection\\UserProfileSection.tsx"
-        }
-      }
-    },
-    {
-      "id": "src\\screens\\HomeScreen\\sections\\NavigationMenuSection\\NavigationMenuSection.tsx:147:27-to-src\\screens\\ReportInputScreen\\ReportInputScreen.tsx",
+      "id": "src\\screens\\HomeScreen\\sections\\NavigationMenuSection\\NavigationMenuSection.tsx:154:27-to-src\\screens\\ReportInputScreen\\ReportInputScreen.tsx",
       "source": "src\\screens\\HomeScreen\\HomeScreen.tsx",
       "target": "src\\screens\\ReportInputScreen\\ReportInputScreen.tsx",
       "data": {
         "viaRoute": "/reportinputscreen",
         "trigger": {
           "element": "navigate(\"/reportinputscreen\")",
-          "line": 147,
-          "endLine": 147,
+          "line": 154,
+          "endLine": 154,
           "column": 27,
           "endColumn": 57,
           "sourceFile": "src\\screens\\HomeScreen\\sections\\NavigationMenuSection\\NavigationMenuSection.tsx"
@@ -112,15 +103,15 @@
       }
     },
     {
-      "id": "src\\screens\\HomeScreen\\sections\\NavigationMenuSection\\NavigationMenuSection.tsx:154:27-to-src\\screens\\ReportListScreen\\ReportListScreen.tsx",
+      "id": "src\\screens\\HomeScreen\\sections\\NavigationMenuSection\\NavigationMenuSection.tsx:161:27-to-src\\screens\\ReportListScreen\\ReportListScreen.tsx",
       "source": "src\\screens\\HomeScreen\\HomeScreen.tsx",
       "target": "src\\screens\\ReportListScreen\\ReportListScreen.tsx",
       "data": {
         "viaRoute": "/reportlistscreen",
         "trigger": {
           "element": "navigate(\"/reportlistscreen\")",
-          "line": 154,
-          "endLine": 154,
+          "line": 161,
+          "endLine": 161,
           "column": 27,
           "endColumn": 56,
           "sourceFile": "src\\screens\\HomeScreen\\sections\\NavigationMenuSection\\NavigationMenuSection.tsx"
@@ -160,17 +151,17 @@
       }
     },
     {
-      "id": "src\\screens\\ReportListScreen\\sections\\ReportListSection\\ReportListSection.tsx:74:33-to-src\\screens\\ReportInputScreen\\ReportInputScreen.tsx",
+      "id": "src\\screens\\ReportListScreen\\sections\\ReportListSection\\ReportListSection.tsx:74:33-to-src\\screens\\ReportEditScreen\\ReportEditScreen.tsx",
       "source": "src\\screens\\ReportListScreen\\ReportListScreen.tsx",
-      "target": "src\\screens\\ReportInputScreen\\ReportInputScreen.tsx",
+      "target": "src\\screens\\ReportEditScreen\\ReportEditScreen.tsx",
       "data": {
-        "viaRoute": "/reportinputscreen",
+        "viaRoute": "/reporteditscreen",
         "trigger": {
-          "element": "navigate(\"/reportinputscreen\")",
+          "element": "navigate(\"/reporteditscreen\", { state: report })",
           "line": 74,
           "endLine": 74,
           "column": 33,
-          "endColumn": 63,
+          "endColumn": 81,
           "sourceFile": "src\\screens\\ReportListScreen\\sections\\ReportListSection\\ReportListSection.tsx"
         }
       }
@@ -192,7 +183,7 @@
       }
     },
     {
-      "id": "src\\screens\\ReportInputScreen\\sections\\NotificationSection\\NotificationSection.tsx:57:27-to-src\\screens\\HomeScreen\\HomeScreen.tsx",
+      "id": "src\\components\\reportUi\\NotificationSection\\NotificationSection.tsx:57:27-to-src\\screens\\HomeScreen\\HomeScreen.tsx",
       "source": "src\\screens\\ReportInputScreen\\ReportInputScreen.tsx",
       "target": "src\\screens\\HomeScreen\\HomeScreen.tsx",
       "data": {
@@ -203,7 +194,39 @@
           "endLine": 57,
           "column": 27,
           "endColumn": 50,
-          "sourceFile": "src\\screens\\ReportInputScreen\\sections\\NotificationSection\\NotificationSection.tsx"
+          "sourceFile": "src\\components\\reportUi\\NotificationSection\\NotificationSection.tsx"
+        }
+      }
+    },
+    {
+      "id": "src\\screens\\InputConfirmation\\InputConfirmation.tsx:69:23-to-src\\screens\\HomeScreen\\HomeScreen.tsx",
+      "source": "src\\screens\\ReportInputScreen\\ReportInputScreen.tsx",
+      "target": "src\\screens\\HomeScreen\\HomeScreen.tsx",
+      "data": {
+        "viaRoute": "/homescreen",
+        "trigger": {
+          "element": "navigate(\"/homescreen\")",
+          "line": 69,
+          "endLine": 69,
+          "column": 23,
+          "endColumn": 46,
+          "sourceFile": "src\\screens\\InputConfirmation\\InputConfirmation.tsx"
+        }
+      }
+    },
+    {
+      "id": "src\\components\\reportUi\\NotificationSection\\NotificationSection.tsx:57:27-to-src\\screens\\HomeScreen\\HomeScreen.tsx",
+      "source": "src\\screens\\ReportInputScreen\\ReportInputScreen.tsx",
+      "target": "src\\screens\\HomeScreen\\HomeScreen.tsx",
+      "data": {
+        "viaRoute": "/homescreen",
+        "trigger": {
+          "element": "navigate(\"/homescreen\")",
+          "line": 57,
+          "endLine": 57,
+          "column": 27,
+          "endColumn": 50,
+          "sourceFile": "src\\components\\reportUi\\NotificationSection\\NotificationSection.tsx"
         }
       }
     }

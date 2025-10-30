@@ -13,6 +13,7 @@ import { WorkerVehicleSection } from "../../components/reportUi/WorkerVehicleSec
 import type { ReportPostData } from "../../types/reportForm";
 import { putReport } from "../../hook/putReport";
 import { UserName } from "../../components/UserName";
+import { getCurrentUser } from "../../hook/getCurrentUser";
 
 export const ReportEditScreen = (): JSX.Element => {
   const location = useLocation();
@@ -20,6 +21,8 @@ export const ReportEditScreen = (): JSX.Element => {
   const dayReportId: string = location.state.field_dayReportId[1];
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const {name} = getCurrentUser();
 
   // ---------- helpers to normalize incoming values ----------
   const isoToDate = (iso?: string) => {
@@ -96,12 +99,12 @@ export const ReportEditScreen = (): JSX.Element => {
   const values = watch();
 
   // デバッグログを追加
-  console.log("現在のフォーム値:", values);
+  // console.log("現在のフォーム値:", values);
   // console.log("field_workerId:", values.field_workerId);
   // console.log("field_carId:", values.field_carId);
   // console.log("field_assistantId:", values.field_assistantId);
-  console.log("isValid:", isValid);
-  console.log("isDirty:", isDirty);
+  // console.log("isValid:", isValid);
+  // console.log("isDirty:", isDirty);
   // console.log("field_assistantId:", values.field_assistantId);
 
   const toJdbRef = (val?: string | number | null): string[] => {
@@ -109,10 +112,10 @@ export const ReportEditScreen = (): JSX.Element => {
     const s = String(val);
     return ["", s, "", s];
   };
-  const first = (arr?: unknown) =>
-    Array.isArray(arr)
-      ? (arr[0] as string | undefined)
-      : (arr as string | undefined);
+  // const first = (arr?: unknown) =>
+  //   Array.isArray(arr)
+  //     ? (arr[0] as string | undefined)
+  //     : (arr as string | undefined);
 
   const nullIfEmpty = (s: string | null | undefined) =>
     s && s.trim() !== "" ? s : null;
@@ -130,20 +133,20 @@ export const ReportEditScreen = (): JSX.Element => {
   };
 
   const toJdbRecord = (v: ReportPostData): ReportPostData => {
-    console.log("toJdbRecord入力:", v);
+    // console.log("toJdbRecord入力:", v);
 
     const result = {
-      field_workerId: toJdbRef(first(v.field_workerId)),
-      field_carId: toJdbRef(first(v.field_carId)),
-      field_CustomerId: toJdbRef(first(v.field_CustomerId)),
-      field_workClassId: toJdbRef(first(v.field_workClassId)),
+      field_workerId: toJdbRef(pickId(v.field_workerId)),
+      field_carId: toJdbRef(pickId(v.field_carId)),
+      field_CustomerId: toJdbRef(pickId(v.field_CustomerId)),
+      field_workClassId: toJdbRef(pickId(v.field_workClassId)),
       field_workDate: toIsoDate(v.field_workDate),
-      field_workPlaceId: toJdbRef(first(v.field_workPlaceId)),
+      field_workPlaceId: toJdbRef(pickId(v.field_workPlaceId)),
       field_weather: v.field_weather,
       field_workerName: nullIfEmpty(v.field_workerName) as string | null,
       field_assistantId:
         v.field_assistantId && v.field_assistantId.length
-          ? toJdbRef(first(v.field_assistantId))
+          ? toJdbRef(pickId(v.field_assistantId))
           : null,
       field_assistantName: nullIfEmpty(v.field_assistantName) as string | null,
       field_workClassName: nullIfEmpty(v.field_workClassName) as string | null,
@@ -158,7 +161,7 @@ export const ReportEditScreen = (): JSX.Element => {
           : null,
     };
 
-    console.log("toJdbRecord出力:", result);
+    // console.log("toJdbRecord出力:", result);
     return result;
   };
 
@@ -166,7 +169,7 @@ export const ReportEditScreen = (): JSX.Element => {
     const order: (keyof ReportPostData)[] = [
       "field_workDate",
       "field_weather",
-      "field_CustomerId",
+      // "field_CustomerId",
       "field_workClassName",
       "field_workerName",
       "field_carName",
@@ -180,7 +183,7 @@ export const ReportEditScreen = (): JSX.Element => {
   const onValid = () => setShowConfirmation(true);
   const onInvalid = () => {
     setShowConfirmation(false);
-    console.log("Invalid!");
+    // console.log("Invalid!");
   };
 
   const handleConfirm = async () => {
@@ -190,7 +193,7 @@ export const ReportEditScreen = (): JSX.Element => {
       // const record = toJdbRecord(values);
       await putReport(record, dayReportId);
       setShowConfirmation(false);
-      console.log("送信成功");
+      // console.log("送信成功");
       console.log(record);
       reset();
     } catch (error) {
@@ -198,8 +201,8 @@ export const ReportEditScreen = (): JSX.Element => {
       console.log(record);
     } finally {
       setIsSubmitting(false);
-      console.log("送信完了");
-      console.log(record);
+      // console.log("送信完了");
+      // console.log(record);
     }
   };
 
@@ -225,6 +228,7 @@ export const ReportEditScreen = (): JSX.Element => {
           <NotificationSection
             title="日報編集"
             navigateTo="/reportlistscreen"
+            workerName={name}
             selectedLocationId={selectedLocationId}
             onLocationSelect={(loc) => {
               setSelectedLocationId(loc.id);
@@ -272,6 +276,11 @@ export const ReportEditScreen = (): JSX.Element => {
               errors={errors}
               setValue={setValue}
               values={values}
+              selectedLocationId={selectedLocationId}
+              onLocationSelect={(loc) => {
+                setSelectedLocationId(loc.id);
+                clearErrors("field_workPlaceId");
+              }}
             />
             <WorkDurationSection
               register={register}

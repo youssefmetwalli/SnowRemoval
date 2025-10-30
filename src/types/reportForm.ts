@@ -40,3 +40,14 @@ export interface ReportPostData {
   field_CompanyName: string;
   field_removalVolume: string | null;
 }
+
+export interface RouteGetData {
+  field_workPlaceId: string[];
+  field_workPlaceName: string | null;
+  field_workerId: string[];
+  field_workerName: string | null;
+  field_customerId: string[];
+  field_companyName: string | null;
+  field_carId: string[];
+  field_carName: string | null;
+}

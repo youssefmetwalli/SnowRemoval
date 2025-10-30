@@ -12,10 +12,14 @@ import { WorkerVehicleSection } from "../../components/reportUi/WorkerVehicleSec
 import { UserName } from "../../components/UserName";
 import type { ReportPostData } from "../../types/reportForm";
 import { postReport } from "../../hook/postReport";
+import { getCurrentUser } from "../../hook/getCurrentUser";
 
 export const ReportInputScreen = (): JSX.Element => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // 現在のログイン中のユーザーの取得
+  const {name, userId} = getCurrentUser();
 
   // ---------- helpers ----------
   const isoToDate = (iso?: string) => {
@@ -40,7 +44,7 @@ export const ReportInputScreen = (): JSX.Element => {
   };
 
   const normalizeForForm = (p?: Partial<ReportPostData>): ReportPostData => ({
-    field_workerId: asArr(p?.field_workerId),
+    field_workerId: asArr(p?.field_workerId) ?? userId,
     field_carId: asArr(p?.field_carId),
     field_CustomerId: asArr(p?.field_CustomerId),
     field_endTime: isoToTimeHM(p?.field_endTime),
@@ -50,9 +54,9 @@ export const ReportInputScreen = (): JSX.Element => {
     field_weather: Array.isArray(p?.field_weather)
       ? p.field_weather[0] ?? ""
       : p?.field_weather ?? "",
-    field_workerName: p?.field_workerName ?? "",
-    field_assistantId: asArr(p?.field_assistantId),
-    field_assistantName: p?.field_assistantName ?? "",
+    field_workerName: p?.field_workerName ?? name,
+    field_assistantId: asArr(p?.field_assistantId) ?? userId,
+    field_assistantName: p?.field_assistantName ?? name,
     field_workClassName: p?.field_workClassName ?? "",
     field_carName: p?.field_carName ?? "",
     field_workPlaceName: p?.field_workPlaceName ?? "",
@@ -84,10 +88,10 @@ export const ReportInputScreen = (): JSX.Element => {
   const values = watch();
 
   // デバッグログを追加
-  console.log("現在のフォーム値:", values);
-  console.log("field_workerId:", values.field_workerId);
-  console.log("field_carId:", values.field_carId);
-  console.log("field_assistantId:", values.field_assistantId);
+  // console.log("現在のフォーム値:", values);
+  // console.log("field_workerId:", values.field_workerId);
+  // console.log("field_carId:", values.field_carId);
+  // console.log("field_assistantId:", values.field_assistantId);
 
   // ---------- converter helpers ----------
   const toJdbRef = (val?: string | number | null): string[] => {
@@ -100,7 +104,7 @@ export const ReportInputScreen = (): JSX.Element => {
   //   const result = Array.isArray(arr)
   //     ? (arr[0] as string | undefined)
   //     : (arr as string | undefined);
-    
+
   //   // デバッグログを追加
   //   console.log("first関数入力:", arr);
   //   console.log("first関数出力:", result);
@@ -124,7 +128,7 @@ export const ReportInputScreen = (): JSX.Element => {
 
   // ---------- convert for posting ----------
   const toJdbRecord = (v: ReportPostData): ReportPostData => {
-    console.log("toJdbRecord入力:", v);
+    // console.log("toJdbRecord入力:", v);
 
     const result = {
       field_workerId: toJdbRef(pickId(v.field_workerId)),
@@ -151,8 +155,8 @@ export const ReportInputScreen = (): JSX.Element => {
           ? String(values.field_removalVolume)
           : null,
     };
-    
-    console.log("toJdbRecord出力:", result);
+
+    // console.log("toJdbRecord出力:", result);
     return result;
   };
 
@@ -160,7 +164,7 @@ export const ReportInputScreen = (): JSX.Element => {
     const order: (keyof ReportPostData)[] = [
       "field_workDate",
       "field_weather",
-      "field_CustomerId",
+      // "field_CustomerId",
       "field_workClassName",
       "field_workerName",
       "field_carName",
@@ -181,26 +185,28 @@ export const ReportInputScreen = (): JSX.Element => {
     setIsSubmitting(true);
     try {
       const record = toJdbRecord(values);
-      
+
       // デバッグログを追加
-      console.log("送信前のvalues:", values);
-      console.log("変換後のrecord:", record);
-      console.log("field_workerId変換前:", values.field_workerId);
-      console.log("field_workerId変換後:", record.field_workerId);
-      console.log("field_carId変換前:", values.field_carId);
-      console.log("field_carId変換後:", record.field_carId);
-      
+      // console.log("送信前のvalues:", values);
+      // console.log("変換後のrecord:", record);
+      // console.log("field_workerId変換前:", values.field_workerId);
+      // console.log("field_workerId変換後:", record.field_workerId);
+      // console.log("field_carId変換前:", values.field_carId);
+      // console.log("field_carId変換後:", record.field_carId);
+
       await postReport(record);
       setShowConfirmation(false);
-      console.log("送信成功");
+      // console.log("送信成功");
       reset();
     } catch (error) {
       console.error("送信エラー:", error);
     } finally {
       setIsSubmitting(false);
-      console.log("送信完了");
+      // console.log("送信完了");
     }
   };
+
+
 
   return (
     <>
@@ -224,6 +230,7 @@ export const ReportInputScreen = (): JSX.Element => {
           <NotificationSection
             title="日報入力"
             navigateTo="/homescreen"
+            workerName={name}
             selectedLocationId={selectedLocationId}
             onLocationSelect={(loc) => {
               setSelectedLocationId(loc.id);
@@ -269,6 +276,11 @@ export const ReportInputScreen = (): JSX.Element => {
               errors={errors}
               setValue={setValue}
               values={values}
+              selectedLocationId={selectedLocationId}
+              onLocationSelect={(loc) => {
+                setSelectedLocationId(loc.id);
+                clearErrors("field_workPlaceId");
+              }}
             />
             <WorkDurationSection
               register={register}
@@ -283,7 +295,7 @@ export const ReportInputScreen = (): JSX.Element => {
               values={values}
             />
 
-            <ActionButtonsSection 
+            <ActionButtonsSection
               isValid={isValid}
               isDirty={isDirty}
               isSubmitting={isSubmitting}

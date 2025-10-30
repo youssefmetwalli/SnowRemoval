@@ -13,7 +13,7 @@ export const getWorkClass = ()=>{
     useEffect(() => {
       (async () => {
         try {
-          console.log("get送信");
+          // console.log("get送信");
           const data = await apiClient.get<WorkClassData[]>(
             `table_1754541393/records/?limit=100&apiName=secondary`
           );

@@ -13,7 +13,7 @@ export const getWorkPlace = ()=>{
     useEffect(() => {
       (async () => {
         try {
-          console.log("getworkplace送信");
+          // console.log("getworkplace送信");
           const data = await apiClient.get<WorkPlaceData[]>(
             `table_1754541394/records/?limit=100&apiName=secondary`
           );
