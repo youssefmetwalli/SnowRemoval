@@ -48,8 +48,8 @@ export const WorkPlaceSection = ({
   const workPlaces = workPlaceData?.map((workPlaceData, index) => ({
     id: workPlaceData.field_2002320023,
     name: workPlaceData.field_2001920019 ?? "名称未設定",
-    customerId: workPlaceData.field_1756792186,
-    companyName: workPlaceData.field_1754541737,
+    // customerId: workPlaceData.field_1756792186,
+    // companyName: workPlaceData.field_1754541737,
   }));
 
   const {
@@ -100,14 +100,14 @@ export const WorkPlaceSection = ({
               setValue("field_workPlaceId", selectedWorkPlace?.id ?? [""], {
                 shouldValidate: true,
               });
-              setValue(
-                "field_CustomerId",
-                selectedWorkPlace?.customerId ?? [""]
-              );
-              setValue(
-                "field_CompanyName",
-                selectedWorkPlace?.companyName ?? ""
-              );
+              // setValue(
+              //   "field_CustomerId",
+              //   selectedWorkPlace?.customerId ?? [""]
+              // );
+              // setValue(
+              //   "field_CompanyName",
+              //   selectedWorkPlace?.companyName ?? ""
+              // );
               handleSelect({ id: Number(selectedWorkPlace?.id[1])});
             }}
           >
