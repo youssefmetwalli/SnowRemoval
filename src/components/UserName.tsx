@@ -1,16 +1,6 @@
-
+import { getCurrentUser } from "../hook/getCurrentUser";
 export const UserName = (): JSX.Element => {
-  const rawUserData = localStorage.getItem('loggedInUser');
-  let name: string | null = null;
-  try {
-    if(rawUserData){
-      const userData = JSON.parse(rawUserData);
-      name = userData?.field_1754549790;
-    }
-    
-  } catch (error) {
-    console.error("Failed to parse JSON from localStrage.", error);
-  }
+  const {name, userId} = getCurrentUser();
   const date = new Date();
   const weekday = new Intl.DateTimeFormat('jp-JP', {
     weekday: "short"

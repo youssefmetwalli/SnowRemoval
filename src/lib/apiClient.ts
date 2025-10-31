@@ -68,7 +68,7 @@ class ApiClient {
     };
 
     // Debug hooks you already use
-    console.log("request最初");
+    // console.log("request最初");
 
     let response: Response | undefined;
     try {
@@ -83,9 +83,9 @@ class ApiClient {
       const text = await response.text();
       const json = text ? JSON.parse(text) : null;
 
-      console.log("接続はおｋ");
-      console.log("rawData");
-      console.log(json);
+      // console.log("接続はおｋ");
+      // console.log("rawData");
+      // console.log(json);
 
       return this.normalizeResponse<T>(json);
     } catch (err) {

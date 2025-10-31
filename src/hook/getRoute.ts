@@ -1,21 +1,22 @@
 import { useEffect, useState } from "react";
 import { apiClient } from "../lib/apiClient";
-import { WorkerData } from "../types/worker";
+import { RouteGetData } from "../types/reportForm";
 
 
-export const getWorker = ()=>{
-
-    const [data, setData] = useState<WorkerData[] | undefined>();
+export const useRoute = (userName: string|undefined)=>{
+    const [data, setData] = useState<RouteGetData[] | undefined>();
     const [isLoading, setLoading] = useState(true);
     const[isError, setError] = useState(false);
-
+    const query = userName
+      ? `?_field_workerName=${userName}&limit=100`
+      : "?limit=100";
 
     useEffect(() => {
       (async () => {
         try {
-          // console.log("get送信");
-          const data = await apiClient.get<WorkerData[]>(
-            `table_1754549652/records/?limit=100`
+          // console.log("get送信。ユーザー名:", userName);
+          const data = await apiClient.get<RouteGetData[]>(
+            `table_1756952069/records/${query}`
           );
           setData(data);
         } catch (err) {
