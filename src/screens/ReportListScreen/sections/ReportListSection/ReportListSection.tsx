@@ -4,8 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { Badge } from "../../../../components/ui/badge";
 import { Card, CardContent } from "../../../../components/ui/card";
 import { useReport } from "../../../../hook/getReport";
-import React, { useMemo } from "react";
-import type { ReportListFilters } from "../../ReportListScreen";
+import React from "react";
+import { formatDateJP, formatTimeJP } from "../../../../lib/datetime";
+import { useReportList } from "../../../../hook/useReportList";
+import { ReportListFilters } from "../../../../types/listFilters";
 
 type Props = {
   filters: ReportListFilters;
@@ -13,77 +15,9 @@ type Props = {
 
 export const ReportListSection: React.FC<Props> = ({ filters }) => {
   const navigate = useNavigate();
-  const { data: reports } = useReport(); // your hook
+  const { data: reports } = useReport();
 
-  const formatDate = (iso: string) =>
-    new Date(iso).toLocaleDateString("ja-JP", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      weekday: "short",
-    });
-
-  const formatTime = (iso: string) =>
-    new Date(iso).toLocaleTimeString("ja-JP", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: false,
-    });
-
-  // Filter + sort (desc by date)
-  const filtered = useMemo(() => {
-    if (!reports) return [];
-
-    const q = filters.query.trim().toLowerCase();
-    const cls = filters.classification.trim().toLowerCase();
-    const loc = filters.location.trim().toLowerCase();
-    const datePrefix = filters.date; // "YYYY-MM-DD" — your field_workDate starts with date
-
-    const arr = reports.filter((r) => {
-      const workDate = r.field_workDate || "";
-      const place = (r.field_workPlaceName || "").toLowerCase();
-      const klass = (r.field_workClassName || "").toLowerCase();
-      const worker = (r.field_workerName || "").toLowerCase();
-
-      // free text matches any of these
-      const hay = `${place} ${klass} ${worker}`.toLowerCase();
-      const matchesQuery = !q || hay.includes(q);
-
-      const matchesClass = !cls || klass.includes(cls);
-      const matchesLoc = !loc || place.includes(loc);
-      const matchesDate = !datePrefix || workDate.startsWith(datePrefix);
-
-      return matchesQuery && matchesClass && matchesLoc && matchesDate;
-    });
-
-    // sort most recent first by field_workDate, then by start time if you like
-    arr.sort((a, b) => {
-      const da = new Date(a.field_workDate).getTime();
-      const db = new Date(b.field_workDate).getTime();
-      if (db !== da) return db - da;
-
-      // optional tie-breaker: start time
-      const sa = new Date(a.field_startTime || 0).getTime();
-      const sb = new Date(b.field_startTime || 0).getTime();
-      return sb - sa;
-    });
-
-    return arr;
-  }, [reports, filters]);
-
-  // Group by date for headings
-  const grouped = useMemo(() => {
-    const m = new Map<string, typeof filtered>();
-    for (const r of filtered) {
-      const key = (r.field_workDate || "").slice(0, 10); // YYYY-MM-DD
-      if (!m.has(key)) m.set(key, []);
-      m.get(key)!.push(r);
-    }
-    // return as array of [date, items] sorted desc
-    return Array.from(m.entries()).sort(
-      (a, b) => new Date(b[0]).getTime() - new Date(a[0]).getTime()
-    );
-  }, [filtered]);
+  const { grouped } = useReportList(reports, filters);
 
   return (
     <div className="w-full h-[861px] overflow-scroll">
@@ -92,7 +26,7 @@ export const ReportListSection: React.FC<Props> = ({ filters }) => {
           <div key={dateKey + idx} className="flex flex-col gap-3">
             <header className="flex flex-col items-start pt-0 pb-0.5 px-0 w-full">
               <h2 className="w-full font-semibold text-slate-600 translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:0ms]">
-                {formatDate(dateKey)}
+                {formatDateJP(dateKey)}
               </h2>
             </header>
 
@@ -122,7 +56,8 @@ export const ReportListSection: React.FC<Props> = ({ filters }) => {
                       <ClockIcon className="w-4 h-4" />
                       <span className="text-slate-gray text-sm">時間:</span>
                       <span className="text-ebony text-sm">
-                        {formatTime(report.field_startTime)}~{formatTime(report.field_endTime)}
+                        {formatTimeJP(report.field_startTime)}~
+                        {formatTimeJP(report.field_endTime)}
                       </span>
                     </div>
 
