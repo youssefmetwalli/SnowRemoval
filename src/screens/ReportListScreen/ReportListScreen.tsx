@@ -6,13 +6,7 @@ import { FilterSection } from "./sections/FilterSection/FilterSection";
 import { HeaderSection } from "./sections/HeaderSection/HeaderSection";
 import { ReportListSection } from "./sections/ReportListSection/ReportListSection";
 import React from "react";
-
-export type ReportListFilters = {
-  query: string;            // free text (any word/char)
-  date: string;             // YYYY-MM-DD
-  classification: string;   // 作業分類
-  location: string;         // 作業場所
-};
+import { ReportListFilters } from "../../types/listFilters";
 
 export const ReportListScreen = (): JSX.Element => {
   const navigate = useNavigate();

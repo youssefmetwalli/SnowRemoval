@@ -9,39 +9,9 @@ import {
   DialogOverlay,
   DialogClose,
 } from "../../components/ui/dialog";
+import { fmtDate, fmtTimeRange } from "../../lib/datetime";
+import { InputConfirmationProps } from "../../types/confirmationData";
 
-type ConfirmationData = {
-  workDate?: string;
-  workplace?: string;
-  workClassification?: string;
-  startTime?: string;
-  endTime?: string;
-  mainPerson?: string;
-};
-
-interface InputConfirmationProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onConfirm?: () => void | Promise<void>;
-  data: ConfirmationData;
-}
-
-const fmtDate = (val?: string) => {
-  if (!val) return "—";
-  const d = new Date(val);
-  if (isNaN(d.getTime())) return val;
-  return d.toLocaleDateString("ja-JP", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-};
-
-const fmtTimeRange = (start?: string, end?: string) => {
-  const s = start && start.length ? start : "—";
-  const e = end && end.length ? end : "—";
-  return `${s} ～ ${e}`;
-};
 
 export const InputConfirmation: React.FC<InputConfirmationProps> = ({
   open,
