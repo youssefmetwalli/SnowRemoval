@@ -95,7 +95,7 @@ export const ReportInputScreen = (): JSX.Element => {
     null
   );
 
-  const [selectedClassId, setSelectedClassId] = useState<string[] | null>();
+  const [selectedClassId, setSelectedClassId] = useState<string[] | null>(null);
 
 
   const values = watch();
