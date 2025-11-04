@@ -50,4 +50,7 @@ export interface RouteGetData {
   field_companyName: string | null;
   field_carId: string[];
   field_carName: string | null;
+  field_workType: string[];
+  field_workClassId: string[];
+  field_workClassName: string | null;
 }

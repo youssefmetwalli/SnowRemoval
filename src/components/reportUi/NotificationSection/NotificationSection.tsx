@@ -10,7 +10,15 @@ import { useRoute } from "../../../hook/getRoute";
 
 interface NotificationSectionProps {
   selectedLocationId?: number | null;
-  onLocationSelect?: (location: { id: number; name: string }) => void;
+  selectedClassId?: string[] | null;
+  onLocationSelect?: (location: {
+    id: number;
+    name: string;
+    typeId: string[];
+    typeName: string;
+    carId: string[];
+    carName: string;
+  }) => void;
   title?: string;
   navigateTo: string;
   workerName: string | null;
@@ -19,39 +27,56 @@ interface NotificationSectionProps {
 
 export const NotificationSection = ({
   selectedLocationId,
+  selectedClassId,
   onLocationSelect,
   title,
   navigateTo,
   workerName,
   error,
+  
 }: NotificationSectionProps): JSX.Element => {
   const navigate = useNavigate();
   const [internalSelectedId, setInternalSelectedId] = useState<number | null>(
     selectedLocationId ?? null
   );
+  const [internalClassId, setInternalClassId] = useState<string[] | null>(selectedClassId ?? null);
 
   const { data: workPlaceData, isLoading: isLoadingWorkPlace, isError: isErrorWorkPlace } = useRoute(workerName ?? undefined);
   const pickWorkPlaces = workPlaceData?.map((workPlaceData, index) => ({
     id: workPlaceData.field_workPlaceId[1],
     name: workPlaceData.field_workPlaceName ?? "名称未設定",
+    typeId: workPlaceData.field_workClassId,
+    typeName: workPlaceData.field_workClassName ?? "名称未設定",
+    carId: workPlaceData.field_carId,
+    carName: workPlaceData.field_carName ?? "名称未設定"
   }));
-  const workPlaces = Array.from(new Map(pickWorkPlaces?.map((place) => [place.name, place])).values());
+  const workPlaces = Array.from(
+    new Map(
+      pickWorkPlaces?.map((place) => [
+        JSON.stringify([place.name, place.typeId]),
+        place,
+      ])
+    ).values()
+  );
 
   useEffect(() => {
     if (selectedLocationId !== undefined) {
       setInternalSelectedId(selectedLocationId ?? null);
+      setInternalClassId(selectedClassId ?? null);
     }
-  }, [selectedLocationId]);
+  }, [selectedLocationId, selectedClassId]);
 
   const handleSelect = useCallback(
-    (loc: { id: number; name: string }) => {
+    (loc: { id: number; name: string; typeId: string[]; typeName: string; carId: string[]; carName: string; }) => {
       if (selectedLocationId === undefined) setInternalSelectedId(loc.id);
+      if(selectedClassId === undefined) setInternalClassId(loc.typeId);
       onLocationSelect?.(loc);
     },
-    [onLocationSelect, selectedLocationId]
+    [onLocationSelect, selectedLocationId, selectedClassId]
   );
 
   const currentSelected = selectedLocationId ?? internalSelectedId;
+  const currentClassId = selectedClassId ?? internalClassId;
 
 
   return (
@@ -81,19 +106,36 @@ export const NotificationSection = ({
       <div className="w-full">
         <ScrollArea className="w-full">
           <div className="flex gap-2 pb-3 text-lg">
-            {workPlaces?.map((location) => {
-              const selected = currentSelected === Number(location.id);
+            {workPlaces?.map((location, index) => {
+              const selected = currentSelected === Number(location.id) && currentClassId?.[1] === location.typeId[1];
+
               return (
                 <Badge
-                  key={Number(location.id)}
+                  key={index}
                   role="button"
                   tabIndex={0}
                   aria-pressed={selected}
-                  onClick={() => handleSelect({ id: Number(location.id) , name: location.name})}
+                  onClick={() =>
+                    handleSelect({
+                      id: Number(location.id),
+                      name: location.name,
+                      typeId: location.typeId,
+                      typeName: location.typeName,
+                      carId: location.carId,
+                      carName: location.carName
+                    })
+                  }
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
-                      handleSelect({ id: Number(location.id) , name: location.name});
+                      handleSelect({
+                        id: Number(location.id),
+                        name: location.name,
+                        typeId: location.typeId,
+                        typeName: location.typeName,
+                        carId: location.carId,
+                        carName: location.carName
+                      });
                     }
                   }}
                   className={cn(
@@ -110,7 +152,7 @@ export const NotificationSection = ({
                       selected ? "text-amber-900" : "text-blue-500"
                     )}
                   />
-                  {location.name}
+                  {location.name}（{location.typeName}）
                 </Badge>
               );
             })}

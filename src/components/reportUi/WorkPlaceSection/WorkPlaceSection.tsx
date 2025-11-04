@@ -24,7 +24,9 @@ interface Props {
   setValue: UseFormSetValue<ReportPostData>;
   values: ReportPostData;
   onLocationSelect?: (location: { id: number; }) => void;
+  onClassTypeSelect?:(type: {id: string[]}) => void;
   selectedLocationId?: number | null;
+  selectedClassId?: string[] | null;
 }
 
 export const WorkPlaceSection = ({
@@ -33,12 +35,13 @@ export const WorkPlaceSection = ({
   setValue,
   values,
   onLocationSelect,
-  selectedLocationId
+  onClassTypeSelect,
+  selectedLocationId,
+  selectedClassId,
 }: Props): JSX.Element => {
   const [internalSelectedId, setInternalSelectedId] = useState<number | null>(
-      selectedLocationId ?? null
-    );
-
+    selectedLocationId ?? null
+  );
 
   const {
     data: workPlaceData,
@@ -63,18 +66,26 @@ export const WorkPlaceSection = ({
   }));
 
   useEffect(() => {
-      if (selectedLocationId !== undefined) {
-        setInternalSelectedId(selectedLocationId ?? null);
-      }
-    }, [selectedLocationId]);
-  
-    const handleSelect = useCallback(
-      (loc: { id: number;}) => {
-        if (selectedLocationId === undefined) setInternalSelectedId(loc.id);
-        onLocationSelect?.(loc);
-      },
-      [onLocationSelect, selectedLocationId]
-    );
+    if (selectedLocationId !== undefined) {
+      setInternalSelectedId(selectedLocationId ?? null);
+    }
+  }, [selectedLocationId]);
+
+
+  const handleSelect = useCallback(
+    (loc: { id: number }) => {
+      if (selectedLocationId === undefined) setInternalSelectedId(loc.id);
+      onLocationSelect?.(loc);
+    },
+    [onLocationSelect, selectedLocationId]
+  );
+
+  const handleClassSelected = useCallback(
+    (t: { id: string[] }) => {
+      onClassTypeSelect?.(t);
+    },
+    [onClassTypeSelect, selectedClassId]
+  );
 
   return (
     <Card className="w-full bg-white rounded-xl border border-slate-200 shadow-[0px_1px_3px_#0000001a]">
@@ -108,7 +119,7 @@ export const WorkPlaceSection = ({
                 "field_CompanyName",
                 selectedWorkPlace?.companyName ?? ""
               );
-              handleSelect({ id: Number(selectedWorkPlace?.id[1])});
+              handleSelect({ id: Number(selectedWorkPlace?.id[1]) });
             }}
           >
             <SelectTrigger className="h-11">
@@ -150,6 +161,7 @@ export const WorkPlaceSection = ({
               setValue("field_workClassId", wc?.id ?? [""], {
                 shouldValidate: true,
               });
+              handleClassSelected({ id: wc?.id ?? [""] });
             }}
           >
             <SelectTrigger className="h-11">

@@ -237,6 +237,10 @@ export const ReportEditScreen = (): JSX.Element => {
               });
               setValue("field_workPlaceName", loc.name, { shouldDirty: true });
               clearErrors("field_workPlaceId");
+              setValue("field_workClassId", loc.typeId, { shouldDirty: true });
+              setValue("field_workClassName", loc.typeName, {
+                shouldDirty: true,
+              });
             }}
             
           />
