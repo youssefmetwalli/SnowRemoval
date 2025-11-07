@@ -95,6 +95,9 @@ export const ReportInputScreen = (): JSX.Element => {
     null
   );
 
+  const [selectedClassId, setSelectedClassId] = useState<string[] | null>(null);
+
+
   const values = watch();
 
   // デバッグログを追加
@@ -242,13 +245,23 @@ export const ReportInputScreen = (): JSX.Element => {
             navigateTo="/homescreen"
             workerName={name}
             selectedLocationId={selectedLocationId}
+            selectedClassId={selectedClassId}
             onLocationSelect={(loc) => {
               setSelectedLocationId(loc.id);
+              setSelectedClassId(loc.typeId);
               setValue("field_workPlaceId", [String(loc.id)], {
                 shouldDirty: true,
               });
               setValue("field_workPlaceName", loc.name, { shouldDirty: true });
               clearErrors("field_workPlaceId");
+              setValue("field_workClassId", loc.typeId, { shouldDirty: true });
+              clearErrors("field_workClassId");
+              setValue("field_workClassName", loc.typeName, {
+                shouldDirty: true,
+              });
+              setValue("field_carId", loc.carId, { shouldDirty: true });
+              clearErrors("field_carId");
+              setValue("field_carName", loc.carName, { shouldDirty: true });
             }}
           />
 
@@ -291,6 +304,11 @@ export const ReportInputScreen = (): JSX.Element => {
                 setSelectedLocationId(loc.id);
                 clearErrors("field_workPlaceId");
               }}
+              onClassTypeSelect={(t)=>{
+                setSelectedClassId(t.id);
+                clearErrors("field_workClassId");
+              }}
+              selectedClassId={selectedClassId}
             />
             <WorkDurationSection
               register={register}
