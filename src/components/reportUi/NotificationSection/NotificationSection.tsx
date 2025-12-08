@@ -48,7 +48,9 @@ export const NotificationSection = ({
     typeId: workPlaceData.field_workClassId,
     typeName: workPlaceData.field_workClassName ?? "名称未設定",
     carId: workPlaceData.field_carId,
-    carName: workPlaceData.field_carName ?? "名称未設定"
+    carName: workPlaceData.field_carName ?? "名称未設定",
+    categoryId: workPlaceData.field_categoryId,
+    categoryName: workPlaceData.field_categoryName ?? "名称未設定"
   }));
   const workPlaces = Array.from(
     new Map(
@@ -109,6 +111,24 @@ export const NotificationSection = ({
             {workPlaces?.map((location, index) => {
               const selected = currentSelected === Number(location.id) && currentClassId?.[1] === location.typeId[1];
 
+              // 区分ごとの色を定義(各色と濃度は好みで調整してください)
+              //defaultは選択されていないときの色として定義していますが、使用されることを想定していません
+              const categoryColors: Record<string, string> = {
+                "民間": "bg-green-700 text-white border-black-800 hover:bg-green-400 hover:text-white",
+                "町道": "bg-red-700 text-white border-blue-200 hover:bg-red-400 hover:text-white",
+              };
+              const defaultCategoryColor = "bg-white text-blue-900 border-blue-200 hover:bg-blue-50 hover:text-blue-700 hover:shadow";
+              const categoryClass = categoryColors[location.categoryName ?? ""] ?? defaultCategoryColor;
+              // 区分ごとの選択時の色を定義(各色と濃度は好みで調整してください)
+              //defaultは選択されていないときの色として定義していますが、使用されることを想定していません
+              const selectedCategoryColors: Record<string, string> = {
+                "民間": "bg-green-400 text-black-800 border-black-500 hover:bg-green-400 hover:text-white",
+                "町道": "bg-red-400 text-black-800 border-black-500 hover:bg-red-400 hover:text-white",
+              };
+              const defaultSelectedCategoryColor = "bg-white text-blue-900 border-blue-200 hover:bg-blue-50 hover:text-blue-700 hover:shadow";
+              const selectedCategoryClass = selectedCategoryColors[location.categoryName ?? ""] ?? defaultSelectedCategoryColor;
+
+
               return (
                 <Badge
                   key={index}
@@ -138,12 +158,14 @@ export const NotificationSection = ({
                       });
                     }
                   }}
+                  variant={"outline"}
                   className={cn(
                     "inline-flex items-center gap-1.5 px-4 py-2.5 rounded-[20px] whitespace-nowrap cursor-pointer select-none border transition-colors duration-150 ease-out",
                     "focus:outline-none focus-visible:ring-0",
                     selected
-                      ? "bg-amber-400 text-amber-900 border-transparent shadow-md hover:bg-sky-300 hover:text-blue-900"
-                      : "bg-white text-blue-900 border-blue-200 hover:bg-blue-50 hover:text-blue-700 hover:shadow"
+                      //? "bg-amber-400 text-amber-900 border-transparent shadow-md hover:bg-sky-300 hover:text-blue-900"
+                      ? selectedCategoryClass
+                      : categoryClass
                   )}
                 >
                   <MapPinIcon

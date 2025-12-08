@@ -53,4 +53,6 @@ export interface RouteGetData {
   field_workType: string[];
   field_workClassId: string[];
   field_workClassName: string | null;
+  field_categoryId: string[];
+  field_categoryName: string | null;
 }
