@@ -55,15 +55,15 @@
   ],
   "edges": [
     {
-      "id": "src\\screens\\LoginScreen\\LoginScreen.tsx:39:6-to-src\\screens\\HomeScreen\\HomeScreen.tsx",
+      "id": "src\\screens\\LoginScreen\\LoginScreen.tsx:38:6-to-src\\screens\\HomeScreen\\HomeScreen.tsx",
       "source": "src\\screens\\LoginScreen\\LoginScreen.tsx",
       "target": "src\\screens\\HomeScreen\\HomeScreen.tsx",
       "data": {
         "viaRoute": "/homescreen",
         "trigger": {
           "element": "navigate(\"/homescreen\")",
-          "line": 39,
-          "endLine": 39,
+          "line": 38,
+          "endLine": 38,
           "column": 6,
           "endColumn": 29,
           "sourceFile": "src\\screens\\LoginScreen\\LoginScreen.tsx"
@@ -71,15 +71,15 @@
       }
     },
     {
-      "id": "src\\screens\\InputConfirmation\\InputConfirmation.tsx:69:23-to-src\\screens\\HomeScreen\\HomeScreen.tsx",
+      "id": "src\\screens\\InputConfirmation\\InputConfirmation.tsx:39:23-to-src\\screens\\HomeScreen\\HomeScreen.tsx",
       "source": "src\\screens\\InputConfirmation\\InputConfirmation.tsx",
       "target": "src\\screens\\HomeScreen\\HomeScreen.tsx",
       "data": {
         "viaRoute": "/homescreen",
         "trigger": {
           "element": "navigate(\"/homescreen\")",
-          "line": 69,
-          "endLine": 69,
+          "line": 39,
+          "endLine": 39,
           "column": 23,
           "endColumn": 46,
           "sourceFile": "src\\screens\\InputConfirmation\\InputConfirmation.tsx"
@@ -87,15 +87,15 @@
       }
     },
     {
-      "id": "src\\screens\\HomeScreen\\sections\\NavigationMenuSection\\NavigationMenuSection.tsx:154:27-to-src\\screens\\ReportInputScreen\\ReportInputScreen.tsx",
+      "id": "src\\screens\\HomeScreen\\sections\\NavigationMenuSection\\NavigationMenuSection.tsx:72:27-to-src\\screens\\ReportInputScreen\\ReportInputScreen.tsx",
       "source": "src\\screens\\HomeScreen\\HomeScreen.tsx",
       "target": "src\\screens\\ReportInputScreen\\ReportInputScreen.tsx",
       "data": {
         "viaRoute": "/reportinputscreen",
         "trigger": {
           "element": "navigate(\"/reportinputscreen\")",
-          "line": 154,
-          "endLine": 154,
+          "line": 72,
+          "endLine": 72,
           "column": 27,
           "endColumn": 57,
           "sourceFile": "src\\screens\\HomeScreen\\sections\\NavigationMenuSection\\NavigationMenuSection.tsx"
@@ -103,15 +103,15 @@
       }
     },
     {
-      "id": "src\\screens\\HomeScreen\\sections\\NavigationMenuSection\\NavigationMenuSection.tsx:161:27-to-src\\screens\\ReportListScreen\\ReportListScreen.tsx",
+      "id": "src\\screens\\HomeScreen\\sections\\NavigationMenuSection\\NavigationMenuSection.tsx:79:27-to-src\\screens\\ReportListScreen\\ReportListScreen.tsx",
       "source": "src\\screens\\HomeScreen\\HomeScreen.tsx",
       "target": "src\\screens\\ReportListScreen\\ReportListScreen.tsx",
       "data": {
         "viaRoute": "/reportlistscreen",
         "trigger": {
           "element": "navigate(\"/reportlistscreen\")",
-          "line": 161,
-          "endLine": 161,
+          "line": 79,
+          "endLine": 79,
           "column": 27,
           "endColumn": 56,
           "sourceFile": "src\\screens\\HomeScreen\\sections\\NavigationMenuSection\\NavigationMenuSection.tsx"
@@ -119,15 +119,15 @@
       }
     },
     {
-      "id": "src\\screens\\ReportListScreen\\ReportListScreen.tsx:30:25-to-src\\screens\\ReportInputScreen\\ReportInputScreen.tsx",
+      "id": "src\\screens\\ReportListScreen\\ReportListScreen.tsx:39:25-to-src\\screens\\ReportInputScreen\\ReportInputScreen.tsx",
       "source": "src\\screens\\ReportListScreen\\ReportListScreen.tsx",
       "target": "src\\screens\\ReportInputScreen\\ReportInputScreen.tsx",
       "data": {
         "viaRoute": "/reportinputscreen",
         "trigger": {
           "element": "navigate(\"/reportinputscreen\")",
-          "line": 30,
-          "endLine": 30,
+          "line": 39,
+          "endLine": 39,
           "column": 25,
           "endColumn": 55,
           "sourceFile": "src\\screens\\ReportListScreen\\ReportListScreen.tsx"
@@ -135,47 +135,63 @@
       }
     },
     {
-      "id": "src\\screens\\ReportListScreen\\sections\\HeaderSection\\HeaderSection.tsx:24:27-to-src\\screens\\HomeScreen\\HomeScreen.tsx",
+      "id": "src\\screens\\ReportListScreen\\sections\\HeaderSection\\HeaderSection.tsx:61:29-to-src\\screens\\HomeScreen\\HomeScreen.tsx",
       "source": "src\\screens\\ReportListScreen\\ReportListScreen.tsx",
       "target": "src\\screens\\HomeScreen\\HomeScreen.tsx",
       "data": {
         "viaRoute": "/homescreen",
         "trigger": {
           "element": "navigate(\"/homescreen\")",
-          "line": 24,
-          "endLine": 24,
-          "column": 27,
-          "endColumn": 50,
+          "line": 61,
+          "endLine": 61,
+          "column": 29,
+          "endColumn": 52,
           "sourceFile": "src\\screens\\ReportListScreen\\sections\\HeaderSection\\HeaderSection.tsx"
         }
       }
     },
     {
-      "id": "src\\screens\\ReportListScreen\\sections\\ReportListSection\\ReportListSection.tsx:74:33-to-src\\screens\\ReportEditScreen\\ReportEditScreen.tsx",
+      "id": "src\\screens\\ReportListScreen\\sections\\ReportListSection\\ReportListSection.tsx:37:31-to-src\\screens\\ReportEditScreen\\ReportEditScreen.tsx",
       "source": "src\\screens\\ReportListScreen\\ReportListScreen.tsx",
       "target": "src\\screens\\ReportEditScreen\\ReportEditScreen.tsx",
       "data": {
         "viaRoute": "/reporteditscreen",
         "trigger": {
           "element": "navigate(\"/reporteditscreen\", { state: report })",
-          "line": 74,
-          "endLine": 74,
-          "column": 33,
-          "endColumn": 81,
+          "line": 37,
+          "endLine": 37,
+          "column": 31,
+          "endColumn": 79,
           "sourceFile": "src\\screens\\ReportListScreen\\sections\\ReportListSection\\ReportListSection.tsx"
         }
       }
     },
     {
-      "id": "src\\screens\\InputConfirmation\\InputConfirmation.tsx:69:23-to-src\\screens\\HomeScreen\\HomeScreen.tsx",
+      "id": "src\\screens\\ReportInputScreen\\ReportInputScreen.tsx:243:10-to-src\\screens\\HomeScreen\\HomeScreen.tsx",
+      "source": "src\\screens\\ReportInputScreen\\ReportInputScreen.tsx",
+      "target": "src\\screens\\HomeScreen\\HomeScreen.tsx",
+      "data": {
+        "viaRoute": "/homescreen",
+        "trigger": {
+          "element": "<NotificationSection\r\n            title=\"日報入力\"\r\n            navigateTo=\"/homescreen\"\r\n            workerName={name}\r\n            selectedLocationId={selectedLocationId}\r\n            selectedClassId={selectedClassId}\r\n            onLocationSelect={(loc) => {\r\n              setSelectedLocationId(loc.id);\r\n              setSelectedClassId(loc.typeId);\r\n              setValue(\"field_workPlaceId\", [String(loc.id)], {\r\n                shouldDirty: true,\r\n              });\r\n              setValue(\"field_workPlaceName\", loc.name, { shouldDirty: true });\r\n              clearErrors(\"field_workPlaceId\");\r\n              setValue(\"field_workClassId\", loc.typeId, { shouldDirty: true });\r\n              clearErrors(\"field_workClassId\");\r\n              setValue(\"field_workClassName\", loc.typeName, {\r\n                shouldDirty: true,\r\n              });\r\n              setValue(\"field_carId\", loc.carId, { shouldDirty: true });\r\n              clearErrors(\"field_carId\");\r\n              setValue(\"field_carName\", loc.carName, { shouldDirty: true });\r\n            }}\r\n          />",
+          "line": 243,
+          "endLine": 266,
+          "column": 10,
+          "endColumn": 12,
+          "sourceFile": "src\\screens\\ReportInputScreen\\ReportInputScreen.tsx"
+        }
+      }
+    },
+    {
+      "id": "src\\screens\\InputConfirmation\\InputConfirmation.tsx:39:23-to-src\\screens\\HomeScreen\\HomeScreen.tsx",
       "source": "src\\screens\\ReportInputScreen\\ReportInputScreen.tsx",
       "target": "src\\screens\\HomeScreen\\HomeScreen.tsx",
       "data": {
         "viaRoute": "/homescreen",
         "trigger": {
           "element": "navigate(\"/homescreen\")",
-          "line": 69,
-          "endLine": 69,
+          "line": 39,
+          "endLine": 39,
           "column": 23,
           "endColumn": 46,
           "sourceFile": "src\\screens\\InputConfirmation\\InputConfirmation.tsx"
@@ -183,50 +199,34 @@
       }
     },
     {
-      "id": "src\\components\\reportUi\\NotificationSection\\NotificationSection.tsx:57:27-to-src\\screens\\HomeScreen\\HomeScreen.tsx",
-      "source": "src\\screens\\ReportInputScreen\\ReportInputScreen.tsx",
-      "target": "src\\screens\\HomeScreen\\HomeScreen.tsx",
+      "id": "src\\screens\\ReportEditScreen\\ReportEditScreen.tsx:235:10-to-src\\screens\\ReportListScreen\\ReportListScreen.tsx",
+      "source": "src\\screens\\ReportEditScreen\\ReportEditScreen.tsx",
+      "target": "src\\screens\\ReportListScreen\\ReportListScreen.tsx",
       "data": {
-        "viaRoute": "/homescreen",
+        "viaRoute": "/reportlistscreen",
         "trigger": {
-          "element": "navigate(\"/homescreen\")",
-          "line": 57,
-          "endLine": 57,
-          "column": 27,
-          "endColumn": 50,
-          "sourceFile": "src\\components\\reportUi\\NotificationSection\\NotificationSection.tsx"
+          "element": "<NotificationSection\r\n            title=\"日報編集\"\r\n            navigateTo=\"/reportlistscreen\"\r\n            workerName={name}\r\n            selectedLocationId={selectedLocationId}\r\n            selectedClassId={selectedClassId}\r\n            onLocationSelect={(loc) => {\r\n              setSelectedLocationId(loc.id);\r\n              setSelectedClassId(loc.typeId);\r\n              setValue(\"field_workPlaceId\", [String(loc.id)], {\r\n                shouldDirty: true,\r\n              });\r\n              setValue(\"field_workPlaceName\", loc.name, { shouldDirty: true });\r\n              clearErrors(\"field_workPlaceId\");\r\n              setValue(\"field_workClassId\", loc.typeId, { shouldDirty: true });\r\n              clearErrors(\"field_workClassId\");\r\n              setValue(\"field_workClassName\", loc.typeName, {\r\n                shouldDirty: true,\r\n              });\r\n              setValue(\"field_carId\", loc.carId, { shouldDirty: true });\r\n              clearErrors(\"field_carId\");\r\n              setValue(\"field_carName\", loc.carName, { shouldDirty: true });\r\n            }}\r\n          />",
+          "line": 235,
+          "endLine": 258,
+          "column": 10,
+          "endColumn": 12,
+          "sourceFile": "src\\screens\\ReportEditScreen\\ReportEditScreen.tsx"
         }
       }
     },
     {
-      "id": "src\\screens\\InputConfirmation\\InputConfirmation.tsx:69:23-to-src\\screens\\HomeScreen\\HomeScreen.tsx",
+      "id": "src\\screens\\InputConfirmation\\InputConfirmation.tsx:39:23-to-src\\screens\\HomeScreen\\HomeScreen.tsx",
       "source": "src\\screens\\ReportInputScreen\\ReportInputScreen.tsx",
       "target": "src\\screens\\HomeScreen\\HomeScreen.tsx",
       "data": {
         "viaRoute": "/homescreen",
         "trigger": {
           "element": "navigate(\"/homescreen\")",
-          "line": 69,
-          "endLine": 69,
+          "line": 39,
+          "endLine": 39,
           "column": 23,
           "endColumn": 46,
           "sourceFile": "src\\screens\\InputConfirmation\\InputConfirmation.tsx"
-        }
-      }
-    },
-    {
-      "id": "src\\components\\reportUi\\NotificationSection\\NotificationSection.tsx:57:27-to-src\\screens\\HomeScreen\\HomeScreen.tsx",
-      "source": "src\\screens\\ReportInputScreen\\ReportInputScreen.tsx",
-      "target": "src\\screens\\HomeScreen\\HomeScreen.tsx",
-      "data": {
-        "viaRoute": "/homescreen",
-        "trigger": {
-          "element": "navigate(\"/homescreen\")",
-          "line": 57,
-          "endLine": 57,
-          "column": 27,
-          "endColumn": 50,
-          "sourceFile": "src\\components\\reportUi\\NotificationSection\\NotificationSection.tsx"
         }
       }
     }
