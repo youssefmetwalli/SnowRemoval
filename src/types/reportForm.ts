@@ -42,6 +42,7 @@ export interface ReportPostData {
 }
 
 export interface RouteGetData {
+  field_routeId: string[];
   field_workPlaceId: string[];
   field_workPlaceName: string | null;
   field_workerId: string[];
