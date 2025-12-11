@@ -52,6 +52,9 @@ export const NotificationSection = ({
     categoryId: workPlaceData.field_categoryId,
     categoryName: workPlaceData.field_categoryName ?? "名称未設定"
   }));
+
+  console.log("pickWorkPlaces:", pickWorkPlaces); //test
+
   const workPlaces = Array.from(
     new Map(
       pickWorkPlaces?.map((place) => [
