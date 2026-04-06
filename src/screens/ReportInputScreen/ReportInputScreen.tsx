@@ -22,10 +22,8 @@ export const ReportInputScreen = (): JSX.Element => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tachometerValue, setTachometerValue] = useState("");
-  const [tachometerPhotos, setTachometerPhotos] = useState<TachometerPhoto[]>(
-    []
-  );
-
+  const [tachometerPhotos, setTachometerPhotos] = useState<TachometerPhoto[]>([],);
+  const [tachometerMemos, setTachometerMemos] = useState<string[]>([]);
   const { name, userId } = getCurrentUser();
 
   const isoToDate = (iso?: string) => {
@@ -68,8 +66,8 @@ export const ReportInputScreen = (): JSX.Element => {
     field_workDate: isoToDate(p?.field_workDate),
     field_workPlaceId: asArr(p?.field_workPlaceId),
     field_weather: Array.isArray(p?.field_weather)
-      ? p.field_weather[0] ?? ""
-      : p?.field_weather ?? "",
+      ? (p.field_weather[0] ?? "")
+      : (p?.field_weather ?? ""),
     field_workerName: p?.field_workerName ?? name,
     field_assistantId: asArr(p?.field_assistantId) ?? userId,
     field_assistantName: p?.field_assistantName ?? "",
@@ -81,7 +79,7 @@ export const ReportInputScreen = (): JSX.Element => {
     field_removalVolume:
       typeof p?.field_removalVolume === "number"
         ? String(p?.field_removalVolume)
-        : p?.field_removalVolume ?? "",
+        : (p?.field_removalVolume ?? ""),
   });
 
   const {
@@ -98,7 +96,7 @@ export const ReportInputScreen = (): JSX.Element => {
   });
 
   const [selectedLocationId, setSelectedLocationId] = useState<number | null>(
-    null
+    null,
   );
   const [selectedClassId, setSelectedClassId] = useState<string[] | null>(null);
 
@@ -182,18 +180,11 @@ export const ReportInputScreen = (): JSX.Element => {
     try {
       const record = toJdbRecord(values);
       await postReport(record);
-
-      // タコメーター項目は現時点ではUI保持のみ
-      console.log("tachometerValue:", tachometerValue);
-      console.log(
-        "tachometerPhotos:",
-        tachometerPhotos.map((photo) => photo.file)
-      );
-
       setShowConfirmation(false);
       reset();
       setTachometerValue("");
       setTachometerPhotos([]);
+      setTachometerMemos([]);
       setSelectedLocationId(null);
       setSelectedClassId(null);
     } catch (error) {
@@ -313,8 +304,9 @@ export const ReportInputScreen = (): JSX.Element => {
               onTachometerChange={setTachometerValue}
               photos={tachometerPhotos}
               onPhotosChange={setTachometerPhotos}
+              memos={tachometerMemos}
+              onMemosChange={setTachometerMemos}
             />
-
             <WorkRecordSection
               register={register}
               errors={errors}
