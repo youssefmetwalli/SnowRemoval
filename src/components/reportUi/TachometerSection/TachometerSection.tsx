@@ -1,9 +1,9 @@
 import React, { useEffect, useRef } from "react";
 import { CameraIcon, GaugeIcon, Trash2Icon, PlusIcon } from "lucide-react";
-import { Input } from "../../../components/ui/input";
-import { Label } from "../../../components/ui/label";
-import { Button } from "../../../components/ui/button";
-import { Card, CardContent } from "../../../components/ui/card";
+import { Input } from "../../ui/input";
+import { Label } from "../../ui/label";
+import { Button } from "../../ui/button";
+import { Card, CardContent } from "../../ui/card";
 
 export interface TachometerPhoto {
   id: string;

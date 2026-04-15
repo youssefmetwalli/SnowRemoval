@@ -12,19 +12,24 @@ import { WorkerVehicleSection } from "../../components/reportUi/WorkerVehicleSec
 import {
   TachometerSection,
   type TachometerPhoto,
-} from "./sections/TachometerSection";
+} from "../../components/reportUi/TachometerSection/TachometerSection";
 import { UserName } from "../../components/UserName";
 import type { ReportPostData } from "../../types/reportForm";
-import { postReport } from "../../hook/postReport";
+import { postReportN8n } from "../../hook/postReportN8n";
 import { getCurrentUser } from "../../hook/getCurrentUser";
+// ✅ ToastProvider も追加でインポート
+import { ToastProvider, useToast } from "../../components/ui/toast";
 
-export const ReportInputScreen = (): JSX.Element => {
+// ✅ useToast を使う内側のコンポーネントを分離
+const ReportInputScreenInner = (): JSX.Element => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tachometerValue, setTachometerValue] = useState("");
-  const [tachometerPhotos, setTachometerPhotos] = useState<TachometerPhoto[]>([],);
+  const [tachometerPhotos, setTachometerPhotos] = useState<TachometerPhoto[]>([]);
   const [tachometerMemos, setTachometerMemos] = useState<string[]>([]);
+
   const { name, userId } = getCurrentUser();
+  const { toast } = useToast();
 
   const isoToDate = (iso?: string) => {
     if (!iso) {
@@ -95,9 +100,7 @@ export const ReportInputScreen = (): JSX.Element => {
     mode: "onSubmit",
   });
 
-  const [selectedLocationId, setSelectedLocationId] = useState<number | null>(
-    null,
-  );
+  const [selectedLocationId, setSelectedLocationId] = useState<number | null>(null);
   const [selectedClassId, setSelectedClassId] = useState<string[] | null>(null);
 
   const values = watch();
@@ -124,7 +127,7 @@ export const ReportInputScreen = (): JSX.Element => {
   };
 
   const toJdbRecord = (v: ReportPostData): ReportPostData => {
-    const result = {
+    return {
       field_workerId: toJdbRef(pickId(v.field_workerId)),
       field_carId: toJdbRef(pickId(v.field_carId)),
       field_CustomerId: toJdbRef(pickId(v.field_CustomerId)),
@@ -149,15 +152,12 @@ export const ReportInputScreen = (): JSX.Element => {
           ? String(values.field_removalVolume)
           : null,
     };
-
-    return result;
   };
 
   const firstError = useMemo(() => {
     const order: (keyof ReportPostData)[] = [
       "field_workDate",
       "field_weather",
-      // "field_CustomerId",
       "field_workClassName",
       "field_workerName",
       "field_carName",
@@ -179,7 +179,13 @@ export const ReportInputScreen = (): JSX.Element => {
     setIsSubmitting(true);
     try {
       const record = toJdbRecord(values);
-      await postReport(record);
+      await postReportN8n(record);
+
+      toast({
+        title: "送信完了",
+        description: "日報を登録しました。",
+      });
+
       setShowConfirmation(false);
       reset();
       setTachometerValue("");
@@ -189,6 +195,14 @@ export const ReportInputScreen = (): JSX.Element => {
       setSelectedClassId(null);
     } catch (error) {
       console.error("送信エラー:", error);
+      toast({
+        title: "送信失敗",
+        description:
+          error instanceof Error
+            ? error.message
+            : "日報の送信中にエラーが発生しました。再度お試しください。",
+        variant: "destructive",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -224,18 +238,14 @@ export const ReportInputScreen = (): JSX.Element => {
               setSelectedLocationId(loc.id);
               setSelectedClassId(loc.typeId);
 
-              setValue("field_workPlaceId", [String(loc.id)], {
-                shouldDirty: true,
-              });
+              setValue("field_workPlaceId", [String(loc.id)], { shouldDirty: true });
               setValue("field_workPlaceName", loc.name, { shouldDirty: true });
               clearErrors("field_workPlaceId");
 
               setValue("field_workClassId", loc.typeId, { shouldDirty: true });
               clearErrors("field_workClassId");
 
-              setValue("field_workClassName", loc.typeName, {
-                shouldDirty: true,
-              });
+              setValue("field_workClassName", loc.typeName, { shouldDirty: true });
 
               setValue("field_carId", loc.carId, { shouldDirty: true });
               clearErrors("field_carId");
@@ -307,6 +317,7 @@ export const ReportInputScreen = (): JSX.Element => {
               memos={tachometerMemos}
               onMemosChange={setTachometerMemos}
             />
+
             <WorkRecordSection
               register={register}
               errors={errors}
@@ -323,5 +334,13 @@ export const ReportInputScreen = (): JSX.Element => {
         </div>
       </div>
     </>
+  );
+};
+
+export const ReportInputScreen = (): JSX.Element => {
+  return (
+    <ToastProvider>
+      <ReportInputScreenInner />
+    </ToastProvider>
   );
 };
