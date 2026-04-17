@@ -17,10 +17,10 @@ import { UserName } from "../../components/UserName";
 import type { ReportPostData } from "../../types/reportForm";
 import { postReportN8n } from "../../hook/postReportN8n";
 import { getCurrentUser } from "../../hook/getCurrentUser";
-// ✅ ToastProvider も追加でインポート
 import { ToastProvider, useToast } from "../../components/ui/toast";
+// ✅ 追加
+import { useOfflineQueue } from "../../hook/useOfflineQueue";
 
-// ✅ useToast を使う内側のコンポーネントを分離
 const ReportInputScreenInner = (): JSX.Element => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,6 +30,22 @@ const ReportInputScreenInner = (): JSX.Element => {
 
   const { name, userId } = getCurrentUser();
   const { toast } = useToast();
+
+  // ✅ オフラインキューのフックを追加
+  useOfflineQueue(
+    (record) => {
+      toast({
+        title: "オフライン送信完了",
+        description: `保存済みの日報を送信しました（保存日時: ${new Date(record.savedAt).toLocaleString("ja-JP")}）`,
+      });
+    },
+    (count) => {
+      toast({
+        title: "再送信中...",
+        description: `未送信の日報が ${count} 件あります。送信を試みています。`,
+      });
+    }
+  );
 
   const isoToDate = (iso?: string) => {
     if (!iso) {
@@ -175,16 +191,24 @@ const ReportInputScreenInner = (): JSX.Element => {
     console.log("Invalid!");
   };
 
+  // ✅ result.status に応じてトーストを出し分け
   const handleConfirm = async () => {
     setIsSubmitting(true);
     try {
       const record = toJdbRecord(values);
-      await postReportN8n(record);
+      const result = await postReportN8n(record);
 
-      toast({
-        title: "送信完了",
-        description: "日報を登録しました。",
-      });
+      if (result.status === "queued") {
+        toast({
+          title: "オフラインのため保存しました",
+          description: "ネットワークが回復次第、自動的に送信されます。",
+        });
+      } else {
+        toast({
+          title: "送信完了",
+          description: "日報を登録しました。",
+        });
+      }
 
       setShowConfirmation(false);
       reset();
