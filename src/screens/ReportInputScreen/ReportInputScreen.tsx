@@ -9,6 +9,10 @@ import { WorkDurationSection } from "../../components/reportUi/WorkDurationSecti
 import { WorkPlaceSection } from "../../components/reportUi/WorkPlaceSection/WorkPlaceSection";
 import { WorkRecordSection } from "../../components/reportUi/WorkRecordSection/WorkRecordSection";
 import { WorkerVehicleSection } from "../../components/reportUi/WorkerVehicleSection/WorkerVehicleSection";
+import {
+  TachometerSection,
+  type TachometerPhoto,
+} from "./sections/TachometerSection";
 import { UserName } from "../../components/UserName";
 import type { ReportPostData } from "../../types/reportForm";
 import { postReport } from "../../hook/postReport";
@@ -17,14 +21,13 @@ import { getCurrentUser } from "../../hook/getCurrentUser";
 export const ReportInputScreen = (): JSX.Element => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [tachometerValue, setTachometerValue] = useState("");
+  const [tachometerPhotos, setTachometerPhotos] = useState<TachometerPhoto[]>([],);
+  const [tachometerMemos, setTachometerMemos] = useState<string[]>([]);
+  const { name, userId } = getCurrentUser();
 
-  // 現在のログイン中のユーザーの取得
-  const {name, userId} = getCurrentUser();
-
-  // ---------- helpers ----------
   const isoToDate = (iso?: string) => {
     if (!iso) {
-      // 日本時間で今日の日付を取得
       return new Date()
         .toLocaleDateString("ja-JP", {
           timeZone: "Asia/Tokyo",
@@ -32,8 +35,9 @@ export const ReportInputScreen = (): JSX.Element => {
           month: "2-digit",
           day: "2-digit",
         })
-        .replace(/\//g, "-"); // 2025/10/30 → 2025-10-30
+        .replace(/\//g, "-");
     }
+
     const m = iso.match(/^(\d{4}-\d{2}-\d{2})/);
     return m ? m[1] : iso;
   };
@@ -62,8 +66,8 @@ export const ReportInputScreen = (): JSX.Element => {
     field_workDate: isoToDate(p?.field_workDate),
     field_workPlaceId: asArr(p?.field_workPlaceId),
     field_weather: Array.isArray(p?.field_weather)
-      ? p.field_weather[0] ?? ""
-      : p?.field_weather ?? "",
+      ? (p.field_weather[0] ?? "")
+      : (p?.field_weather ?? ""),
     field_workerName: p?.field_workerName ?? name,
     field_assistantId: asArr(p?.field_assistantId) ?? userId,
     field_assistantName: p?.field_assistantName ?? "",
@@ -75,7 +79,7 @@ export const ReportInputScreen = (): JSX.Element => {
     field_removalVolume:
       typeof p?.field_removalVolume === "number"
         ? String(p?.field_removalVolume)
-        : p?.field_removalVolume ?? "",
+        : (p?.field_removalVolume ?? ""),
   });
 
   const {
@@ -92,37 +96,17 @@ export const ReportInputScreen = (): JSX.Element => {
   });
 
   const [selectedLocationId, setSelectedLocationId] = useState<number | null>(
-    null
+    null,
   );
-
   const [selectedClassId, setSelectedClassId] = useState<string[] | null>(null);
-
 
   const values = watch();
 
-  // デバッグログを追加
-  // console.log("現在のフォーム値:", values);
-  // console.log("field_workerId:", values.field_workerId);
-  // console.log("field_carId:", values.field_carId);
-  // console.log("field_assistantId:", values.field_assistantId);
-
-  // ---------- converter helpers ----------
   const toJdbRef = (val?: string | number | null): string[] => {
     if (val === undefined || val === null || val === "") return [];
     const s = String(val);
     return ["", s, "", s];
   };
-
-  // const first = (arr?: unknown) => {
-  //   const result = Array.isArray(arr)
-  //     ? (arr[0] as string | undefined)
-  //     : (arr as string | undefined);
-
-  //   // デバッグログを追加
-  //   console.log("first関数入力:", arr);
-  //   console.log("first関数出力:", result);
-  //   return result;
-  // };
 
   const nullIfEmpty = (s: string | null | undefined) =>
     s && s.trim() !== "" ? s : null;
@@ -139,10 +123,7 @@ export const ReportInputScreen = (): JSX.Element => {
     return `${dateStr}T${timeStr}${tzOffset}`;
   };
 
-  // ---------- convert for posting ----------
   const toJdbRecord = (v: ReportPostData): ReportPostData => {
-    // console.log("toJdbRecord入力:", v);
-
     const result = {
       field_workerId: toJdbRef(pickId(v.field_workerId)),
       field_carId: toJdbRef(pickId(v.field_carId)),
@@ -169,7 +150,6 @@ export const ReportInputScreen = (): JSX.Element => {
           : null,
     };
 
-    // console.log("toJdbRecord出力:", result);
     return result;
   };
 
@@ -189,6 +169,7 @@ export const ReportInputScreen = (): JSX.Element => {
   }, [errors]);
 
   const onValid = () => setShowConfirmation(true);
+
   const onInvalid = () => {
     setShowConfirmation(false);
     console.log("Invalid!");
@@ -198,28 +179,20 @@ export const ReportInputScreen = (): JSX.Element => {
     setIsSubmitting(true);
     try {
       const record = toJdbRecord(values);
-
-      // デバッグログを追加
-      // console.log("送信前のvalues:", values);
-      // console.log("変換後のrecord:", record);
-      // console.log("field_workerId変換前:", values.field_workerId);
-      // console.log("field_workerId変換後:", record.field_workerId);
-      // console.log("field_carId変換前:", values.field_carId);
-      // console.log("field_carId変換後:", record.field_carId);
-
       await postReport(record);
       setShowConfirmation(false);
-      // console.log("送信成功");
       reset();
+      setTachometerValue("");
+      setTachometerPhotos([]);
+      setTachometerMemos([]);
+      setSelectedLocationId(null);
+      setSelectedClassId(null);
     } catch (error) {
       console.error("送信エラー:", error);
     } finally {
       setIsSubmitting(false);
-      // console.log("送信完了");
     }
   };
-
-
 
   return (
     <>
@@ -239,6 +212,7 @@ export const ReportInputScreen = (): JSX.Element => {
 
       <div className="flex flex-col w-full items-center pt-4 pb-8 px-4 sm:px-6 bg-gradient-to-b from-sky-50 to-sky-100">
         <UserName />
+
         <div className="w-full max-w-4xl space-y-6">
           <NotificationSection
             title="日報入力"
@@ -249,18 +223,23 @@ export const ReportInputScreen = (): JSX.Element => {
             onLocationSelect={(loc) => {
               setSelectedLocationId(loc.id);
               setSelectedClassId(loc.typeId);
+
               setValue("field_workPlaceId", [String(loc.id)], {
                 shouldDirty: true,
               });
               setValue("field_workPlaceName", loc.name, { shouldDirty: true });
               clearErrors("field_workPlaceId");
+
               setValue("field_workClassId", loc.typeId, { shouldDirty: true });
               clearErrors("field_workClassId");
+
               setValue("field_workClassName", loc.typeName, {
                 shouldDirty: true,
               });
+
               setValue("field_carId", loc.carId, { shouldDirty: true });
               clearErrors("field_carId");
+
               setValue("field_carName", loc.carName, { shouldDirty: true });
             }}
           />
@@ -288,12 +267,14 @@ export const ReportInputScreen = (): JSX.Element => {
               setValue={setValue}
               values={values}
             />
+
             <WorkerVehicleSection
               register={register}
               errors={errors}
               setValue={setValue}
               values={values}
             />
+
             <WorkPlaceSection
               register={register}
               errors={errors}
@@ -304,17 +285,27 @@ export const ReportInputScreen = (): JSX.Element => {
                 setSelectedLocationId(loc.id);
                 clearErrors("field_workPlaceId");
               }}
-              onClassTypeSelect={(t)=>{
+              onClassTypeSelect={(t) => {
                 setSelectedClassId(t.id);
                 clearErrors("field_workClassId");
               }}
               selectedClassId={selectedClassId}
             />
+
             <WorkDurationSection
               register={register}
               errors={errors}
               setValue={setValue}
               values={values}
+            />
+
+            <TachometerSection
+              tachometerValue={tachometerValue}
+              onTachometerChange={setTachometerValue}
+              photos={tachometerPhotos}
+              onPhotosChange={setTachometerPhotos}
+              memos={tachometerMemos}
+              onMemosChange={setTachometerMemos}
             />
             <WorkRecordSection
               register={register}
