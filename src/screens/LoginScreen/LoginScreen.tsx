@@ -20,7 +20,7 @@ export const LoginScreen = (): JSX.Element => {
     setError(null);
 
     try {
-      const workers = await apiClient.get<any[]>("table_1754549652/records/");
+      const workers = await apiClient.get<any[]>("table_1754549652/records/?limit=100");
 
 
       const user = workers.find(
