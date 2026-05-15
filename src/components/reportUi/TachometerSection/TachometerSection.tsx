@@ -29,6 +29,7 @@ export const TachometerSection = ({
   onMemosChange,
 }: Props): JSX.Element => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const photosRef = useRef<TachometerPhoto[]>(photos);
 
   const handleOpenCamera = () => {
     fileInputRef.current?.click();
@@ -70,10 +71,13 @@ export const TachometerSection = ({
     onMemosChange(memos.filter((_, i) => i !== index));
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    photosRef.current = photos;
+  }, [photos]);
+
   useEffect(() => {
     return () => {
-      photos.forEach((photo) => URL.revokeObjectURL(photo.previewUrl));
+      photosRef.current.forEach((photo) => URL.revokeObjectURL(photo.previewUrl));
     };
   }, []);
 

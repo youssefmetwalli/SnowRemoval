@@ -1,12 +1,13 @@
 import { useEffect, useCallback } from "react";
 import { postReportN8n } from "./postReportN8n";
-import type { ReportPostData } from "../types/reportForm";
+import type { ReportN8nMetadata, ReportPostData } from "../types/reportForm";
 
 const QUEUE_KEY = "report_offline_queue";
 
 export interface QueuedRecord {
   id: string;
   data: ReportPostData;
+  metadata?: ReportN8nMetadata;
   savedAt: string;
 }
 
@@ -19,11 +20,15 @@ export const loadQueue = (): QueuedRecord[] => {
   }
 };
 
-export const saveToQueue = (data: ReportPostData): QueuedRecord => {
+export const saveToQueue = (
+  data: ReportPostData,
+  metadata?: ReportN8nMetadata
+): QueuedRecord => {
   const queue = loadQueue();
   const record: QueuedRecord = {
     id: `${Date.now()}_${Math.random().toString(36).slice(2)}`,
     data,
+    metadata,
     savedAt: new Date().toISOString(),
   };
   localStorage.setItem(QUEUE_KEY, JSON.stringify([...queue, record]));
@@ -47,7 +52,10 @@ export const useOfflineQueue = (
 
     for (const record of queue) {
       try {
-        await postReportN8n(record.data);
+        await postReportN8n(record.data, {
+          ...record.metadata,
+          skipQueue: true,
+        });
         removeFromQueue(record.id);
         onSuccess?.(record);
       } catch {
