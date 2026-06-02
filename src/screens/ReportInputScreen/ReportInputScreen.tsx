@@ -191,12 +191,21 @@ const ReportInputScreenInner = (): JSX.Element => {
     console.log("Invalid!");
   };
 
+  const clearTachometerPhotos = () => {
+    tachometerPhotos.forEach((photo) => URL.revokeObjectURL(photo.previewUrl));
+    setTachometerPhotos([]);
+  };
+
   // ✅ result.status に応じてトーストを出し分け
   const handleConfirm = async () => {
     setIsSubmitting(true);
     try {
       const record = toJdbRecord(values);
-      const result = await postReportN8n(record);
+      const result = await postReportN8n(record, {
+        photos: tachometerPhotos,
+        tachometerValue,
+        tachometerMemos,
+      });
 
       if (result.status === "queued") {
         toast({
@@ -206,19 +215,20 @@ const ReportInputScreenInner = (): JSX.Element => {
       } else {
         toast({
           title: "送信完了",
-          description: "日報を登録しました。",
+          description: result.imageUrls?.length
+            ? `日報を登録し、画像 ${result.imageUrls.length} 件を保存しました。`
+            : "日報を登録しました。",
         });
       }
 
       setShowConfirmation(false);
       reset();
       setTachometerValue("");
-      setTachometerPhotos([]);
+      clearTachometerPhotos();
       setTachometerMemos([]);
       setSelectedLocationId(null);
       setSelectedClassId(null);
     } catch (error) {
-      console.error("送信エラー:", error);
       toast({
         title: "送信失敗",
         description:

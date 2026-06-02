@@ -18,6 +18,9 @@ export interface ReportGetData {
   field_startTime: string;
   field_CompanyName: string;
   field_removalVolume: string ;
+  field_tachometerValue?: string | null;
+  field_tachometerMemos?: string[] | null;
+  field_tachometerImageUrls?: string[] | null;
 }
 
 
@@ -39,6 +42,14 @@ export interface ReportPostData {
   field_startTime: string;
   field_CompanyName: string;
   field_removalVolume: string | null;
+  field_tachometerValue?: string | null;
+  field_tachometerMemos?: string[] | null;
+  field_tachometerImageUrls?: string[] | null;
+}
+
+export interface ReportN8nMetadata {
+  tachometerValue?: string;
+  tachometerMemos?: string[];
 }
 
 export interface RouteGetData {
