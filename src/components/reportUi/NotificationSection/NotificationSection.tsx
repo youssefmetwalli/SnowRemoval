@@ -41,8 +41,8 @@ export const NotificationSection = ({
   );
   const [internalClassId, setInternalClassId] = useState<string[] | null>(selectedClassId ?? null);
 
-  const { data: workPlaceData, isLoading: isLoadingWorkPlace, isError: isErrorWorkPlace } = useRoute(workerName ?? undefined);
-  const pickWorkPlaces = workPlaceData?.map((workPlaceData, index) => ({
+  const { data: workPlaceData } = useRoute(workerName ?? undefined);
+  const pickWorkPlaces = workPlaceData?.map((workPlaceData) => ({
     id: workPlaceData.field_workPlaceId[1],
     name: workPlaceData.field_workPlaceName ?? "名称未設定",
     typeId: workPlaceData.field_workClassId,
@@ -52,8 +52,6 @@ export const NotificationSection = ({
     categoryId: workPlaceData.field_categoryId,
     categoryName: workPlaceData.field_categoryName ?? "名称未設定"
   }));
-
-  console.log("pickWorkPlaces:", pickWorkPlaces); //test
 
   const workPlaces = Array.from(
     new Map(

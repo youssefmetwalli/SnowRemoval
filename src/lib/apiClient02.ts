@@ -1,34 +1,8 @@
-/// <reference types="vite/client" />
-const API_KEY = import.meta.env.VITE_API_NO_TWO;                
-const DEV_BASE_URL = import.meta.env.VITE_API_BASE_URL;      
-const IS_PROD = import.meta.env.PROD;
-
-/**
- * Safely join base + endpoint with exactly one slash.
- */
-const join = (base: string, path: string) => {
-  if (!base) return path;
-  const b = base.endsWith("/") ? base.slice(0, -1) : base;
-  const p = path.startsWith("/") ? path.slice(1) : path;
-  return `${b}/${p}`;
-};
-
-interface ApiEnvelope<T> {
-  record?: T;
-  [key: string]: any;
-}
-
 class ApiClient {
   private baseUrl: string;
-  private apiKey?: string;
 
   constructor() {
-
-    this.baseUrl = IS_PROD ? "/api/justdb-proxy?path=" : (DEV_BASE_URL || "");
-    this.apiKey = API_KEY;
-    if (!IS_PROD && (!this.apiKey || !this.baseUrl)) {
-      console.warn("VITE_API_KEY or VITE_API_BASE_URL is missing in dev.");
-    }
+    this.baseUrl = "/api/justdb-proxy?path=";
   }
 
   private normalizeResponse<T>(data: any): T {
@@ -47,17 +21,11 @@ class ApiClient {
   }
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    const url = IS_PROD
-      ? `${this.baseUrl}${encodeURI(endpoint)}`
-      : join(this.baseUrl, endpoint);
+    const url = `${this.baseUrl}${encodeURI(endpoint)}`;
 
     const baseHeaders: HeadersInit = {
       "Content-Type": "application/json",
     };
-
-    if (!IS_PROD && this.apiKey) {
-      (baseHeaders as any).Authorization = `Bearer ${this.apiKey}`;
-    }
 
     const config: RequestInit = {
       headers: {
@@ -71,9 +39,8 @@ class ApiClient {
     // console.log("request最初");
     // console.log(API_KEY)
 
-    let response: Response | undefined;
     try {
-      response = await fetch(url, config);
+      const response = await fetch(url, config);
 
       if (!response.ok) {
         const bodyText = await response.text().catch(() => "");

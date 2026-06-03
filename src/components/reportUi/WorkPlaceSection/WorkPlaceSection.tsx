@@ -37,30 +37,21 @@ export const WorkPlaceSection = ({
   onLocationSelect,
   onClassTypeSelect,
   selectedLocationId,
-  selectedClassId,
 }: Props): JSX.Element => {
-  const [internalSelectedId, setInternalSelectedId] = useState<number | null>(
+  const [, setInternalSelectedId] = useState<number | null>(
     selectedLocationId ?? null
   );
 
-  const {
-    data: workPlaceData,
-    isLoading: isLoadingWorkPlace,
-    isError: isErrorWorkPlace,
-  } = getWorkPlace();
-  const workPlaces = workPlaceData?.map((workPlaceData, index) => ({
+  const { data: workPlaceData } = getWorkPlace();
+  const workPlaces = workPlaceData?.map((workPlaceData) => ({
     id: workPlaceData.field_2002320023,
     name: workPlaceData.field_2001920019 ?? "名称未設定",
     customerId: workPlaceData.field_1756792186,
     companyName: workPlaceData.field_1754541737,
   }));
 
-  const {
-    data: workClassData,
-    isLoading: isLoadingWorkClass,
-    isError: isErrorWorkClass,
-  } = getWorkClass();
-  const workClasses = workClassData?.map((workClassData, index) => ({
+  const { data: workClassData } = getWorkClass();
+  const workClasses = workClassData?.map((workClassData) => ({
     id: workClassData.field_2000820008,
     name: workClassData.field_2001620016 ?? "名称未設定",
   }));
@@ -84,7 +75,7 @@ export const WorkPlaceSection = ({
     (t: { id: string[] }) => {
       onClassTypeSelect?.(t);
     },
-    [onClassTypeSelect, selectedClassId]
+    [onClassTypeSelect]
   );
 
   return (
@@ -126,7 +117,7 @@ export const WorkPlaceSection = ({
               <SelectValue placeholder="選択してください" />
             </SelectTrigger>
             <SelectContent>
-              {workPlaces?.map((workPlace, index) => (
+              {workPlaces?.map((workPlace) => (
                 <SelectItem key={workPlace.id[1]} value={workPlace.name}>
                   {workPlace.name}
                 </SelectItem>
@@ -168,7 +159,7 @@ export const WorkPlaceSection = ({
               <SelectValue placeholder="選択してください" />
             </SelectTrigger>
             <SelectContent>
-              {workClasses?.map((wc, index) => (
+              {workClasses?.map((wc) => (
                 <SelectItem key={wc.id[1]} value={wc.name}>
                   {wc.name}
                 </SelectItem>
