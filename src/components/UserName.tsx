@@ -1,6 +1,6 @@
 import { getCurrentUser } from "../hook/getCurrentUser";
 export const UserName = (): JSX.Element => {
-  const {name, userId} = getCurrentUser();
+  const {name} = getCurrentUser();
   const date = new Date();
   const weekday = new Intl.DateTimeFormat('jp-JP', {
     weekday: "short"

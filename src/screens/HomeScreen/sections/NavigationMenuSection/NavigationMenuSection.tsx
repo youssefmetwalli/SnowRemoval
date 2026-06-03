@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "../../../../components/ui/card";
 import { useReport } from "../../../../hook/getReport";
 import { MenuTile } from "../../../../components/ui/menuTile";
+import { getCurrentUser } from "../../../../hook/getCurrentUser";
 
 export const NavigationMenuSection = (): JSX.Element => {
   const navigate = useNavigate();
@@ -15,17 +16,15 @@ export const NavigationMenuSection = (): JSX.Element => {
       </div>
     );
 
-  const loginUser = localStorage.getItem("loggedInUser");
+  const { userId } = getCurrentUser();
   let userReports = null;
   let totalWorkTime = 0;
   let reportCount:number = 0;
 
-  if (loginUser) {
-    const parsedLoginUser = JSON.parse(loginUser);
-    // console.log(parsedLoginUser.field_1754635302[1]);
+  if (userId) {
     if (reports) {
       userReports = reports.filter((report) => 
-        report.field_workerId[1] === parsedLoginUser.field_1754635302[1]
+        report.field_workerId[1] === userId[1]
       );
     }
     if (userReports) {
@@ -34,8 +33,6 @@ export const NavigationMenuSection = (): JSX.Element => {
         reportCount++;
       });
   }
-    
-    // console.log(userReports);
   }
 
   return (
