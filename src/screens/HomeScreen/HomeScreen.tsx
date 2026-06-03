@@ -1,4 +1,3 @@
-import React from "react";
 import { NavigationMenuSection } from "./sections/NavigationMenuSection/NavigationMenuSection";
 import { UserProfileSection } from "./sections/UserProfileSection/UserProfileSection";
 
