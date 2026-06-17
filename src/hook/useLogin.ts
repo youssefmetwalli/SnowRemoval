@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { apiClient } from "../lib/apiClient";
+import { storeCurrentUser, type CurrentUser } from "./getCurrentUser";
 
-interface Worker {
-  field_loginId: string;     
-  field_password: string;    
-  field_作業員名?: string;
-  field_作業員ID?: string;
-}
+type LoginResponse = {
+  ok: boolean;
+  user?: CurrentUser;
+  error?: string;
+};
 
 export const useLogin = () => {
   const [loading, setLoading] = useState(false);
@@ -17,28 +16,20 @@ export const useLogin = () => {
     setError(null);
 
     try {
-      const data = await apiClient.get<Worker[]>("table_1754549652/records/");
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ loginId, password }),
+      });
+      const data = (await response.json().catch(() => null)) as LoginResponse | null;
 
-      if (!data || !Array.isArray(data)) {
-        setError("サーバーからの応答が無効です。");
+      if (!response.ok || !data?.ok || !data.user) {
+        setError(data?.error ?? "ログインIDまたはパスワードが正しくありません。");
         return null;
       }
 
-      // Match using correct lowercase keys
-      const matched = data.find(
-        (worker) =>
-          worker.field_loginId?.trim() === loginId.trim() &&
-          worker.field_password?.trim() === password.trim()
-      );
-
-      if (!matched) {
-        setError("ログインIDまたはパスワードが正しくありません。");
-        return null;
-      }
-
-      // Save user data (optional)
-      localStorage.setItem("loggedInUser", JSON.stringify(matched));
-      return matched;
+      storeCurrentUser(data.user);
+      return data.user;
     } catch (err) {
       console.error(err);
       setError("ログイン中にエラーが発生しました。");

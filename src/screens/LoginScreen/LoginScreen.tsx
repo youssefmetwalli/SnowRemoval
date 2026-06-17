@@ -5,42 +5,19 @@ import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
-import { apiClient } from "../../lib/apiClient";
+import { useLogin } from "../../hook/useLogin";
 
 export const LoginScreen = (): JSX.Element => {
   const navigate = useNavigate();
   const [loginId, setLoginId] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { login, loading, error } = useLogin();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    try {
-      const workers = await apiClient.get<any[]>("table_1754549652/records/?limit=100");
-
-
-      const user = workers.find(
-        (w) =>
-          w.field_loginId?.trim() === loginId.trim() &&
-          w.field_password?.trim() === password.trim()
-      );
-      if (!user) {
-        setError("ユーザーIDまたはパスワードが正しくありません。");
-        return;
-      }
-
-      localStorage.setItem("loggedInUser", JSON.stringify(user));
-
+    const user = await login(loginId, password);
+    if (user) {
       navigate("/homescreen");
-    } catch (err) {
-      console.error("Login error:", err);
-      setError("ログイン中にエラーが発生しました。");
-    } finally {
-      setLoading(false);
     }
   };
 
