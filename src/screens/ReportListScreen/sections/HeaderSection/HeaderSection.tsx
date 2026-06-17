@@ -13,7 +13,7 @@ import { Input } from "../../../../components/ui/input";
 import { Label } from "../../../../components/ui/label";
 import { Button } from "../../../../components/ui/button";
 
-import type { ReportListFilters } from "../../ReportListScreen";
+import type { ReportListFilters } from "../../../../types/listFilters";
 import { MobileFilterDialog } from "./MobileFilterDialog";
 
 type Props = {

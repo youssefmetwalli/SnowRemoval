@@ -3,14 +3,13 @@ import {
   CalendarIcon,
   LayersIcon,
   MapPinIcon,
-  XIcon,
 } from "lucide-react";
 
 import { Dialog, DialogContent, DialogOverlay, DialogClose } from "../../../../components/ui/dialog";
 import { Input } from "../../../../components/ui/input";
 import { Label } from "../../../../components/ui/label";
 import { Button } from "../../../../components/ui/button";
-import type { ReportListFilters } from "../../ReportListScreen";
+import type { ReportListFilters } from "../../../../types/listFilters";
 
 type MobileFilterDialogProps = {
   open: boolean;

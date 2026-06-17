@@ -1,5 +1,4 @@
 import { BarChart3Icon } from "lucide-react";
-import React from "react";
 import { Card, CardContent } from "../../ui/card";
 import { Input } from "../../ui/input";
 import { Label } from "../../ui/label";
