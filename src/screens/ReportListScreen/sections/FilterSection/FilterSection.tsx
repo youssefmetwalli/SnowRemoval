@@ -2,7 +2,7 @@
 import { XIcon, CalendarIcon, MapPinIcon, LayersIcon } from "lucide-react";
 import React from "react";
 import { Badge } from "../../../../components/ui/badge";
-import type { ReportListFilters } from "../../ReportListScreen";
+import type { ReportListFilters } from "../../../../types/listFilters";
 
 type Props = {
   filters: ReportListFilters;

@@ -16,15 +16,5 @@ export default defineConfig(async ({ mode }) => {
         plugins: [tailwind()],
       },
     },
-    server: {
-      proxy: {
-        "/api": {
-          target: "https://asera.just-db.com/sites/api/services/v1/tables/",
-          changeOrigin: true,
-          secure: true,
-          rewrite: (path) => path.replace(/^\/api/, ""),
-        },
-      },
-    },
   };
 });

@@ -1,8 +1,6 @@
 import type { ReportN8nMetadata, ReportPostData } from "../types/reportForm";
 import { saveToQueue } from "./useOfflineQueue";
 
-const N8N_WEBHOOK_URL = import.meta.env.VITE_N8N_WEBHOOK_URL as string;
-
 export type PostResult =
   | {
       status: "sent";
@@ -76,12 +74,6 @@ export const postReportN8n = async (
   inputData: ReportPostData,
   options: PostReportN8nOptions = {}
 ): Promise<PostResult> => {
-  if (!N8N_WEBHOOK_URL) {
-    throw new Error(
-      "n8n webhook URL が設定されていません。環境変数 VITE_N8N_WEBHOOK_URL を確認してください。"
-    );
-  }
-
   const containsPhotos = hasPhotos(options);
   const containsMediaPayload = containsPhotos || hasMetadata(options);
   const metadata: ReportN8nMetadata = {
@@ -106,7 +98,7 @@ export const postReportN8n = async (
       ? buildFormData(inputData, options)
       : JSON.stringify(inputData);
 
-    const response = await fetch(N8N_WEBHOOK_URL, {
+    const response = await fetch("/api/reports", {
       method: "POST",
       headers: containsMediaPayload
         ? undefined

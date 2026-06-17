@@ -75,7 +75,7 @@ export const ReportEditScreen = (): JSX.Element => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid, isDirty = true },
+    formState: { errors, isValid },
     setValue,
     watch,
     reset,
@@ -200,16 +200,12 @@ export const ReportEditScreen = (): JSX.Element => {
       // const record = toJdbRecord(values);
       await putReport(record, dayReportId);
       setShowConfirmation(false);
-      // console.log("送信成功");
-      console.log(record);
       reset();
     } catch (error) {
       console.error("送信エラー:", error);
-      console.log(record);
     } finally {
       setIsSubmitting(false);
       // console.log("送信完了");
-      // console.log(record);
     }
   };
 

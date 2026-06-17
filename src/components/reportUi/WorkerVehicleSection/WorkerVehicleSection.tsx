@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { UserIcon } from "lucide-react";
 import { Card, CardContent } from "../../ui/card";
 import { Label } from "../../ui/label";
@@ -32,23 +31,15 @@ export const WorkerVehicleSection = ({
   setValue,
   values,
 }: Props): JSX.Element => {
-  const {
-    data: workerData,
-    isLoading: isLoadingWorker,
-    isError: isErrorWorker,
-  } = getWorker();
-  const {
-    data: carData,
-    isLoading: isLoadingCar,
-    isError: isErrorCar,
-  } = getCar();
+  const { data: workerData } = getWorker();
+  const { data: carData } = getCar();
 
-  const workers = workerData?.map((workerData, index) => ({
+  const workers = workerData?.map((workerData) => ({
     id: workerData.field_1754635302,
     name: workerData.field_1754549790 ?? "名称未設定",
   }));
 
-  const cars = carData?.map((carData, index) => ({
+  const cars = carData?.map((carData) => ({
     id: carData.field_2002120021,
     name: carData.field_2003520035 ?? "未設定",
     number: carData.field_1754972826 ?? "未設定",
@@ -102,7 +93,7 @@ export const WorkerVehicleSection = ({
               <SelectValue placeholder="選択してください" />
             </SelectTrigger>
             <SelectContent>
-              {workers?.map((w, index) => (
+              {workers?.map((w) => (
                 <SelectItem key={w.id[1]} value={w.name}>
                   {w.name}
                 </SelectItem>
@@ -143,7 +134,7 @@ export const WorkerVehicleSection = ({
               <SelectValue placeholder="選択してください" />
             </SelectTrigger>
             <SelectContent>
-              {workers?.map((w, index) => (
+              {workers?.map((w) => (
                 <SelectItem key={w.id[1]} value={w.name}>
                   {w.name}
                 </SelectItem>
@@ -174,7 +165,7 @@ export const WorkerVehicleSection = ({
               <SelectValue placeholder="選択してください" />
             </SelectTrigger>
             <SelectContent>
-              {cars?.map((car, index) => (
+              {cars?.map((car) => (
                 <SelectItem key={car.id[1]} value={car.id[1]}>
                   <span className="font-bold">{car.name}　</span>
                   {car.number}
