@@ -1,15 +1,10 @@
 import { apiClient } from "../lib/apiClient";
-
+import { transformToSnakeCase } from "./postReportN8n";
 
 export const putReport = async (inputData: any, id: string) => {
   try {
-    // console.log("put送信");
-    const response = await apiClient.put<any>(
-      "table_1754551086/records/",
-      inputData,
-      "field_dayReportId",
-      id
-    );
+    const transformed = transformToSnakeCase(inputData);
+    const response = await apiClient.put<any>(`reports/${id}`, transformed);
     return response;
   } catch (err) {
     console.error(err);

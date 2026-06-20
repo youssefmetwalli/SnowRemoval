@@ -28,6 +28,70 @@ type N8nWebhookResponse = {
   [key: string]: unknown;
 };
 
+const weatherMap: Record<string, number> = {
+  "晴れ": 1,
+  "曇り": 2,
+  "雨": 3,
+  "雪": 4,
+  "吹雪": 5,
+  "みぞれ": 6,
+};
+
+const pickId = (arr?: unknown): number | null => {
+  if (!arr) return null;
+  if (!Array.isArray(arr)) {
+    const val = Number(arr);
+    return isNaN(val) ? null : val;
+  }
+  const idStr = arr[1] ?? arr[0];
+  const val = Number(idStr);
+  return isNaN(val) ? null : val;
+};
+
+const nullIfEmpty = (s: string | null | undefined) =>
+  s && s.trim() !== "" ? s : null;
+
+const toIsoDate = (dateStr: string) => {
+  if (!dateStr) return "";
+  const tzOffset = "+09:00";
+  return `${dateStr}T00:00${tzOffset}`;
+};
+
+const toIsoDateTime = (dateStr: string, timeStr: string) => {
+  if (!dateStr || !timeStr) return "";
+  const tzOffset = "+09:00";
+  return `${dateStr}T${timeStr}${tzOffset}`;
+};
+
+// ReportPostData を snake_case のペイロードにトランスフォーム
+export const transformToSnakeCase = (v: ReportPostData, options: PostReportN8nOptions = {}) => {
+  const weatherStr = v.field_weather || "";
+  const weatherId = weatherMap[weatherStr] ?? 1; // マップできない場合はデフォルト1
+
+  return {
+    worker_id: pickId(v.field_workerId),
+    car_id: pickId(v.field_carId),
+    customer_id: pickId(v.field_CustomerId),
+    work_class_id: pickId(v.field_workClassId),
+    work_date: toIsoDate(v.field_workDate),
+    work_place_id: pickId(v.field_workPlaceId),
+    weather_id: weatherId,
+    worker_name: nullIfEmpty(v.field_workerName),
+    assistant_id: v.field_assistantId && v.field_assistantId.length ? pickId(v.field_assistantId) : null,
+    assistant_name: nullIfEmpty(v.field_assistantName),
+    work_class_name: nullIfEmpty(v.field_workClassName),
+    car_name: nullIfEmpty(v.field_carName),
+    work_place_name: nullIfEmpty(v.field_workPlaceName),
+    start_time: toIsoDateTime(v.field_workDate, v.field_startTime),
+    end_time: toIsoDateTime(v.field_workDate, v.field_endTime),
+    company_name: nullIfEmpty(v.field_CompanyName),
+    removal_volume: v.field_removalVolume && Number(v.field_removalVolume) > 0 ? String(v.field_removalVolume) : null,
+    // 追加スキーマの暫定適合 (PrismaのTachometerNotes等に対応)
+    tachometer_value: options.tachometerValue || null,
+    tachometer_notes: options.tachometerMemos || [],
+  };
+};
+
 const hasMetadata = (options?: PostReportN8nOptions) =>
   Boolean(
     options?.tachometerValue?.trim() ||
@@ -42,14 +106,16 @@ const buildFormData = (
   options: PostReportN8nOptions
 ) => {
   const formData = new FormData();
-  formData.append("report", JSON.stringify(inputData));
+  const transformed = transformToSnakeCase(inputData, options);
+
+  formData.append("report", JSON.stringify(transformed));
 
   if (options.tachometerValue !== undefined) {
-    formData.append("tachometerValue", options.tachometerValue);
+    formData.append("tachometer_value", options.tachometerValue);
   }
 
   if (options.tachometerMemos !== undefined) {
-    formData.append("tachometerMemos", JSON.stringify(options.tachometerMemos));
+    formData.append("tachometer_notes", JSON.stringify(options.tachometerMemos));
   }
 
   options.photos?.forEach((photo) => {
@@ -94,15 +160,21 @@ export const postReportN8n = async (
   }
 
   try {
-    const body = containsMediaPayload
-      ? buildFormData(inputData, options)
-      : JSON.stringify(inputData);
+    let body: BodyInit;
+    let headers: HeadersInit | undefined = undefined;
 
-    const response = await fetch("/api/reports", {
+    if (containsMediaPayload) {
+      body = buildFormData(inputData, options);
+    } else {
+      const transformed = transformToSnakeCase(inputData, options);
+      body = JSON.stringify(transformed);
+      headers = { "Content-Type": "application/json" };
+    }
+
+    const response = await fetch("/n8n/webhook/report-submit", {
       method: "POST",
-      headers: containsMediaPayload
-        ? undefined
-        : { "Content-Type": "application/json" },
+      credentials: "include",
+      headers,
       body,
     });
 

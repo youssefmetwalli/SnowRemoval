@@ -2,41 +2,25 @@ class ApiClient {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = "/api/justdb-proxy?path=";
-  }
-
-  private normalizeResponse<T>(data: any): T {
-    if (Array.isArray(data)) {
-      return data.map((item) => {
-        if (item && typeof item === "object" && "record" in item) {
-          return item.record;
-        }
-        return item;
-      }) as T;
-    }
-    if (data && typeof data === "object" && "record" in data) {
-      return data.record as T;
-    }
-    return data as T;
+    this.baseUrl = "/api/v1";
   }
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    const url = `${this.baseUrl}${encodeURI(endpoint)}`;
+    const slash = endpoint.startsWith("/") ? "" : "/";
+    const url = `${this.baseUrl}${slash}${endpoint}`;
 
     const baseHeaders: HeadersInit = {
       "Content-Type": "application/json",
     };
 
     const config: RequestInit = {
+      credentials: "include", // Cookieの送受信用
       headers: {
         ...baseHeaders,
         ...(options.headers || {}),
       },
       ...options,
     };
-
-    // Debug hooks you already use
-    // console.log("request最初");
 
     try {
       const response = await fetch(url, config);
@@ -46,15 +30,9 @@ class ApiClient {
         throw new Error(`HTTP error! status: ${response.status}, body:${bodyText}`);
       }
 
-      // Some endpoints may return empty body (204). Guard for that.
       const text = await response.text();
       const json = text ? JSON.parse(text) : null;
-
-      // console.log("接続はおｋ");
-      // console.log("rawData");
-      // console.log(json);
-
-      return this.normalizeResponse<T>(json);
+      return json as T;
     } catch (err) {
       console.error("API request failed:", err);
       throw err;
@@ -65,36 +43,17 @@ class ApiClient {
     return this.request<T>(endpoint, { method: "GET" });
   }
 
-  // post
   async post<T>(endpoint: string, data: any): Promise<T> {
-    const wrappedData = {
-      records:[
-        {
-          record: {...data}
-        }
-      ]
-    };
-
     return this.request<T>(endpoint, {
       method: "POST",
-      body: JSON.stringify(wrappedData),
+      body: JSON.stringify(data),
     });
   }
 
-  async put<T>(endpoint: string, data: any, fieldname: string, id: string): Promise<T> {
-    const wrappedData = {
-      records:[
-        {
-          recordKey:{
-            [fieldname]: id
-          },
-          record:{...data}
-        }
-      ]
-    };
+  async put<T>(endpoint: string, data: any): Promise<T> {
     return this.request<T>(endpoint, {
       method: "PUT",
-      body: JSON.stringify(wrappedData),
+      body: JSON.stringify(data),
     });
   }
 

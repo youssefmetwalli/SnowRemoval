@@ -5,11 +5,7 @@ import {
   storeCurrentUser,
   type CurrentUser,
 } from "../hook/getCurrentUser";
-
-type SessionResponse = {
-  ok: boolean;
-  user?: CurrentUser;
-};
+import { apiClient } from "../lib/apiClient";
 
 export const RequireAuth = ({ children }: { children: ReactNode }) => {
   const [state, setState] = useState<"loading" | "ready" | "missing">(
@@ -21,19 +17,18 @@ export const RequireAuth = ({ children }: { children: ReactNode }) => {
 
     (async () => {
       try {
-        const response = await fetch("/api/auth/session");
-        const data = (await response.json().catch(() => null)) as
-          | SessionResponse
-          | null;
-        if (!response.ok || !data?.ok || !data.user) {
+        // セッション確認API (/api/v1/auth/me) の呼び出し
+        const user = await apiClient.get<CurrentUser>("auth/me");
+
+        if (user && user.id) {
+          storeCurrentUser(user);
+          if (active) setState("ready");
+        } else {
           clearCurrentUser();
           if (active) setState("missing");
-          return;
         }
-
-        storeCurrentUser(data.user);
-        if (active) setState("ready");
-      } catch {
+      } catch (error) {
+        console.error("Session verification failed:", error);
         clearCurrentUser();
         if (active) setState("missing");
       }

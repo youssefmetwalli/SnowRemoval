@@ -7,12 +7,10 @@ export type CurrentUser = {
 };
 
 export const storeCurrentUser = (user: CurrentUser) => {
-  localStorage.removeItem("loggedInUser");
   localStorage.setItem(USER_KEY, JSON.stringify(user));
 };
 
 export const clearCurrentUser = () => {
-  localStorage.removeItem("loggedInUser");
   localStorage.removeItem(USER_KEY);
 };
 

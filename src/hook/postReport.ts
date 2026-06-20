@@ -1,13 +1,10 @@
 import { apiClient } from "../lib/apiClient";
-
+import { transformToSnakeCase } from "./postReportN8n";
 
 export const postReport = async (inputData: any) => {
   try {
-    // console.log("post送信");
-    const response = await apiClient.post<any>(
-      "table_1754551086/records/",
-      inputData
-    );
+    const transformed = transformToSnakeCase(inputData);
+    const response = await apiClient.post<any>("reports", transformed);
     return response;
   } catch (err) {
     console.error(err);
