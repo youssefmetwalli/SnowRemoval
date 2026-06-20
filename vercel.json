@@ -1,7 +1,15 @@
 {
   "rewrites": [
     {
-      "source": "/((?!api/).*)",
+      "source": "/api/v1/:path*",
+      "destination": "https://usb-upon-advisors-latitude.trycloudflare.com/api/v1/:path*"
+    },
+    {
+      "source": "/n8n/:path*",
+      "destination": "https://usb-upon-advisors-latitude.trycloudflare.com/n8n/:path*"
+    },
+    {
+      "source": "/((?!api/v1/|n8n/).*)",
       "destination": "/index.html"
     }
   ]
