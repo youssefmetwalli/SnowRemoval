@@ -1,4 +1,4 @@
-import type { ReportN8nMetadata, ReportPostData } from "../types/reportForm";
+import type { ReportN8nMetadata, ReportPayload } from "../types/reportForm";
 import { saveToQueue } from "./useOfflineQueue";
 
 export type PostResult =
@@ -30,26 +30,26 @@ type N8nWebhookResponse = {
 
 const hasMetadata = (options?: PostReportN8nOptions) =>
   Boolean(
-    options?.tachometerValue?.trim() ||
-      (options?.tachometerMemos?.some((memo) => memo.trim()) ?? false)
+    options?.tachometer_value?.trim() ||
+      (options?.tachometer_memos?.some((memo) => memo.trim()) ?? false)
   );
 
 const hasPhotos = (options?: PostReportN8nOptions) =>
   Boolean(options?.photos?.length);
 
 const buildFormData = (
-  inputData: ReportPostData,
+  inputData: ReportPayload,
   options: PostReportN8nOptions
 ) => {
   const formData = new FormData();
   formData.append("report", JSON.stringify(inputData));
 
-  if (options.tachometerValue !== undefined) {
-    formData.append("tachometerValue", options.tachometerValue);
+  if (options.tachometer_value !== undefined) {
+    formData.append("tachometer_value", options.tachometer_value);
   }
 
-  if (options.tachometerMemos !== undefined) {
-    formData.append("tachometerMemos", JSON.stringify(options.tachometerMemos));
+  if (options.tachometer_memos !== undefined) {
+    formData.append("tachometer_memos", JSON.stringify(options.tachometer_memos));
   }
 
   options.photos?.forEach((photo) => {
@@ -71,14 +71,14 @@ const parseN8nResponse = async (response: Response): Promise<N8nWebhookResponse 
 };
 
 export const postReportN8n = async (
-  inputData: ReportPostData,
+  inputData: ReportPayload,
   options: PostReportN8nOptions = {}
 ): Promise<PostResult> => {
   const containsPhotos = hasPhotos(options);
   const containsMediaPayload = containsPhotos || hasMetadata(options);
   const metadata: ReportN8nMetadata = {
-    tachometerValue: options.tachometerValue,
-    tachometerMemos: options.tachometerMemos,
+    tachometer_value: options.tachometer_value,
+    tachometer_memos: options.tachometer_memos,
   };
 
   // If offline, go straight to queue

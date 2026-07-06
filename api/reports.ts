@@ -42,8 +42,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const validated = await parseReportRequest(await toWebRequest(req), session);
     const hasMultipartParts =
       validated.images.length > 0 ||
-      validated.tachometerValue !== undefined ||
-      validated.tachometerMemos !== undefined;
+      validated.tachometer_value !== undefined ||
+      validated.tachometer_memos !== undefined;
     const headers: Record<string, string> = {
       [n8nAuthHeader()]: webhookSecret,
     };
@@ -52,11 +52,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (hasMultipartParts) {
       const form = new FormData();
       form.append("report", JSON.stringify(validated.report));
-      if (validated.tachometerValue !== undefined) {
-        form.append("tachometerValue", validated.tachometerValue);
+      if (validated.tachometer_value !== undefined) {
+        form.append("tachometer_value", validated.tachometer_value);
       }
-      if (validated.tachometerMemos !== undefined) {
-        form.append("tachometerMemos", JSON.stringify(validated.tachometerMemos));
+      if (validated.tachometer_memos !== undefined) {
+        form.append("tachometer_memos", JSON.stringify(validated.tachometer_memos));
       }
       validated.images.forEach((image) => {
         form.append("images", image.blob, image.fileName);

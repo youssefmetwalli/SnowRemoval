@@ -47,9 +47,32 @@ export interface ReportPostData {
   field_tachometerImageUrls?: string[] | null;
 }
 
+export interface ReportPayload {
+  worker_id: string[];
+  vehicle_id: string[];
+  customer_id: string[];
+  end_at: string;
+  work_type_id: string[];
+  work_date: string;
+  work_place_id: string[];
+  weather_id: string;
+  worker_name: string | null;
+  assistant_id: string[] | null;
+  assistant_name: string | null;
+  work_type_name: string | null;
+  vehicle_name: string | null;
+  work_place_name: string | null;
+  start_at: string;
+  company_name: string;
+  removal_amount: string | null;
+  tachometer_value?: string | null;
+  tachometer_memos?: string[] | null;
+  tachometer_image_urls?: string[] | null;
+}
+
 export interface ReportN8nMetadata {
-  tachometerValue?: string;
-  tachometerMemos?: string[];
+  tachometer_value?: string;
+  tachometer_memos?: string[];
 }
 
 export interface RouteGetData {

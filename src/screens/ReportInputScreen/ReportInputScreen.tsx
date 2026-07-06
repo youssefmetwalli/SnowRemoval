@@ -14,7 +14,7 @@ import {
   type TachometerPhoto,
 } from "../../components/reportUi/TachometerSection/TachometerSection";
 import { UserName } from "../../components/UserName";
-import type { ReportPostData } from "../../types/reportForm";
+import type { ReportPayload, ReportPostData } from "../../types/reportForm";
 import { postReportN8n } from "../../hook/postReportN8n";
 import { getCurrentUser } from "../../hook/getCurrentUser";
 import { ToastProvider, useToast } from "../../components/ui/toast";
@@ -142,28 +142,28 @@ const ReportInputScreenInner = (): JSX.Element => {
     return `${dateStr}T${timeStr}${tzOffset}`;
   };
 
-  const toJdbRecord = (v: ReportPostData): ReportPostData => {
+  const toJdbRecord = (v: ReportPostData): ReportPayload => {
     return {
-      field_workerId: toJdbRef(pickId(v.field_workerId)),
-      field_carId: toJdbRef(pickId(v.field_carId)),
-      field_CustomerId: toJdbRef(pickId(v.field_CustomerId)),
-      field_workClassId: toJdbRef(pickId(v.field_workClassId)),
-      field_workDate: toIsoDate(v.field_workDate),
-      field_workPlaceId: toJdbRef(pickId(v.field_workPlaceId)),
-      field_weather: v.field_weather,
-      field_workerName: nullIfEmpty(v.field_workerName) as string | null,
-      field_assistantId:
+      worker_id: toJdbRef(pickId(v.field_workerId)),
+      vehicle_id: toJdbRef(pickId(v.field_carId)),
+      customer_id: toJdbRef(pickId(v.field_CustomerId)),
+      work_type_id: toJdbRef(pickId(v.field_workClassId)),
+      work_date: toIsoDate(v.field_workDate),
+      work_place_id: toJdbRef(pickId(v.field_workPlaceId)),
+      weather_id: v.field_weather,
+      worker_name: nullIfEmpty(v.field_workerName) as string | null,
+      assistant_id:
         v.field_assistantId && v.field_assistantId.length
           ? toJdbRef(pickId(v.field_assistantId))
           : null,
-      field_assistantName: nullIfEmpty(v.field_assistantName) as string | null,
-      field_workClassName: nullIfEmpty(v.field_workClassName) as string | null,
-      field_carName: nullIfEmpty(v.field_carName) as string | null,
-      field_workPlaceName: nullIfEmpty(v.field_workPlaceName) as string | null,
-      field_startTime: toIsoDateTime(v.field_workDate, v.field_startTime),
-      field_endTime: toIsoDateTime(v.field_workDate, v.field_endTime),
-      field_CompanyName: v.field_CompanyName,
-      field_removalVolume:
+      assistant_name: nullIfEmpty(v.field_assistantName) as string | null,
+      work_type_name: nullIfEmpty(v.field_workClassName) as string | null,
+      vehicle_name: nullIfEmpty(v.field_carName) as string | null,
+      work_place_name: nullIfEmpty(v.field_workPlaceName) as string | null,
+      start_at: toIsoDateTime(v.field_workDate, v.field_startTime),
+      end_at: toIsoDateTime(v.field_workDate, v.field_endTime),
+      company_name: v.field_CompanyName,
+      removal_amount:
         values.field_removalVolume && Number(values.field_removalVolume) > 0
           ? String(values.field_removalVolume)
           : null,
@@ -203,8 +203,8 @@ const ReportInputScreenInner = (): JSX.Element => {
       const record = toJdbRecord(values);
       const result = await postReportN8n(record, {
         photos: tachometerPhotos,
-        tachometerValue,
-        tachometerMemos,
+        tachometer_value: tachometerValue,
+        tachometer_memos: tachometerMemos,
       });
 
       if (result.status === "queued") {

@@ -1,12 +1,12 @@
 import { useEffect, useCallback } from "react";
 import { postReportN8n } from "./postReportN8n";
-import type { ReportN8nMetadata, ReportPostData } from "../types/reportForm";
+import type { ReportN8nMetadata, ReportPayload } from "../types/reportForm";
 
 const QUEUE_KEY = "report_offline_queue";
 
 export interface QueuedRecord {
   id: string;
-  data: ReportPostData;
+  data: ReportPayload;
   metadata?: ReportN8nMetadata;
   savedAt: string;
 }
@@ -21,7 +21,7 @@ export const loadQueue = (): QueuedRecord[] => {
 };
 
 export const saveToQueue = (
-  data: ReportPostData,
+  data: ReportPayload,
   metadata?: ReportN8nMetadata
 ): QueuedRecord => {
   const queue = loadQueue();

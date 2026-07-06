@@ -23,8 +23,8 @@ export type ValidatedImage = {
 
 export type ValidatedReportRequest = {
   report: Record<string, unknown>;
-  tachometerValue?: string;
-  tachometerMemos?: string[];
+  tachometer_value?: string;
+  tachometer_memos?: string[];
   images: ValidatedImage[];
 };
 
@@ -67,23 +67,23 @@ const dateTime = (value: unknown, label: string, required = true) => {
 };
 
 const allowedReportFields = new Set([
-  "field_workerId",
-  "field_carId",
-  "field_CustomerId",
-  "field_endTime",
-  "field_workClassId",
-  "field_workDate",
-  "field_workPlaceId",
-  "field_weather",
-  "field_workerName",
-  "field_assistantId",
-  "field_assistantName",
-  "field_workClassName",
-  "field_carName",
-  "field_workPlaceName",
-  "field_startTime",
-  "field_CompanyName",
-  "field_removalVolume",
+  "worker_id",
+  "vehicle_id",
+  "customer_id",
+  "end_at",
+  "work_type_id",
+  "work_date",
+  "work_place_id",
+  "weather_id",
+  "worker_name",
+  "assistant_id",
+  "assistant_name",
+  "work_type_name",
+  "vehicle_name",
+  "work_place_name",
+  "start_at",
+  "company_name",
+  "removal_amount",
 ]);
 
 export const validateReport = (raw: unknown, session: SessionUser) => {
@@ -95,34 +95,34 @@ export const validateReport = (raw: unknown, session: SessionUser) => {
   if (unexpected.length) throw new Error("report contains unsupported fields.");
 
   return {
-    field_workerId: session.workerRef,
-    field_workerName: session.name,
-    field_carId: ref(source.field_carId, "car", true),
-    field_CustomerId: ref(source.field_CustomerId, "customer"),
-    field_endTime: dateTime(source.field_endTime, "end time"),
-    field_workClassId: ref(source.field_workClassId, "work class", true),
-    field_workDate: dateTime(source.field_workDate, "work date"),
-    field_workPlaceId: ref(source.field_workPlaceId, "work place"),
-    field_weather: text(source.field_weather, "weather", { required: true }),
-    field_assistantId:
-      source.field_assistantId === null
+    worker_id: session.workerRef,
+    worker_name: session.name,
+    vehicle_id: ref(source.vehicle_id, "vehicle", true),
+    customer_id: ref(source.customer_id, "customer"),
+    end_at: dateTime(source.end_at, "end time"),
+    work_type_id: ref(source.work_type_id, "work type", true),
+    work_date: dateTime(source.work_date, "work date"),
+    work_place_id: ref(source.work_place_id, "work place"),
+    weather_id: text(source.weather_id, "weather", { required: true }),
+    assistant_id:
+      source.assistant_id === null
         ? null
-        : ref(source.field_assistantId, "assistant"),
-    field_assistantName: text(source.field_assistantName, "assistant name", {
+        : ref(source.assistant_id, "assistant"),
+    assistant_name: text(source.assistant_name, "assistant name", {
       nullable: true,
     }),
-    field_workClassName: text(source.field_workClassName, "work class name", {
+    work_type_name: text(source.work_type_name, "work type name", {
       nullable: true,
     }),
-    field_carName: text(source.field_carName, "car name", { nullable: true }),
-    field_workPlaceName: text(source.field_workPlaceName, "work place name", {
+    vehicle_name: text(source.vehicle_name, "vehicle name", { nullable: true }),
+    work_place_name: text(source.work_place_name, "work place name", {
       nullable: true,
     }),
-    field_startTime: dateTime(source.field_startTime, "start time"),
-    field_CompanyName: text(source.field_CompanyName, "company name", {
+    start_at: dateTime(source.start_at, "start time"),
+    company_name: text(source.company_name, "company name", {
       required: false,
     }),
-    field_removalVolume: text(source.field_removalVolume, "removal volume", {
+    removal_amount: text(source.removal_amount, "removal amount", {
       nullable: true,
       max: 30,
     }),
@@ -175,10 +175,10 @@ const validateImage = async (
 
 const parseMemos = (value: unknown) => {
   if (value === null) return undefined;
-  if (typeof value !== "string") throw new Error("tachometerMemos must be JSON.");
+  if (typeof value !== "string") throw new Error("tachometer_memos must be JSON.");
   const parsed = JSON.parse(value) as unknown;
   if (!Array.isArray(parsed) || parsed.length > MAX_MEMOS) {
-    throw new Error("tachometerMemos must be a small text list.");
+    throw new Error("tachometer_memos must be a small text list.");
   }
   return parsed.map((memo) =>
     text(memo, "tachometer memo", { required: false, max: MAX_MEMO_LENGTH }) as string
@@ -214,13 +214,13 @@ export const parseReportRequest = async (
 
     return {
       report: validateReport(JSON.parse(report), session),
-      tachometerValue:
-        form.get("tachometerValue") === null
+      tachometer_value:
+        form.get("tachometer_value") === null
           ? undefined
-          : (text(form.get("tachometerValue"), "tachometer value", {
+          : (text(form.get("tachometer_value"), "tachometer value", {
               max: 40,
             }) as string),
-      tachometerMemos: parseMemos(form.get("tachometerMemos")),
+      tachometer_memos: parseMemos(form.get("tachometer_memos")),
       images: await Promise.all(
         rawImages.map((image, index) => validateImage(image, session.id, index))
       ),
