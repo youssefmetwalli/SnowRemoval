@@ -7,7 +7,7 @@ export const useReport = (userName?: string | undefined | null) => {
   const [isLoading, setLoading] = useState(true);
   const [isError, setError] = useState(false);
   const query = userName
-    ? `_field_workerName=${userName}`
+    ? `worker_name=${encodeURIComponent(userName)}`
     : "";
 
   useEffect(() => {
@@ -15,7 +15,7 @@ export const useReport = (userName?: string | undefined | null) => {
       try {
         // console.log("get送信");
         const res = await apiClient.get<ReportGetData[]>(
-          `table_1754551086/records/?limit=100&${query}`
+          `reports?limit=100${query ? `&${query}` : ""}`
         );
         setData(res);
       } catch (err) {

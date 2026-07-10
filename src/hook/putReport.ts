@@ -5,7 +5,7 @@ export const putReport = async (inputData: any, id: string) => {
   try {
     // console.log("put送信");
     const response = await apiClient.put<any>(
-      "table_1754551086/records/",
+      "reports",
       inputData,
       "field_dayReportId",
       id

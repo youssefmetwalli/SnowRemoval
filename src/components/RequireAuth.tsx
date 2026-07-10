@@ -1,15 +1,6 @@
 import { type ReactNode, useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import {
-  clearCurrentUser,
-  storeCurrentUser,
-  type CurrentUser,
-} from "../hook/getCurrentUser";
-
-type SessionResponse = {
-  ok: boolean;
-  user?: CurrentUser;
-};
+import { fetchCurrentUser } from "../hook/getCurrentUser";
 
 export const RequireAuth = ({ children }: { children: ReactNode }) => {
   const [state, setState] = useState<"loading" | "ready" | "missing">(
@@ -21,20 +12,9 @@ export const RequireAuth = ({ children }: { children: ReactNode }) => {
 
     (async () => {
       try {
-        const response = await fetch("/api/auth/session");
-        const data = (await response.json().catch(() => null)) as
-          | SessionResponse
-          | null;
-        if (!response.ok || !data?.ok || !data.user) {
-          clearCurrentUser();
-          if (active) setState("missing");
-          return;
-        }
-
-        storeCurrentUser(data.user);
-        if (active) setState("ready");
+        const user = await fetchCurrentUser();
+        if (active) setState(user ? "ready" : "missing");
       } catch {
-        clearCurrentUser();
         if (active) setState("missing");
       }
     })();

@@ -16,5 +16,17 @@ export default defineConfig(async ({ mode }) => {
         plugins: [tailwind()],
       },
     },
+    server: {
+      proxy: {
+        "/api/v1": {
+          target: "http://localhost:3000",
+          changeOrigin: true,
+        },
+        "/n8n": {
+          target: "http://localhost:5678",
+          changeOrigin: true,
+        },
+      },
+    },
   };
 });

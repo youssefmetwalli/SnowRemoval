@@ -15,7 +15,7 @@ export const getWorkClass = ()=>{
         try {
           // console.log("get送信");
           const data = await apiClient.get<WorkClassData[]>(
-            `table_1754541393/records/?limit=100&apiName=secondary`
+            "work-types?limit=100"
           );
           setData(data);
         } catch (err) {

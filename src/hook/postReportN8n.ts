@@ -28,6 +28,8 @@ type N8nWebhookResponse = {
   [key: string]: unknown;
 };
 
+const WEBHOOK_PATH = "/n8n/webhook/report-submit";
+
 const hasMetadata = (options?: PostReportN8nOptions) =>
   Boolean(
     options?.tachometer_value?.trim() ||
@@ -98,8 +100,9 @@ export const postReportN8n = async (
       ? buildFormData(inputData, options)
       : JSON.stringify(inputData);
 
-    const response = await fetch("/api/reports", {
+    const response = await fetch(WEBHOOK_PATH, {
       method: "POST",
+      credentials: "include",
       headers: containsMediaPayload
         ? undefined
         : { "Content-Type": "application/json" },

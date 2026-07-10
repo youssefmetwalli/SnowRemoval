@@ -8,7 +8,7 @@ export const useRoute = (userName: string|undefined)=>{
     const [isLoading, setLoading] = useState(true);
     const[isError, setError] = useState(false);
     const query = userName
-      ? `_field_workerName=${userName}`
+      ? `worker_name=${encodeURIComponent(userName)}`
       : "";
 
     useEffect(() => {
@@ -16,7 +16,7 @@ export const useRoute = (userName: string|undefined)=>{
         try {
           // console.log("get送信。ユーザー名:", userName);
           const data = await apiClient.get<RouteGetData[]>(
-            `table_1756952069/records/?limit=100&${query}`
+            `routes?limit=100${query ? `&${query}` : ""}`
           );
           setData(data);
         } catch (err) {
