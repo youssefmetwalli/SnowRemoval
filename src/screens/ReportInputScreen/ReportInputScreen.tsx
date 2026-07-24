@@ -188,7 +188,6 @@ const ReportInputScreenInner = (): JSX.Element => {
 
   const onInvalid = () => {
     setShowConfirmation(false);
-    console.log("Invalid!");
   };
 
   const clearTachometerPhotos = () => {

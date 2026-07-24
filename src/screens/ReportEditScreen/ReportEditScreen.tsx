@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation } from "react-router-dom";
 import { Alert, AlertDescription } from "../../components/ui/alert";
@@ -75,7 +75,7 @@ export const ReportEditScreen = (): JSX.Element => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { errors, isValid, isDirty },
     setValue,
     watch,
     reset,
@@ -84,10 +84,6 @@ export const ReportEditScreen = (): JSX.Element => {
     defaultValues: normalizeForForm(passed), // prefill from card click, or blank when none
     mode: "onSubmit",
   });
-
-  useEffect(() => {
-    reset(normalizeForForm(passed));
-  }, [passed, reset]);
 
   const [selectedLocationId, setSelectedLocationId] = useState<number | null>(
     () => {
@@ -105,24 +101,11 @@ export const ReportEditScreen = (): JSX.Element => {
 
   const values = watch();
 
-  // デバッグログを追加
-  // console.log("現在のフォーム値:", values);
-  // console.log("field_workerId:", values.field_workerId);
-  // console.log("field_carId:", values.field_carId);
-  // console.log("field_assistantId:", values.field_assistantId);
-  // console.log("isValid:", isValid);
-  // console.log("isDirty:", isDirty);
-  // console.log("field_assistantId:", values.field_assistantId);
-
   const toJdbRef = (val?: string | number | null): string[] => {
     if (val === undefined || val === null || val === "") return [];
     const s = String(val);
     return ["", s, "", s];
   };
-  // const first = (arr?: unknown) =>
-  //   Array.isArray(arr)
-  //     ? (arr[0] as string | undefined)
-  //     : (arr as string | undefined);
 
   const nullIfEmpty = (s: string | null | undefined) =>
     s && s.trim() !== "" ? s : null;
@@ -140,8 +123,6 @@ export const ReportEditScreen = (): JSX.Element => {
   };
 
   const toJdbRecord = (v: ReportPostData): ReportPostData => {
-    // console.log("toJdbRecord入力:", v);
-
     const result = {
       field_workerId: toJdbRef(pickId(v.field_workerId)),
       field_carId: toJdbRef(pickId(v.field_carId)),
@@ -168,7 +149,6 @@ export const ReportEditScreen = (): JSX.Element => {
           : null,
     };
 
-    // console.log("toJdbRecord出力:", result);
     return result;
   };
 
@@ -188,24 +168,19 @@ export const ReportEditScreen = (): JSX.Element => {
   }, [errors]);
 
   const onValid = () => setShowConfirmation(true);
-  const onInvalid = () => {
-    setShowConfirmation(false);
-    // console.log("Invalid!");
-  };
+  const onInvalid = () => setShowConfirmation(false);
 
   const handleConfirm = async () => {
     setIsSubmitting(true);
     const record = toJdbRecord(values);
     try {
-      // const record = toJdbRecord(values);
       await putReport(record, dayReportId);
       setShowConfirmation(false);
-      reset();
+      reset(values);
     } catch (error) {
       console.error("送信エラー:", error);
     } finally {
       setIsSubmitting(false);
-      // console.log("送信完了");
     }
   };
 
@@ -313,7 +288,7 @@ export const ReportEditScreen = (): JSX.Element => {
 
             <ActionButtonsSection
               isValid={isValid}
-              isDirty={true} //TODO 内容が変更されたらボタンが押せるように修正
+              isDirty={isDirty}
               isSubmitting={isSubmitting}
             />
           </form>

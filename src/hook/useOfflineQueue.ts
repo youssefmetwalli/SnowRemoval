@@ -42,7 +42,8 @@ const removeFromQueue = (id: string) => {
 
 export const useOfflineQueue = (
   onSuccess?: (record: QueuedRecord) => void,
-  onRetrying?: (count: number) => void
+  onRetrying?: (count: number) => void,
+  onError?: (record: QueuedRecord, error: unknown) => void
 ) => {
   const flushQueue = useCallback(async () => {
     const queue = loadQueue();
@@ -58,10 +59,12 @@ export const useOfflineQueue = (
         });
         removeFromQueue(record.id);
         onSuccess?.(record);
-      } catch {
+      } catch (err) {
+        console.warn("offline queue send failed, will retry later:", err);
+        onError?.(record, err);
       }
     }
-  }, [onSuccess, onRetrying]);
+  }, [onSuccess, onRetrying, onError]);
 
   useEffect(() => {
     if (navigator.onLine) {

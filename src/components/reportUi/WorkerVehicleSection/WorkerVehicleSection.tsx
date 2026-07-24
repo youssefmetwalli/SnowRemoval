@@ -46,19 +46,6 @@ export const WorkerVehicleSection = ({
     maker: carData.field_2001820018 ?? "未設定",
   }));
 
-  // // 初期の主担当の入力値をログイン中のユーザーにする
-  // useEffect(()=>{
-  //   setValue("field_workerName", name ?? "", { shouldValidate: true });
-  //   setValue("field_workerId", userId ?? [""], {
-  //     shouldValidate: true,
-  //   });
-  // },[]);
-
-  // デバッグログを追加
-  // console.log("取得したworkers:", workers);
-  // console.log("取得したcars:", cars);
-  // console.log("現在のvalues:", values);
-
   return (
     <Card className="w-full bg-white rounded-xl border border-slate-200 shadow-[0px_1px_3px_#0000001a]">
       <CardContent className="p-5 space-y-4">
@@ -75,14 +62,7 @@ export const WorkerVehicleSection = ({
           <Select
             value={values.field_workerName ?? ""}
             onValueChange={(v) => {
-              // name
               const w = workers?.find((worker) => worker.name === v);
-
-              // デバッグログを追加
-              // console.log("選択されたworker:", w);
-              // console.log("w?.id:", w?.id);
-              // console.log("w?.name:", w?.name);
-
               setValue("field_workerName", v ?? "", { shouldValidate: true });
               setValue("field_workerId", w?.id ?? [""], {
                 shouldValidate: true,
@@ -119,11 +99,6 @@ export const WorkerVehicleSection = ({
             value={values.field_assistantName ?? ""}
             onValueChange={(v) => {
               const w = workers?.find((worker) => worker.name === v);
-
-              // デバッグログを追加
-              // console.log("選択されたassistant:", w);
-              // console.log("assistant w?.id:", w?.id);
-
               setValue("field_assistantName", v || null);
               setValue("field_assistantId", w?.id ?? null, {
                 shouldValidate: true,
