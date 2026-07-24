@@ -44,6 +44,15 @@ const ReportInputScreenInner = (): JSX.Element => {
         title: "再送信中...",
         description: `未送信の日報が ${count} 件あります。送信を試みています。`,
       });
+    },
+    (record, error) => {
+      const message =
+        error instanceof Error ? error.message : "サーバーエラーが発生しました";
+      toast({
+        title: "オフライン日報の送信に失敗",
+        description: `保存日時 ${new Date(record.savedAt).toLocaleString("ja-JP")} の日報を再送信できませんでした。次回オンライン時に再試行します。（${message}）`,
+        variant: "destructive",
+      });
     }
   );
 

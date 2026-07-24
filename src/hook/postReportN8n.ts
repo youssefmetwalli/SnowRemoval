@@ -1,5 +1,10 @@
 import type { ReportN8nMetadata, ReportPostData } from "../types/reportForm";
 import { saveToQueue } from "./useOfflineQueue";
+import { resizeImage } from "../lib/resizeImage";
+
+const MAX_RETRIES = 3;
+const BASE_BACKOFF_MS = 500;
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export type PostResult =
   | {
@@ -101,7 +106,7 @@ const hasMetadata = (options?: PostReportN8nOptions) =>
 const hasPhotos = (options?: PostReportN8nOptions) =>
   Boolean(options?.photos?.length);
 
-const buildFormData = (
+const buildFormData = async (
   inputData: ReportPostData,
   options: PostReportN8nOptions
 ) => {
@@ -118,7 +123,13 @@ const buildFormData = (
     formData.append("tachometer_notes", JSON.stringify(options.tachometerMemos));
   }
 
-  options.photos?.forEach((photo) => {
+  const photos = options.photos ?? [];
+  const resized = await Promise.all(
+    photos.map(async (photo) => ({
+      file: await resizeImage(photo.file),
+    }))
+  );
+  resized.forEach((photo) => {
     formData.append("images", photo.file, photo.file.name);
   });
 
@@ -164,23 +175,44 @@ export const postReportN8n = async (
     let headers: HeadersInit | undefined = undefined;
 
     if (containsMediaPayload) {
-      body = buildFormData(inputData, options);
+      body = await buildFormData(inputData, options);
     } else {
       const transformed = transformToSnakeCase(inputData, options);
       body = JSON.stringify(transformed);
       headers = { "Content-Type": "application/json" };
     }
 
-    const response = await fetch("/n8n/webhook/report-submit", {
-      method: "POST",
-      credentials: "include",
-      headers,
-      body,
-    });
+    let response: Response | null = null;
+    let lastServerError: Error | null = null;
 
-    if (!response.ok) {
-      const errorText = await response.text().catch(() => "不明なエラー");
-      throw new Error(`送信に失敗しました (${response.status}): ${errorText}`);
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+      response = await fetch("/n8n/webhook/report-submit", {
+        method: "POST",
+        credentials: "include",
+        headers,
+        body,
+      });
+
+      if (response.ok) break;
+
+      // 4xx はリトライしない (バリデーションエラー等)
+      if (response.status < 500) {
+        const errorText = await response.text().catch(() => "不明なエラー");
+        throw new Error(`送信に失敗しました (${response.status}): ${errorText}`);
+      }
+
+      const errorText = await response.text().catch(() => "サーバーエラー");
+      lastServerError = new Error(
+        `送信に失敗しました (${response.status}): ${errorText}`
+      );
+
+      if (attempt < MAX_RETRIES) {
+        await sleep(BASE_BACKOFF_MS * Math.pow(2, attempt - 1));
+      }
+    }
+
+    if (!response || !response.ok) {
+      throw lastServerError ?? new Error("n8n webhook 送信に失敗しました");
     }
 
     const n8nResponse = await parseN8nResponse(response);
