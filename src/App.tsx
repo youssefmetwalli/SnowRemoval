@@ -6,6 +6,7 @@ import { ReportInputScreen } from "./screens/ReportInputScreen/ReportInputScreen
 import { ReportListScreen } from "./screens/ReportListScreen/ReportListScreen";
 import { ReportEditScreen } from "./screens/ReportEditScreen/ReportEditScreen";
 import { RequireAuth } from "./components/RequireAuth";
+import { InstallPrompt } from "./components/InstallPrompt";
 
 const router = createBrowserRouter([
   {
@@ -48,5 +49,10 @@ const router = createBrowserRouter([
 ]);
 
 export const App = () => {
-  return <RouterProvider router={router} />;
+  return (
+    <>
+      <RouterProvider router={router} />
+      <InstallPrompt />
+    </>
+  );
 };
